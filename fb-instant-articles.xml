@@ -1,0 +1,1896 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title></title>
+    <link>//andrius.mobi</link>
+    <description>
+      Realtime voice applications. Notes about Unified Communications, CTI, call-centers; open-source VoIP (Asterisk, Freeswitch, Kamailio); with test automation, and scaled container (docker) apps.
+    </description>
+    
+        
+            <item>
+                <title>Properly terminate crystal-lang service in docker</title>
+                <link>//andrius.mobi/2019/11/proxperly-terminate-crystal-lang-service-in-docker.html</link>
+                <content:encoded>
+                    <![CDATA[
+                    <p>Production-ready crystal application in docker must process correctly several
+signals to shutdown properly. There is two commands in docker can be used to stop running container: <code class="highlighter-rouge">docker stop</code> and <code class="highlighter-rouge">docker kill</code>. First one, <code class="highlighter-rouge">docker stop</code> stops a running container by sending it SIGTERM signal, let the main process process it, and after a grace period uses SIGKILL to terminate the application.</p>
+
+<p>In this article I’ll show how to process SIGING (Ctrl-C), SIGTERM and SIGKILL with Crystal-lang.</p>
+
+<h2 id="download">Download</h2>
+
+<p>It’s a part of my sandbox repository, <a href="https://github.com/andrius/sandbox/tree/develop/crystal/signal_trap">download it here</a>.</p>
+
+<p>Not familiar with crystal-lang? <a href="https://github.com/andrius/sandbox/blob/develop/crystal-signal-trap/src/signal_trap.cr">This is the main file with business logic</a>.</p>
+
+<h2 id="installation">Installation</h2>
+
+<p>Everything is dockerised, just get docker installed and download git repository.</p>
+
+<h2 id="usage">Usage</h2>
+
+<p>For development-mode application run this:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>docker build <span class="nt">--pull</span> <span class="nt">--force-rm</span> <span class="se">\</span>
+  <span class="nt">-t</span> crystal-signal-trap <span class="se">\</span>
+  <span class="nt">--file</span> ./Dockerfile <span class="nb">.</span> <span class="se">\</span>
+<span class="o">&amp;&amp;</span> docker run <span class="nt">-ti</span> <span class="nt">--rm</span> <span class="nt">--name</span><span class="o">=</span><span class="nb">trap </span>crystal-signal-trap
+</code></pre></div></div>
+
+<p>But most important is to get signals trap working in production-ready docker,
+which is scratch, busybox or alpine-based. To test it, run following snippet:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>docker build <span class="nt">--pull</span> <span class="nt">--force-rm</span> <span class="se">\</span>
+  <span class="nt">-t</span> crystal-signal-trap <span class="se">\</span>
+  <span class="nt">--file</span> ./Dockerfile-production <span class="nb">.</span> <span class="se">\</span>
+<span class="o">&amp;&amp;</span> docker run <span class="nt">-ti</span> <span class="nt">--rm</span> <span class="nt">--name</span><span class="o">=</span><span class="nb">trap </span>crystal-signal-trap
+</code></pre></div></div>
+
+<h2 id="demo">Demo</h2>
+
+<p><a href="https://asciinema.org/a/eIFSoH00QsLKpsfyypsL0i6cr"><img src="https://asciinema.org/a/eIFSoH00QsLKpsfyypsL0i6cr.svg" alt="asciicast" /></a></p>
+
+<h2 id="i-want-to-process-signals-separately">I want to process signals separately!</h2>
+
+<p>Instead of grouping signals trap as it’s <a href="https://github.com/andrius/sandbox/blob/develop/crystal/signal_trap/src/signal_trap.cr#L9-L16">made in the demo app</a>, it is possible just to process any of them:</p>
+
+<div class="language-crystal highlighter-rouge"><div class="highlight"><pre class="highlight"><code> <span class="no">Signal</span><span class="o">::</span><span class="no">INT</span><span class="p">.</span><span class="nf">trap</span> <span class="k">do</span>
+   <span class="c1"># Processing SIGING</span>
+ <span class="k">end</span>
+</code></pre></div></div>
+
+<h2 id="more-signals">More signals?</h2>
+
+<p>It is possible to send other signals with docker:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>docker <span class="nb">kill</span> <span class="nt">--signal</span><span class="o">=</span>SIGHUP  my_container
+</code></pre></div></div>
+
+<p>In this case, Crystal-lang app shall catch that signal: <code class="highlighter-rouge">Signal::INT.trap { ... }</code>. Here is the <a href="https://crystal-lang.org/api/latest/Signal.html">list of known by Crystal-lang signals</a>.</p>
+
+<hr />
+
+<p>References:</p>
+
+<ul>
+  <li><a href="https://docs.docker.com/engine/reference/commandline/kill">docker kill command syntax</a>;</li>
+  <li><a href="https://docs.docker.com/engine/reference/commandline/stop">docker stop command syntax</a>;</li>
+  <li><a href="https://medium.com/@gchudnov/trapping-signals-in-docker-containers-7a57fdda7d86">Trapping signals in Docker containers</a>.</li>
+</ul>
+
+                    ]]>
+                </content:encoded>
+                <guid isPermaLink="false">/2019/11/proxperly-terminate-crystal-lang-service-in-docker.html</guid>
+                <description>
+                    
+                </description>
+                <pubDate>Sun, 03 Nov 2019 00:00:00 -0500</pubDate>
+                <author>Andrius Kairiukstis</author>
+            </item>
+        
+    
+        
+            <item>
+                <title>Create the smallest Crystal-lang docker image based on scratch</title>
+                <link>//andrius.mobi/2019/10/Create-the-smallest-Crystal-lang-docker-image-based-on-scratch.html</link>
+                <content:encoded>
+                    <![CDATA[
+                    <p>Official <a href="https://hub.docker.com/r/crystallang/crystal/tags">Crystal-lang docker image</a> is Ubuntu-based and relatively big, but production-ready image could be tiny, if we will use docker multi-stage builds. The smallest image could be created using <a href="https://hub.docker.com/_/scratch">scratch</a> image, but if it’s needed to do some processing before actual code starts, <a href="https://hub.docker.com/_/busybox">busybox</a> or <a href="https://hub.docker.com/_/alpine">alpine</a> is recommended.</p>
+
+<h2 id="dockerfile">Dockerfile</h2>
+
+<p>Well, just compile app using crystal image and copy resulting binary to the scratch, like below:</p>
+
+<div class="language-docker highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># vim:set ft=dockerfile:</span>
+<span class="k">FROM</span><span class="s"> crystallang/crystal:0.31.1 as builder</span>
+
+<span class="k">LABEL</span><span class="s"> maintainer="Andrius Kairiukstis &lt;****&gt;"</span>
+
+<span class="k">WORKDIR</span><span class="s"> /src</span>
+<span class="k">COPY</span><span class="s"> . .</span>
+
+<span class="k">RUN </span>shards build <span class="nt">--production</span> <span class="nt">--progress</span> <span class="nt">--verbose</span> <span class="nt">--warnings</span><span class="o">=</span>all
+<span class="k">RUN </span>ldd ./bin/app | <span class="nb">tr</span> <span class="nt">-s</span> <span class="s1">'[:blank:]'</span> <span class="s1">'\n'</span> | <span class="nb">grep</span> <span class="s1">'^/'</span> | <span class="se">\
+</span>    xargs <span class="nt">-I</span> % sh <span class="nt">-c</span> <span class="s1">'mkdir -p $(dirname deps%); cp % deps%;'</span>
+<span class="c"># RUN find ./deps/</span>
+
+<span class="c">################################################################################</span>
+<span class="k">FROM</span><span class="s"> scratch</span>
+
+<span class="k">LABEL</span><span class="s"> maintainer="Andrius Kairiukstis &lt;****&gt;"</span>
+
+<span class="c"># Dependences. That will fix DNS resolve issue in docker</span>
+<span class="k">COPY</span><span class="s"> --from=builder /src/deps /</span>
+<span class="k">COPY</span><span class="s"> --from=builder /lib/x86_64-linux-gnu/libnss_dns.so.* /lib/x86_64-linux-gnu/</span>
+<span class="k">COPY</span><span class="s"> --from=builder /lib/x86_64-linux-gnu/libresolv.so.*  /lib/x86_64-linux-gnu/</span>
+
+<span class="c"># app</span>
+<span class="k">COPY</span><span class="s"> --from=builder /src/bin/app /app</span>
+
+<span class="k">ENTRYPOINT</span><span class="s"> ["/app"]</span>
+</code></pre></div></div>
+
+<h2 id="crystal-lang-notes">Crystal-lang notes</h2>
+
+<p>There is issues with DNS – see this <a href="https://github.com/crystal-lang/crystal/issues/2426">https://github.com/crystal-lang/crystal/issues/2426</a> and <a href="https://github.com/crystal-lang/crystal/issues/6099">https://github.com/crystal-lang/crystal/issues/6099</a>. The best way to resolve I’ve found is to <a href="https://gist.github.com/bcardiff/85ae47e66ff0df35a78697508fcb49af#gistcomment-2578255">copy libnss and libresolv files</a>.</p>
+
+<p>I’ve also tried to compile with <code class="highlighter-rouge">--static</code> option, copying (and not) the DNS libraries (<code class="highlighter-rouge">libnss_dns.so</code> and <code class="highlighter-rouge">libresolv.so</code>), but did not get DNS working – that image is good only for listening services.</p>
+
+<h2 id="result">Result</h2>
+
+<p>Resulting image is tiny, only 10MB (and the smallest one is 6.25MB only, but DNS won’t working)</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ docker image list dial_demo
+
+# REPOSITORY             TAG                    IMAGE ID      CREATED         SIZE
+# smallest-docker-image  scratch-ldd            d819bf2a43f3  21 minutes ago  10MB
+# smallest-docker-image  scratch-static-no-dns  595afcfad6f0  13 minutes ago  6.25MB
+</code></pre></div></div>
+
+<h2 id="can-i-download-this">Can I download this?</h2>
+
+<p>Sure. <a href="https://github.com/andrius/sandbox/tree/develop/crystal/smallest-docker-image">I’ve pushed stuff to my sandbox repository</a>. There is three Dockerfiles, for <a href="https://github.com/andrius/sandbox/tree/develop/crystal/smallest-docker-image/scratch/ldd">scratch</a> – 10MB, <a href="https://github.com/andrius/sandbox/tree/develop/crystal/smallest-docker-image/busybox/ldd">busybox</a> – 11.2MB and <a href="https://github.com/andrius/sandbox/tree/develop/crystal/smallest-docker-image/alpine/ldd">alpine linux</a> – 15.6MB.</p>
+
+<hr />
+
+                    ]]>
+                </content:encoded>
+                <guid isPermaLink="false">/2019/10/Create-the-smallest-Crystal-lang-docker-image-based-on-scratch.html</guid>
+                <description>
+                    
+                </description>
+                <pubDate>Fri, 25 Oct 2019 00:00:00 -0500</pubDate>
+                <author>Andrius Kairiukstis</author>
+            </item>
+        
+    
+        
+            <item>
+                <title>All-in-one (Crystal-lang library that handle all the Asterisk PBX interfaces)</title>
+                <link>//andrius.mobi/2019/10/all-in-one-asterisk-with-crysyal.html</link>
+                <content:encoded>
+                    <![CDATA[
+                    <p>I’ve created and open-sourced a Crystal-lang shard (library) that handle all the Asterisk PBX interfaces (ARI, AMI and all types of AGI). Get it here: <a href="https://github.com/ctiapps/asterisk">https://github.com/ctiapps/asterisk</a>.</p>
+
+<h2 id="another-library">Another library?</h2>
+
+<p>There were no <a href="https://crystalshards.xyz/?filter=voip">libraries for VoIP</a> with Crystal-lang so I’ve created my own.</p>
+
+<p>Working on recent project we had a need to deal with AMI and ARI together, with a lot of async processing. Initial code were Ruby-based, but there it only single Ruby-gem for ARI and async support in Ruby is not the best one.</p>
+
+<p>I really love <a href="https://crystal-lang.org">Crystal-lang</a>. It’s inspired by Ruby and I had no issues switching to it (however it is not Ruby, only syntax is more or less shared). It is fast, really fast, no lags, no delays! It compiles and resulting code is tiny, docker image with all the stuff packed-in is around 20MB in size. Before making decision I also have tried Elixir. Golang might be also an option, but after Ruby I don’t want to leave comfort zone ;)</p>
+
+<h2 id="whats-in-a-box">What’s in a box?</h2>
+
+<ul>
+  <li>All the interfaces ARI, AMI, AGI, FastAGI and AsyncAGI;</li>
+  <li><a href="https://github.com/ctiapps/asterisk/tree/develop/spec">Test specs using live Asterisk PBX (in a Docker)</a>. Specs also demonstrate how to use library, but more documentation is coming;</li>
+  <li><a href="https://asterisk.ctiapps.pro">Documentation</a>.</li>
+</ul>
+
+<h2 id="further-plans">Further plans</h2>
+
+<p>First of all, the library will be continuously supported. I hope, community members will join to help me;</p>
+
+<p>Documentation site with examples;</p>
+
+<p>Considering to add Freeswitch support too;</p>
+
+<hr />
+
+                    ]]>
+                </content:encoded>
+                <guid isPermaLink="false">/2019/10/all-in-one-asterisk-with-crysyal.html</guid>
+                <description>
+                    
+                </description>
+                <pubDate>Wed, 23 Oct 2019 00:00:00 -0500</pubDate>
+                <author>Andrius Kairiukstis</author>
+            </item>
+        
+    
+        
+            <item>
+                <title>How to install software on firewalled server</title>
+                <link>//andrius.mobi/2018/12/how-to-install-software-on-firewalled-server.html</link>
+                <content:encoded>
+                    <![CDATA[
+                    <p>Quick answer: Reverse SSH proxy. Create dynamic tunnel: <code class="highlighter-rouge">ssh -D 51010 localhost</code>, ssh to the remote machine: <code class="highlighter-rouge">ssh -R 51010:127.0.0.1:51010 firewalled-server</code> and install the software using proxychains command.</p>
+
+<h2 id="preparation">Preparation</h2>
+
+<ul>
+  <li>At host machine open terminal and SSH to self, in order to create dynamic tunnel:
+    <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ssh <span class="nt">-D</span> 51010 localhost
+</code></pre></div>    </div>
+  </li>
+  <li>
+    <p>Now in new termial tab, SSH to the remote machine <sup id="fnref:1"><a href="#fn:1" class="footnote">1</a></sup>:</p>
+
+    <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ssh <span class="nt">-R</span> 51010:127.0.0.1:51010 firewalled-server
+</code></pre></div>    </div>
+  </li>
+  <li>
+    <p>Check that everything works fine (I assume that curl is already installed):</p>
+
+    <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">ALL_PROXY</span><span class="o">=</span><span class="s2">"socks5://127.0.0.1:51010"</span> curl ifconfig.co
+<span class="nv">ALL_PROXY</span><span class="o">=</span><span class="s2">"socks5h://127.0.0.1:51010"</span> curl ifconfig.co
+</code></pre></div>    </div>
+  </li>
+</ul>
+
+<p>If both commands was failed, check sshd settings on the firewalled server (does port forwarding enabled etc.), and if only the first command failed <sup id="fnref:2"><a href="#fn:2" class="footnote">2</a></sup>, then it looks that DNS resolution also firewalled</p>
+
+<p>Almost ready!</p>
+
+<h2 id="installing-packages">Installing packages</h2>
+
+<p>There is two options available:</p>
+
+<ul>
+  <li>
+    <p>“socksify” apt-get through proxychains <sup id="fnref:3"><a href="#fn:3" class="footnote">3</a></sup>:</p>
+
+    <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>proxychains4 <span class="nt">-q</span> <span class="nt">-f</span> /home/user/.proxychains/proxychains.conf <span class="se">\</span>
+apt-get <span class="nt">-yqq</span> <span class="nb">install </span>ngrep sngrep
+</code></pre></div>    </div>
+  </li>
+  <li>
+    <p>Or by creating entry in apt.conf file <sup id="fnref:4"><a href="#fn:4" class="footnote">4</a></sup>:</p>
+
+    <p>Describe proxy in <code class="highlighter-rouge">apt.conf</code></p>
+
+    <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">echo</span> <span class="s1">'Acquire::socks::Proxy "socks5h://127.0.0.1:51010/";'</span> <span class="se">\</span>
+<span class="o">&gt;&gt;</span> /etc/apt/apt.conf
+</code></pre></div>    </div>
+
+    <p>and then install packages with apt-get:</p>
+
+    <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>apt-get <span class="nt">-yqq</span> <span class="nb">install </span>ngrep sngrep
+</code></pre></div>    </div>
+
+    <p>(Don’t forget to comment out or remove proxy directive in apt.conf after installation)</p>
+  </li>
+</ul>
+
+<hr />
+
+<div class="footnotes">
+  <ol>
+    <li id="fn:1">
+      <p>Possible issues with <code class="highlighter-rouge">ssh -R</code>: <a href="https://serverfault.com/questions/595323/ssh-remote-port-forwarding-failed">https://serverfault.com/questions/595323/ssh-remote-port-forwarding-failed</a>; <a href="#fnref:1" class="reversefootnote">&#8617;</a></p>
+    </li>
+    <li id="fn:2">
+      <p>Check <a href="https://unix.stackexchange.com/questions/175888/curl-7-27-any-proxy-set-curl-does-not-resolve-the-hostname-via-proxy">https://unix.stackexchange.com/questions/175888/curl-7-27-any-proxy-set-curl-does-not-resolve-the-hostname-via-proxy</a>; <a href="#fnref:2" class="reversefootnote">&#8617;</a></p>
+    </li>
+    <li id="fn:3">
+      <p>How to get proxychains on remote host: there is few dependencies for proxychains4: <a href="https://packages.debian.org/buster/proxychains4">https://packages.debian.org/buster/proxychains4</a>, if command is not installed, there is always an option just to <code class="highlighter-rouge">scp</code> necessary files and install them manually. <a href="#fnref:3" class="reversefootnote">&#8617;</a></p>
+    </li>
+    <li id="fn:4">
+      <p>More options: <a href="https://askubuntu.com/questions/35223/syntax-for-socks-proxy-in-apt-conf">https://askubuntu.com/questions/35223/syntax-for-socks-proxy-in-apt-conf</a>. <a href="#fnref:4" class="reversefootnote">&#8617;</a></p>
+    </li>
+  </ol>
+</div>
+
+                    ]]>
+                </content:encoded>
+                <guid isPermaLink="false">/2018/12/how-to-install-software-on-firewalled-server.html</guid>
+                <description>
+                    
+                </description>
+                <pubDate>Thu, 27 Dec 2018 00:00:00 -0600</pubDate>
+                <author>Andrius Kairiukstis</author>
+            </item>
+        
+    
+        
+            <item>
+                <title>Digital Ocean, Floating IP and VoIP</title>
+                <link>//andrius.mobi/2018/12/digital-ocean-floating-ip-and-voip.html</link>
+                <content:encoded>
+                    <![CDATA[
+                    <p>Digital Ocean (<a href="https://m.do.co/c/492078597684">here is an referral link, claim your $100 credit</a>) were introduced <a href="https://www.digitalocean.com/docs/networking/floating-ips/overview/">floating IP</a> in the 2015, but I never use it with VoIP. Time to fix it.</p>
+
+<p>(Dear hackers, at the moment of publishing all the IP addresses releases and data vanished)</p>
+<h2 id="droplet-and-floating-ip">Droplet and floating IP</h2>
+<p>Floating IP 206.189.246.114 pointed in the Digital Ocean console to the newly created droplet with Debian linux. IP addresses of test droplet:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>root@test:~# /sbin/ifconfig | <span class="nb">grep</span> <span class="nt">-B</span> 1 <span class="s1">'inet '</span>
+
+eth0: <span class="nv">flags</span><span class="o">=</span>4163&lt;UP,BROADCAST,RUNNING,MULTICAST&gt;  mtu 1500
+        inet 206.189.20.174  netmask 255.255.240.0  broadcast 206.189.31.255
+<span class="nt">--</span>
+eth0:1: <span class="nv">flags</span><span class="o">=</span>4163&lt;UP,BROADCAST,RUNNING,MULTICAST&gt;  mtu 1500
+        inet 10.16.0.5  netmask 255.255.0.0  broadcast 10.16.255.255
+</code></pre></div></div>
+<h2 id="sip-configuration">SIP configuration</h2>
+<p>For test purpose I’ve installed Asterisk from the OS repository (<code class="highlighter-rouge">apt-get install -yqq asterisk</code>) and configured  SIP client to register on 206.189.246.114. No luck as expected, SIP packets does not flowing properly:</p>
+
+<p><img src="/images/floating-ip/1-failure.png" alt="/images/floating-ip/1-failure.png" /></p>
+
+<p>Okay, lets try to update sip.conf with following. It’s typical setup for asterisk behind NAT (there is description notes in default sip.conf about externip, externhost and externaddr)</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>externip=206.189.246.114
+nat=force_rport,comedia
+</code></pre></div></div>
+
+<p>And get random results, but in most of cases SIP registration did not worked.</p>
+
+<p><img src="/images/floating-ip/2-ok-but.png" alt="/images/floating-ip/2-ok-but.png" /></p>
+
+<p>After quick investigation (why there is 3rd IP in the SIP dump), I decided to change SIP bind address to the private IP:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>udpbindaddr=10.16.0.5
+tcpenable=yes
+tcpbindaddr=10.16.0.5
+; ...
+externip=206.189.246.114
+nat=force_rport,comedia
+</code></pre></div></div>
+
+<p>Now all right</p>
+
+<p><img src="/images/floating-ip/3-ok.png" alt="/images/floating-ip/3-ok.png" /></p>
+
+<p>Calls also working</p>
+
+<p><img src="/images/floating-ip/4-call-ok.png" alt="/images/floating-ip/4-call-ok.png" /></p>
+<h2 id="docker-setup">Docker setup</h2>
+<p>Let’s try to get the same result with docker.</p>
+
+<p>It works if asterisk can bind to the same private IP address where floating IP points, but requires to run container with <code class="highlighter-rouge">--net=host</code> option:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>docker run <span class="nt">-ti</span> <span class="nt">--rm</span> <span class="se">\</span>
+  <span class="nt">--net</span><span class="o">=</span>host <span class="se">\</span>
+  <span class="nt">--name</span> asterisk <span class="se">\</span>
+  <span class="nt">-v</span> /etc/asterisk/sip.conf:/etc/asterisk/sip.conf <span class="se">\</span>
+  andrius/asterisk <span class="se">\</span>
+  asterisk <span class="nt">-vvvddddc</span>
+</code></pre></div></div>
+
+<p>Technically that’s enough for most of use cases, but such Asterisk won’t fit well into development environment with docker-compose; other containers won’t “see” it. I’ll be digging this little bit more. Perhaps if I would pass NET_ADMIN capability or will start container in privileged mode, I would be able to do necessary trick with iptables.</p>
+
+                    ]]>
+                </content:encoded>
+                <guid isPermaLink="false">/2018/12/digital-ocean-floating-ip-and-voip.html</guid>
+                <description>
+                    
+                </description>
+                <pubDate>Tue, 18 Dec 2018 00:00:00 -0600</pubDate>
+                <author>Andrius Kairiukstis</author>
+            </item>
+        
+    
+        
+            <item>
+                <title>Tiny docker image with ngrok</title>
+                <link>//andrius.mobi/2018/12/tiny-docker-image-with-ngrok.html</link>
+                <content:encoded>
+                    <![CDATA[
+                    <p>I’ve found an excellent tiny Docker image for ngrok (wernight/ngrok). From now just using it to handle this blog.</p>
+
+<p>Links at <a href="https://hub.docker.com/r/wernight/ngrok">Docker hub</a> and <a href="https://hub.docker.com/r/wernight/ngrok">Github</a>.</p>
+
+<p>Some handy snippets. Note, it’s possible to use docker-compose commands, i.e. to check tunnels <code class="highlighter-rouge">curl $(docker-compose port ngrok 4040)/api/tunnels</code>, but I’m using <code class="highlighter-rouge">$(docker ps -l -q --filter "name=blog_ngrok")</code> statement to identify container ID, as it works with both docker-compose “up” and “run” modes and with docker without using docker-compose.</p>
+
+<ul>
+  <li>Logs</li>
+</ul>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">BLOG</span><span class="o">=</span><span class="si">$(</span>docker ps <span class="nt">-l</span> <span class="nt">-q</span> <span class="nt">--filter</span> <span class="s2">"name=blog_ngrok"</span><span class="si">)</span>
+docker logs <span class="nt">-f</span> <span class="nv">$BLOG</span>
+</code></pre></div></div>
+
+<ul>
+  <li>Check open ngrok tunnels</li>
+</ul>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">BLOG</span><span class="o">=</span><span class="si">$(</span>docker ps <span class="nt">-l</span> <span class="nt">-q</span> <span class="nt">--filter</span> <span class="s2">"name=blog_ngrok"</span><span class="si">)</span>
+curl <span class="si">$(</span>docker port <span class="nv">$BLOG</span> 4040<span class="si">)</span>/api/tunnels
+</code></pre></div></div>
+
+<ul>
+  <li>Open browser window with ngrok http console</li>
+</ul>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">BLOG</span><span class="o">=</span><span class="si">$(</span>docker ps <span class="nt">-l</span> <span class="nt">-q</span> <span class="nt">--filter</span> <span class="s2">"name=blog_ngrok"</span><span class="si">)</span>
+open http://<span class="si">$(</span>docker port <span class="nv">$BLOG</span> 4040<span class="si">)</span>
+</code></pre></div></div>
+
+<p>It is how docker-compose file looks like for this Jekyll site:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>version: '3'
+
+volumes:
+  ruby-cache:
+    driver: local
+
+services:
+  build:
+    image: jekyll/jekyll
+    volumes:
+      - ruby-cache:/usr/local/bundle
+      - ./:/srv/jekyll
+    command: jekyll build
+
+  jekyll:
+    image: jekyll/jekyll
+    volumes:
+      - ruby-cache:/usr/local/bundle
+      - ./:/srv/jekyll
+    command: jekyll serve --incremental --watch
+    ports:
+      - 127.0.0.1:4000:4000
+
+  ngrok:
+    image: wernight/ngrok
+    links:
+      - jekyll
+    stdin_open: true
+    tty: true
+    ports:
+      - 127.0.0.1:4040:4040
+    environment:
+      - NGROK_REGION=eu
+      - NGROK_AUTH=...
+      - NGROK_SUBDOMAIN=...
+      - NGROK_PROTOCOL=http
+      - NGROK_PORT=jekyll:4000
+</code></pre></div></div>
+
+                    ]]>
+                </content:encoded>
+                <guid isPermaLink="false">/2018/12/tiny-docker-image-with-ngrok.html</guid>
+                <description>
+                    
+                    I've found an excellent tiny Docker image for ngrok (wernight/ngrok). From now just using it to handle this blog.
+                    
+                </description>
+                <pubDate>Mon, 17 Dec 2018 00:00:00 -0600</pubDate>
+                <author>Andrius Kairiukstis</author>
+            </item>
+        
+    
+        
+            <item>
+                <title>Asterisk OPUS patch for 11.11.0</title>
+                <link>//andrius.mobi/2014/08/asterisk-opus-patch-for-11110.html</link>
+                <content:encoded>
+                    <![CDATA[
+                    <p>Released updated patch, now it supports Asterisk 11.11.0 and 12.2.5. With VP8 in pass-through mode, tested — it works well. <a href="https://github.com/andrius/asterisk-opus">Get it here!</a></p>
+
+                    ]]>
+                </content:encoded>
+                <guid isPermaLink="false">/2014/08/asterisk-opus-patch-for-11110.html</guid>
+                <description>
+                    
+                </description>
+                <pubDate>Fri, 08 Aug 2014 05:07:00 -0500</pubDate>
+                <author>Andrius Kairiukstis</author>
+            </item>
+        
+    
+        
+            <item>
+                <title>WebRTC with Asterisk 11?</title>
+                <link>//andrius.mobi/2013/07/webrtc-with-asterisk-11.html</link>
+                <content:encoded>
+                    <![CDATA[
+                    <p>Tonight I have tried two WebRTC clients (<a href="http://jssip.net/">JsSIP</a> and <a href="http://sipml5.org/">sipML5</a>) with Asterisk 11 and get both of them working — echo test calls with ulaw (g711u) codec works, but with one-way audio if I call from WebRTC to the SIP softphone.</p>
+
+<p>I’ve followed Asterisk wiki articles: <a href="https://wiki.asterisk.org/wiki/display/AST/Asterisk+WebRTC+Support">Asterisk WebRTC Support</a> and <a href="https://wiki.asterisk.org/wiki/display/AST/WebRTC+tutorial+using+SIPML5">WebRTC tutorial using SIPML5</a> to configure WebRTC.</p>
+
+<p>Good news!</p>
+
+                    ]]>
+                </content:encoded>
+                <guid isPermaLink="false">/2013/07/webrtc-with-asterisk-11.html</guid>
+                <description>
+                    
+                </description>
+                <pubDate>Thu, 11 Jul 2013 06:38:00 -0500</pubDate>
+                <author>Andrius Kairiukstis</author>
+            </item>
+        
+    
+        
+            <item>
+                <title>Opus and VP8 in Asterisk 11 (Experimental support)</title>
+                <link>//andrius.mobi/2013/05/opus-and-vp8-in-asterisk-11.html</link>
+                <content:encoded>
+                    <![CDATA[
+                    <p>Great news! Meetecho just introduced experimental OPUS support in Asterisk 11. <a href="https://github.com/meetecho/asterisk-opus">https://github.com/meetecho/asterisk-opus</a>  Time to test it with WebRTC!</p>
+
+<p>Why OPUS is great? <a href="http://www.circleid.com/posts/200130727_why_the_opus_codec_matters_even_if_you_dont_care_about_audio/">Read this article!</a></p>
+
+                    ]]>
+                </content:encoded>
+                <guid isPermaLink="false">/2013/05/opus-and-vp8-in-asterisk-11.html</guid>
+                <description>
+                    
+                </description>
+                <pubDate>Mon, 27 May 2013 12:37:00 -0500</pubDate>
+                <author>Andrius Kairiukstis</author>
+            </item>
+        
+    
+        
+            <item>
+                <title>Roaming PBX update</title>
+                <link>//andrius.mobi/2013/05/roaming-pbx-update.html</link>
+                <content:encoded>
+                    <![CDATA[
+                    <p>What’s new:</p>
+
+<ul>
+  <li>Asterisk 11.4;</li>
+  <li>SILK codec.</li>
+  <li>Watchdog, so Raspberry Pi board works better, without deadlocks;</li>
+</ul>
+
+<p>Download link: <a href="//j.mp/tinypbx">j.mp/tinypbx</a>, image name for given release: <code class="highlighter-rouge">raspbian_basic_wheezy_20130523.img.gz</code></p>
+
+<p>Credentials: ssh (port 22), username: <code class="highlighter-rouge">root</code>, password: <code class="highlighter-rouge">raspberry</code>. Don’t forget to update passwords after flashing and first boot!</p>
+
+                    ]]>
+                </content:encoded>
+                <guid isPermaLink="false">/2013/05/roaming-pbx-update.html</guid>
+                <description>
+                    
+                    What's new: Asterisk 11.4 / SILK codec / Watchdog, so Raspberry Pi board works better.
+                    
+                </description>
+                <pubDate>Thu, 23 May 2013 18:30:00 -0500</pubDate>
+                <author>Andrius Kairiukstis</author>
+            </item>
+        
+    
+        
+            <item>
+                <title>Roaming PBX – first release</title>
+                <link>//andrius.mobi/2013/05/roaming-pbx-first-release.html</link>
+                <content:encoded>
+                    <![CDATA[
+                    Today I have baked latest image (containing&nbsp;ruby, pcapsipdump, asterisk, silk codec).
+Because it is still a bit alpha, I was created shorted URL, download link, containing latest image: [j.mp/tinypbx](//j.mp/tinypbx).
+
+Standard flashing instructions: gunzip .gz file, insert SD card, flash with Linux DD command... [This site](http://www.andrewmunsell.com/blog/getting-started-raspberry-pi-install-raspbian/) for example, describing flashing procedure well.
+
+[GIT repository with script](https://github.com/andrius/build-raspbian-image), which creates RPI images, was updated and I will create&nbsp;separate&nbsp;post describing it. In few words: installer creates minimal raspbian image, at the end, mounts folder "delivery" to the target image and executes bash script "install.sh" (you find sample in GIT repository).</div>
+                    ]]>
+                </content:encoded>
+                <guid isPermaLink="false">/2013/05/roaming-pbx-first-release.html</guid>
+                <description>
+                    
+                </description>
+                <pubDate>Tue, 07 May 2013 16:32:00 -0500</pubDate>
+                <author>Andrius Kairiukstis</author>
+            </item>
+        
+    
+        
+            <item>
+                <title>Roaming PBX, first edition</title>
+                <link>//andrius.mobi/2013/05/roaming-pbx-first-edition.html</link>
+                <content:encoded>
+                    <![CDATA[
+                    <div dir="ltr" style="text-align: left;" trbidi="on">Today I spent all day compiling various images of Roaming PBX. I am minimalist and perfectionist at same time – not always, but often, what slowing my work progress sometimes. Do not like to keep unfinished stuff.<br /><br />Currently image was compiled, I removed GUI from it (just for now). Some tests... And it will be ready... hope in few hours! Instructions will follow.<br /><br />Download link, containing latest image:&nbsp;<a href="http://j.mp/tinypbx">http://j.mp/tinypbx</a>). Standard flashing instructions: gunzip .gz file, insert SD card, flash with Linux DD command... <a href="http://www.andrewmunsell.com/blog/getting-started-raspberry-pi-install-raspbian/" target="_blank">This site</a> for example, describing flashing procedure well.<br /><br /></div>
+
+                    ]]>
+                </content:encoded>
+                <guid isPermaLink="false">/2013/05/roaming-pbx-first-edition.html</guid>
+                <description>
+                    
+                </description>
+                <pubDate>Mon, 06 May 2013 15:29:00 -0500</pubDate>
+                <author>Andrius Kairiukstis</author>
+            </item>
+        
+    
+        
+            <item>
+                <title>SILK notes on ARM devices</title>
+                <link>//andrius.mobi/2013/05/silk-notes-on-arm-devices.html</link>
+                <content:encoded>
+                    <![CDATA[
+                    <div dir="ltr" style="text-align: left;" trbidi="on">... worth to read:<br /><a href="https://github.com/mordak/codec_silk/issues/2">https://github.com/mordak/codec_silk/issues/2</a><br /><br /></div>
+                    ]]>
+                </content:encoded>
+                <guid isPermaLink="false">/2013/05/silk-notes-on-arm-devices.html</guid>
+                <description>
+                    
+                </description>
+                <pubDate>Sat, 04 May 2013 15:42:00 -0500</pubDate>
+                <author>Andrius Kairiukstis</author>
+            </item>
+        
+    
+        
+            <item>
+                <title>Creating your own custom image for Raspberry Pi</title>
+                <link>//andrius.mobi/2013/04/creating-own-image-for-raspberry-pi.html</link>
+                <content:encoded>
+                    <![CDATA[
+                    <p>I wanted to create image builder for cross-compile environment, so say hello to it: <a href="//github.com/andrius/build-raspbian-image">https://github.com/andrius/build-raspbian-image</a>.</p>
+
+<p>It’s based on <a href="https://blog.kmp.or.at/build-your-own-raspberry-pi-image/">blog post and code by Klaus Maria Pfeiffer</a>.</p>
+
+<p>The code works perfectly on Debian (tested with CrunchBangLinux) and Ubuntu.</p>
+
+<p>Instructions:</p>
+
+<ul>
+  <li>
+    <p>git clone :)</p>
+  </li>
+  <li>
+    <p>Check content and install packages or execute <code class="highlighter-rouge">./install.sh</code> script;</p>
+  </li>
+  <li>
+    <p>execute <code class="highlighter-rouge">./raspbian/build_raspbian_sd_card.sh</code>, and soon you’ll get your IMG fine in the /tmp/rpi folder.</p>
+  </li>
+</ul>
+
+<p>Main issue right now is cross-compilation environment. Unfortunately, I don’t have much time to automate process, so in a middle of cross-compilation, user have do it manually:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">echo</span> <span class="s2">"execute all necessary commands, then type exit"</span>
+<span class="nb">echo</span> <span class="s2">"asterisk install files located at /usr/src/asterisk"</span>
+bash
+</code></pre></div></div>
+<h2 id="update">Update</h2>
+<p>Github repository updated, now installation script mount delivery folder to target RPI image and execute <code class="highlighter-rouge">install.sh</code> script located in mounted folder. Now you could create your own build script or just type in <code class="highlighter-rouge">bash</code> in order to access command-line prompt during RPI image creation.</p>
+
+<p>Below is image with Ruby 2.0 and Asterisk PBX:</p>
+
+<p>Download link, containing latest TinyPBX image: <a href="//j.mp/tinypbx">j.mp/tinypbx</a>.</p>
+
+<p>Flashing instructions are standard for RPI (<a href="//www.andrewmunsell.com/blog/getting-started-raspberry-pi-install-raspbian/">This site describing flashing procedure pretty well</a>)</p>
+
+<ul>
+  <li>gunzip .gz file</li>
+  <li>insert SD card</li>
+  <li>flash with Linux DD command…</li>
+</ul>
+
+                    ]]>
+                </content:encoded>
+                <guid isPermaLink="false">/2013/04/creating-own-image-for-raspberry-pi.html</guid>
+                <description>
+                    
+                </description>
+                <pubDate>Thu, 25 Apr 2013 16:59:00 -0500</pubDate>
+                <author>Andrius Kairiukstis</author>
+            </item>
+        
+    
+        
+            <item>
+                <title>Perfect results (SIP TCP vs UDP)</title>
+                <link>//andrius.mobi/2013/04/perfect-results-sip-tcp-vs-udp.html</link>
+                <content:encoded>
+                    <![CDATA[
+                    <div dir="ltr" style="text-align: left;" trbidi="on">Yes, I knew that TCP is better for mobile VoIP, battery consumption is better, but I did not knew HOW BETTER!<br />Yesterday I have replaced UDP to TCP at my Android softphone (Bria) and... Usually by&nbsp;this&nbsp;time (2:20 PM), my cellphone battery has 50% charge and now it is 88 percent.<br /><br />Voice quality... I do not feel any difference.</div>
+                    ]]>
+                </content:encoded>
+                <guid isPermaLink="false">/2013/04/perfect-results-sip-tcp-vs-udp.html</guid>
+                <description>
+                    
+                </description>
+                <pubDate>Tue, 02 Apr 2013 07:24:00 -0500</pubDate>
+                <author>Andrius Kairiukstis</author>
+            </item>
+        
+    
+        
+            <item>
+                <title>Raspberry Pi - how to create your own image</title>
+                <link>//andrius.mobi/2013/03/raspberry-pi-how-to-create-own-image.html</link>
+                <content:encoded>
+                    <![CDATA[
+                    <p>Currently I do developing my own Roaming VoIP PBX as a Rasbbrry Pi image, and have to rebuild project packages often. It is not best idea to compile packages right on Raspberry Pi. That would take hours. I was searching for a tool that can create image base — on my laptop or VPS.</p>
+
+<p>Here is good starting point: <a href="http://blog.kmp.or.at/2012/05/build-your-own-raspberry-pi-image/">http://blog.kmp.or.at/2012/05/build-your-own-raspberry-pi-image/</a>, there is an <a href="http://www.kmp.or.at/~klaus/raspberry/build_rpi_sd_card.sh">shell script that will build image (right-click and select ‘download as’)</a>.</p>
+
+<p>Some links about cross compilation and QEMU (QEMU for emulation and compilation on “Raspberry Pi” environment):</p>
+<ul>
+  <li>
+    <p><a href="http://ffmpeg.org/trac/ffmpeg/wiki/How%20to%20compile%20FFmpeg%20for%20Raspberry%20Pi%20(Raspbian)">http://ffmpeg.org/trac/ffmpeg/wiki/How%20to%20compile%20FFmpeg%20for%20Raspberry%20Pi%20(Raspbian)</a>;</p>
+  </li>
+  <li>
+    <p><a href="http://www.raspbian.org/RaspbianDocumentation">http://www.raspbian.org/RaspbianDocumentation”</a>;</p>
+  </li>
+  <li>
+    <p><a href="http://hertaville.com/2012/09/28/development-environment-raspberry-pi-cross-compiler/">http://hertaville.com/2012/09/28/development-environment-raspberry-pi-cross-compiler/”</a>;</p>
+  </li>
+  <li>
+    <p><a href="http://www.raspberrypiforums.com/forums/tutorials/article/16-a-raspberry-pi-emulated-environment-on-osx-lion/">http://www.raspberrypiforums.com/forums/tutorials/article/16-a-raspberry-pi-emulated-environment-on-osx-lion/”</a>;</p>
+  </li>
+  <li>
+    <p><a href="http://xecdesign.com/qemu-emulating-raspberry-pi-the-easy-way/">http://xecdesign.com/qemu-emulating-raspberry-pi-the-easy-way/”</a>;</p>
+  </li>
+  <li>
+    <p><a href="http://www.raspberrypi.org/phpBB3/viewtopic.php?f=29&amp;t=37386">http://www.raspberrypi.org/phpBB3/viewtopic.php?f=29&amp;t=37386”</a>;</p>
+  </li>
+  <li>
+    <p><a href="http://igor.gold.ac.uk/~mas01mjy/wp/?p=95">http://igor.gold.ac.uk/~mas01mjy/wp/?p=95”</a>;</p>
+  </li>
+  <li>
+    <p><a href="http://elinux.org/Rpi_kernel_compilation#Cross_compiling_from_OSX">http://elinux.org/Rpi_kernel_compilation#Cross_compiling_from_OSX”</a>.</p>
+  </li>
+</ul>
+
+                    ]]>
+                </content:encoded>
+                <guid isPermaLink="false">/2013/03/raspberry-pi-how-to-create-own-image.html</guid>
+                <description>
+                    
+                </description>
+                <pubDate>Fri, 22 Mar 2013 03:24:00 -0500</pubDate>
+                <author>Andrius Kairiukstis</author>
+            </item>
+        
+    
+        
+            <item>
+                <title>Asterisk with silk8 and amr-nb codecs</title>
+                <link>//andrius.mobi/2013/03/asterisk-with-silk8-and-amr-nb-codecs.html</link>
+                <content:encoded>
+                    <![CDATA[
+                    <p>As part of lab-project (roaming PBX), I’ve compiled SILK and AMR codecs for Asterisk. AMR by googling and researching and SILK following instructions <a href="https://github.com/mordak/codec_silk">in this repository: https://github.com/mordak/codec_silk</a>.</p>
+<h2 id="update-20-march-2013">Update (20 March, 2013)</h2>
+<p>Tested SILK8 (SILK-NB) on Android (with CSIPSimple and Bria) – it does not work well, quality is not fantastic definitaly. Have tried both versions: compiled by myself and official Digium SILK codec.</p>
+
+<p>Testing AMR-NB!</p>
+<h2 id="update-2-21-march-2013">Update #2 (21 March, 2013)</h2>
+<p>SILK8 are okay with Bria @ android, I had to modify codecs.conf and put following code:</p>
+
+<pre><code class="language-cfg">[silk8]
+type=silk
+samprate=8000
+fec=true
+packetloss_percentage=10
+maxbitrate=20000 ; Default value was 10000
+dtx=false        ; Encode using discontinuous transmission mode or not. Turning this
+                 ; on will save bandwidth during periods of silence at the cost of
+                 ; increased computational complexity. Off by default.
+</code></pre>
+
+<p>Have little issues with AMR-NB, will post update later.</p>
+<h3 id="update-2-15-april-2013">Update #2 (15 April, 2013)</h3>
+<p>AMR-NB works way better, I will try to describe installation steps in a separate post. Quality is amazing and bandwidth it consuming is so little. Unfortunately due to licensing issues it can’t be included as a part of official Asterisk distribution.</p>
+
+                    ]]>
+                </content:encoded>
+                <guid isPermaLink="false">/2013/03/asterisk-with-silk8-and-amr-nb-codecs.html</guid>
+                <description>
+                    
+                </description>
+                <pubDate>Mon, 18 Mar 2013 18:11:00 -0500</pubDate>
+                <author>Andrius Kairiukstis</author>
+            </item>
+        
+    
+        
+            <item>
+                <title>Debian installer (Asterisk and AGI library)</title>
+                <link>//andrius.mobi/2013/03/debian-installer-asterisk-and-agi.html</link>
+                <content:encoded>
+                    <![CDATA[
+                    <div dir="ltr" style="text-align: left;" trbidi="on">Sharing a script, which installs Asterisk PBX with fax support, MySQL, Ruby, Adhearsion AGI. Run it as root. Remove ImageMagick part (download and install) in case, if you don't need it.  <script src="https://gist.github.com/andrius/5166099.js"></script></div>
+                    ]]>
+                </content:encoded>
+                <guid isPermaLink="false">/2013/03/debian-installer-asterisk-and-agi.html</guid>
+                <description>
+                    
+                </description>
+                <pubDate>Thu, 14 Mar 2013 18:23:00 -0500</pubDate>
+                <author>Andrius Kairiukstis</author>
+            </item>
+        
+    
+        
+            <item>
+                <title>Roaming PBX with Raspberry Pi, Asterisk and chan_dongle</title>
+                <link>//andrius.mobi/2013/03/roaming-solution-based-on-raspberry-pi-asterisk-chandongle-as.html</link>
+                <content:encoded>
+                    <![CDATA[
+                    <p>As an frequent tralveller, I well understand the needs of another travelers and citizens of the world in telecommunications ;) While ago I’ve decided to spent my free time building Roaming PBX solution.</p>
+
+<p>What I am planning first:</p>
+
+<ul>
+  <li>Raspberry Pi image (with possible OpenWRT solution too);</li>
+  <li>Asterisk PBX;</li>
+  <li>asterisk chan_dongle — an driver for Huawei USB modems, that handle two-way GSM calls;</li>
+  <li>VPN to get it working in locations where VoIP is blocked;</li>
+  <li>FreePBX GUI to manage dialplans;</li>
+  <li>Asterisk2billing, preconfigured — to control expenses;</li>
+  <li>Keep-alive scripts, monitoring</li>
+</ul>
+
+<p>Anything extra?</p>
+
+<h3 id="update-19-march-2013">Update (19 March, 2013)</h3>
+
+<p>I have successfully created an image file based on standard raspbian. Currently busy working on cross-compiler.</p>
+
+<h3 id="update-2-6-may-2013">Update #2 (6 May, 2013)</h3>
+
+<p>Download link, containing latest image: <a href="http://j.mp/tinypbx">http://j.mp/tinypbx</a>. Standard flashing instructions: gunzip .gz file, insert SD card, flash with Linux DD command… <a href="http://www.andrewmunsell.com/blog/getting-started-raspberry-pi-install-raspbian/" target="_blank">This site</a> for example, describing flashing procedure well.</p>
+
+                    ]]>
+                </content:encoded>
+                <guid isPermaLink="false">/2013/03/roaming-solution-based-on-raspberry-pi-asterisk-chandongle-as.html</guid>
+                <description>
+                    
+                </description>
+                <pubDate>Tue, 12 Mar 2013 16:28:00 -0500</pubDate>
+                <author>Andrius Kairiukstis</author>
+            </item>
+        
+    
+        
+            <item>
+                <title>Why create AGI?</title>
+                <link>//andrius.mobi/2013/03/why-create-agi.html</link>
+                <content:encoded>
+                    <![CDATA[
+                    <div dir="ltr" style="text-align: left;" trbidi="on">Asterisk dial-plan is powerful, and possible to create a number of custom voice applications only with its functions... AEL looks like high-level language, of course, it is just a view of standard expressions, same as in extensions.conf, but.<br />You can manipulate database data through func_odbc, you can call a Linux system script and process result, in case if you want to send a notice about event to a web application, you can use a curl function.<br />No problem to send out email or jabber/google talk notification...<br /><br />So, why and when you should use AGI? I believe, correct answers are:<br /><ul style="text-align: left;"><li>Dial-plan is complex, you have a growing amount of huge&nbsp;macros&nbsp;and contexts;</li><li>System are hosted or cluster with various customers with different needs and functions;</li><li>You do integration with another application or web app and have to process inbound events (and send outbound);</li><li>Want to create an API to support 3rd apps;</li><li>Application API of another application;</li><li>And most important – database is a core part of application and should access data permanently.</li></ul><div>There are many reasons too, but basically it is good to always keep in mind a <a href="http://en.wikipedia.org/wiki/KISS_principle" target="_blank">KISS principle</a>. If task can be resolved without using AGI, do that and use dial-plan. If dial-plan call a lot of external shell scripts – create AGI app.</div></div>
+                    ]]>
+                </content:encoded>
+                <guid isPermaLink="false">/2013/03/why-create-agi.html</guid>
+                <description>
+                    
+                </description>
+                <pubDate>Tue, 12 Mar 2013 16:07:00 -0500</pubDate>
+                <author>Andrius Kairiukstis</author>
+            </item>
+        
+    
+        
+            <item>
+                <title>Click-to-call script</title>
+                <link>//andrius.mobi/2013/03/your-own-click-to-call-with-asterisk.html</link>
+                <content:encoded>
+                    <![CDATA[
+                    <p>Sharing one my ancient projects with Asterisk: click-to-call library with client and server part. Windows user could activate <code class="highlighter-rouge">callto.rb</code> script, the customer just integrated it with their CRM application; after user start script, his SIP phone rings. Here it is: <a href="https://github.com/andrius/asterisk-click-to-call-windows">https://github.com/andrius/asterisk-click-to-call-windows</a>.</p>
+
+<ul>
+  <li>
+    <p>Client app <code class="highlighter-rouge">callto.rb</code> should be compiled to the Windows .exe file (or can be executed from the command line, if there is ruby installed on Windows). For examlpe <a href="http://www.erikveen.dds.nl/rubyscript2exe">rubyscript2exe</a> would compile ruby script to exe;</p>
+  </li>
+  <li>
+    <p>Credentials to be populated within <code class="highlighter-rouge">users.yml</code>;</p>
+  </li>
+  <li>
+    <p><code class="highlighter-rouge">server.rb</code> should be running on Asterisk;</p>
+  </li>
+</ul>
+
+<p>System is very simple, sorry for lack of comments!</p>
+
+
+                    ]]>
+                </content:encoded>
+                <guid isPermaLink="false">/2013/03/your-own-click-to-call-with-asterisk.html</guid>
+                <description>
+                    
+                </description>
+                <pubDate>Sun, 10 Mar 2013 07:23:00 -0500</pubDate>
+                <author>Andrius Kairiukstis</author>
+            </item>
+        
+    
+        
+            <item>
+                <title>How to unlock Huawei modem</title>
+                <link>//andrius.mobi/2013/03/how-to-unlock-huawei-modem.html</link>
+                <content:encoded>
+                    <![CDATA[
+                    <p>After last post about GSM gateway based on Raspberry Pi and Huawei modem, I have received few questions like “how to unlock it?”</p>
+
+<p>Below is YouTube video describing process:</p>
+
+<p>https://youtu.be/uL-drV_ZniM</p>
+<style>
+.videoWrapper {
+	position: relative;
+	padding-bottom: 56.333%;
+	height: 0;
+    background: black;
+}
+.videoWrapper iframe {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+    border: 0;
+}    
+</style>
+
+<script>
+function get_youtube_id(url) {
+    var p = /^(?:https?:\/\/)?(?:www\.)?(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))((\w|-){11})(?:\S+)?$/;
+    return (url.match(p)) ? RegExp.$1 : false;
+}
+function vimeo_embed(url,el) {
+    var id = false;
+    $.ajax({
+      url: 'https://vimeo.com/api/oembed.json?url='+url,
+      async: true,
+      success: function(response) {
+        if(response.video_id) {
+          id = response.video_id;
+          if(url.indexOf('autoplay=1') !== -1) var autoplay=1; else var autoplay=0;
+          if(url.indexOf('loop=1') !== -1) var loop=1; else var loop=0;
+          var theInnerHTML = '<div class="videoWrapper"><iframe src="https://player.vimeo.com/video/'+id+'/?byline=0&title=0&portrait=0';
+          if(autoplay==1) theInnerHTML += '&autoplay=1';
+          if(loop==1) theInnerHTML += '&loop=1';
+          theInnerHTML += '" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe></div>'; 
+          el.innerHTML = theInnerHTML;
+        }
+      }
+    });
+}
+function video_embed() {
+    var p = document.getElementsByTagName('p');
+    for(var i = 0; i < p.length; i++) {
+        //check if this is an external url (that starts with https:// or http://
+        if (p[i].innerHTML.indexOf("http://") == 0 ||
+            p[i].innerHTML.indexOf("https://") == 0) {
+            var youtube_id = get_youtube_id(p[i].innerHTML);
+            if(youtube_id) {
+                if(p[i].innerHTML.indexOf('autoplay=1') !== -1) var autoplay=1; else var autoplay=0;
+                if(p[i].innerHTML.indexOf('loop=1') !== -1) var loop=1; else var loop=0;
+                var theInnerHTML = '<div class="videoWrapper"><iframe width="720" height="420" src="https://www.youtube.com/embed/' + youtube_id + '?rel=0&showinfo=0';
+                if(autoplay==1) theInnerHTML += '&autoplay=1';
+                if(loop==1) theInnerHTML += '&loop=1&playlist='+youtube_id+'&version=3';
+                theInnerHTML += '" frameborder="0" allowfullscreen></iframe></div>';
+                p[i].innerHTML = theInnerHTML;
+            }
+            if(p[i].innerHTML.indexOf('vimeo.com') !== -1) {
+                //ask vimeo for the id and place the embed
+                vimeo_embed(p[i].innerHTML,p[i]);
+            }
+        }
+    }
+}
+video_embed();
+
+function mp3_embed() {
+    var p = document.getElementsByTagName('p');
+    for(var i = 0; i < p.length; i++) {
+        if(p[i].innerHTML.indexOf('.mp3') !== -1) {
+            var str = p[i].innerHTML.split('?');
+            if(str.length == 1) str[1] = '';
+            var str1 = str[1];
+            str1 = str1.replace('&','').replace('&','');
+            str1 = str1.replace('autoplay=1','').replace('autoplay=0','');
+            str1 = str1.replace('loop=1','').replace('loop=0','');
+            str1 = str1.replace('controls=0','').replace('controls=1','');
+
+            if (str[0].lastIndexOf('.mp3', str[0].length - 4) === str[0].length - 4 && str1.length == 0) {
+                if(str[1].indexOf('autoplay=1') !== -1) var autoplay=1; else var autoplay=0;
+                if(str[1].indexOf('loop=1') !== -1) var loop=1; else var loop=0;
+                if(str[1].indexOf('controls=0') !== -1) var controls=0; else var controls=1;
+                var newInnerHTML = '<audio';
+                if(autoplay==1) newInnerHTML += ' autoplay';
+                if(loop==1) newInnerHTML += ' loop';
+                if(controls==1) newInnerHTML += ' controls';
+                newInnerHTML += '><source src="'+str[0]+'" type="audio/mpeg">Your browser does not support the audio element.</audio>';
+                p[i].innerHTML = newInnerHTML;
+            }
+        }
+    }
+}
+mp3_embed();
+</script>
+
+
+                    ]]>
+                </content:encoded>
+                <guid isPermaLink="false">/2013/03/how-to-unlock-huawei-modem.html</guid>
+                <description>
+                    
+                    After last post about GSM gateway based on Raspberry Pi and Huawei modem, I have received few questions like &quot;how to unlock it?&quot; Below is YouTube video describing process.
+                    
+                </description>
+                <pubDate>Sat, 09 Mar 2013 15:12:00 -0600</pubDate>
+                <author>Andrius Kairiukstis</author>
+            </item>
+        
+    
+        
+            <item>
+                <title>Asterisk on Raspberry Pi as GSM gateway</title>
+                <link>//andrius.mobi/2013/03/asterisk-on-raspberry-pi-as-gsm-gateway.html</link>
+                <content:encoded>
+                    <![CDATA[
+                    <p>Yesterday I’ve installed chan_dongle for <a href="http://www.raspberry-asterisk.org/">Asterisk PBX running at Raspberry Pi</a>. What is <a href="//github.com/jstasiak/asterisk-chan-dongle">chan_dongle</a>? It is driver for Asterisk PBX, that allow to use <a href="http://wiki.e1550.mobi/doku.php">some Huawei 3G USB dongles</a> as a voice “board” to handle voice, SMS and USSD. Kind of your own self-made single-channel GSM gateway.</p>
+
+<p><img src="/images/raspberry-pi-with-dongle.png" alt="Raspberry PI with Huawei 3G dongle" /></p>
+<h1 id="instructions">Instructions</h1>
+<ul>
+  <li>
+    <p>Get <a href="http://wiki.e1550.mobi/doku.php?id=requirements">compatible USB modem</a>;</p>
+  </li>
+  <li>
+    <p>To check is modem have voice function and is not locked, use <a href="//www.dc-unlocker.com/">DC-Unlocker software</a>;</p>
+  </li>
+  <li>
+    <p>Unlock modem if needed (it’s locked to operator and you have SIM card from other operator). Check <a href="http://wiki.e1550.mobi/doku.php?id=preparation">unlock instructions and resources</a>;</p>
+  </li>
+  <li>
+    <p>(optional step) if according to the DC-Unlocker, modem has no voice function, or you had issues with further configuration steps, try to <a href="http://www.dc-files.com/files/huawei/">upgrade firmware</a>;</p>
+  </li>
+  <li>
+    <p>Download <a href="http://www.raspberry-asterisk.org/downloads/">Raspberry-asterisk</a>, flash it to the SD card (4GB at least; flash instructions on their website, below how I did that on mac OS):</p>
+  </li>
+</ul>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># find your card (disk1 in my case)</span>
+mount /dev/disk1
+diskutil unmountDisk /dev/disk1
+<span class="nb">sudo dd </span><span class="k">if</span><span class="o">=</span>raspbian_wheezy_20120608.img <span class="nv">of</span><span class="o">=</span>/dev/rdisk1 <span class="nv">bs</span><span class="o">=</span>1m
+</code></pre></div></div>
+<h1 id="installation">Installation</h1>
+<p>Power on Raspberry Pi, find its ip address, ssh and:</p>
+
+<ul>
+  <li>Upgrade system</li>
+</ul>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>raspbx-upgrade
+</code></pre></div></div>
+
+<ul>
+  <li>Install necessary software:</li>
+</ul>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>apt-get <span class="nb">install </span>usbutils unzip autoconf automake
+
+<span class="c"># compile USB-modeswitch</span>
+
+<span class="nb">cd</span> /usr/src/
+
+wget http://www.draisberghof.de/usb_modeswitch/usb-modeswitch-1.2.5.tar.bz2
+wget http://www.draisberghof.de/usb_modeswitch/usb-modeswitch-data-20121109.tar.bz2
+
+<span class="nb">tar</span> <span class="nt">-jxvf</span> usb-modeswitch-1.2.5.tar.bz2
+<span class="nb">tar</span> <span class="nt">-jxvf</span> usb-modeswitch-data-20121109.tar.bz2
+
+<span class="nb">cd </span>usb-modeswitch-1.2.5
+make all
+make <span class="nb">install
+
+cd</span> ../usb-modeswitch-data-20121109
+make <span class="nb">install
+
+cd</span> ..
+</code></pre></div></div>
+
+<ul>
+  <li>Now plug-in (if plugged, eject it first) an Huawei USB stick and check <code class="highlighter-rouge">lsusb</code> output:</li>
+</ul>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>lsusb | <span class="nb">grep </span>Huawei
+</code></pre></div></div>
+
+<p>It should print something like this:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Bus 001 Device 005: ID 12d1:140c Huawei Technologies Co., Ltd.
+</code></pre></div></div>
+
+<ul>
+  <li>Now switch USB-stick to the modem mode. Values foe <code class="highlighter-rouge">-v</code> and <code class="highlighter-rouge">-p</code> flags I get from previous step and value for <code class="highlighter-rouge">-M</code> flag, I get from google search for my modem model and brand.</li>
+</ul>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>usb_modeswitch <span class="nt">-v</span> 0x12d1 <span class="nt">-p</span> 0x140c <span class="nt">-H</span> <span class="nt">-s</span> 5 <span class="nt">-M</span> 55534243000000000000000000000011060000000000000000000000000000
+</code></pre></div></div>
+
+<ul>
+  <li>Download and install chan_dongle:</li>
+</ul>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>wget https://github.com/jstasiak/asterisk-chan-dongle/archive/asterisk11.zip
+
+unzip asterisk11.zip
+
+<span class="nb">cd </span>asterisk-chan-dongle-asterisk11/
+aclocal
+autoconf
+automake <span class="nt">-a</span>
+./configure
+make all
+make <span class="nb">install
+cp </span>etc/dongle.conf /etc/asterisk/
+<span class="nb">cp</span> /etc/extensions.conf /etc/asterisk/extensions-dongle.conf
+</code></pre></div></div>
+
+<ul>
+  <li>Restart Asterisk PBX and check modem status:</li>
+</ul>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>asterisk <span class="nt">-rx</span> <span class="s2">"core restart now"</span>
+
+<span class="c"># done, checking devices</span>
+asterisk <span class="nt">-rx</span> <span class="s2">"dongle show devices"</span>
+</code></pre></div></div>
+
+<p>You should see something like this:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># *CLI&gt; dongle show devices</span>
+<span class="c"># ID           Group State      RSSI Mode Submode Provider Name  Model      Firmware          IMEI             IMSI             Number</span>
+<span class="c"># dongle0      0     Free       2    0    0       Yoigo          E1762      11.126.13.00.00   xxxx yyy  Unknown</span>
+<span class="c"># *CLI&gt;</span>
+</code></pre></div></div>
+
+<p>Done! Next step would be configuration of your new GSM gateway.</p>
+
+<p>Still playing with device. Quality is good, better than I get with Portech GSM gateway, price per port also way better, and it also can send and receive SMS and USSD.</p>
+
+<p>Good luck!</p>
+
+<p>If you would like to try my system, download latest image here: <a href="//j.mp/tinypbx">j.mp/tinypbx</a>. Flashing instructions are same as for any Raspberry Pi image: gunzip .gz file, insert SD card, flash with Linux DD command… <a href="https://www.andrewmunsell.com/blog/getting-started-raspberry-pi-install-raspbian">This resource</a> for example, describes flashing procedure quite well.</p>
+<h1 id="some-useful-links">Some useful links</h1>
+<ul>
+  <li>
+    <p><a href="http://wiki.e1550.mobi/doku.php?id=usage">Asterisk CLI commands to control dongle, some instructions</a>;</p>
+  </li>
+  <li>
+    <p><a href="http://gix.net.pl/raspberry-pi/">Another resource regarding dongle with Raspberry Pi</a>;</p>
+  </li>
+  <li>
+    <p><a href="http://habrahabr.ru/post/160299/">Useful resource about chan_dongle (in Russian language, use google translate)</a>;</p>
+  </li>
+  <li>
+    <p><a href="http://wiki.e1550.mobi/doku.php?id=troubleshooting">How to troubleshoot your Huawei modem</a>.</p>
+  </li>
+</ul>
+
+                    ]]>
+                </content:encoded>
+                <guid isPermaLink="false">/2013/03/asterisk-on-raspberry-pi-as-gsm-gateway.html</guid>
+                <description>
+                    
+                    Yesterday I've installed chan\_dongle for Asterisk PBX running at Raspberry Pi. What is chan\_dongle? It is driver for Asterisk PBX, that allow to use some Huawei 3G USB dongles as a voice &quot;board&quot; to handle voice, SMS and USSD. Kind of your own self-made single-channel GSM gateway.
+                    
+                </description>
+                <pubDate>Tue, 05 Mar 2013 13:50:00 -0600</pubDate>
+                <author>Andrius Kairiukstis</author>
+            </item>
+        
+    
+        
+            <item>
+                <title>Time based conditions in voice (AGI) application</title>
+                <link>//andrius.mobi/2013/02/time-based-conditions-in-agi-application.html</link>
+                <content:encoded>
+                    <![CDATA[
+                    <p>Typical telephony system process incoming call-flow based on different times (and of course customer do want to have control on that, handle time-ranges; also whole platform could be an multi-tenant server with different virtual PBX’es):</p>
+
+<ul>
+  <li>
+    <p>During night call should be delivered to the voicemail;</p>
+  </li>
+  <li>
+    <p>In the morning, lunch time and evening should be forwarded to the cell phone;</p>
+  </li>
+  <li>
+    <p>During business hours, call should be processed following standard call-flow logic;</p>
+  </li>
+  <li>
+    <p>Friday’s time is shorter;</p>
+  </li>
+  <li>
+    <p>at Saturday company works only until lunch time;</p>
+  </li>
+  <li>
+    <p>and it’s closed at Sunday (calls should be routed to the voicemail);</p>
+  </li>
+  <li>
+    <p>Calls on public holidays should be forwarded to the voicemail too.</p>
+  </li>
+</ul>
+
+<p>Long time ago I’ve created an following Ruby classes and ActiveRecord migrations for flexible business times management.  And now sharing this, it could be useful for anyone who deal with time conditions in the backend apps (and that’s not only telephony-related).</p>
+
+<p><code class="highlighter-rouge">Item</code> is and kind polymorphic association that points to any voice-related “thing” in a PBX. I.e. to the extension, or voicemail, conference, whatever…</p>
+
+<p>If we would trigger method <code class="highlighter-rouge">operational?</code> for given business-time collection, it should return “item_id” or nil if time conditions did not met (office closed?).</p>
+<h3 id="tests">Tests</h3>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>1.9.3-p327 :001 &gt; Campaign.last.business_time.operational?
+
+Campaign Load (0.1ms)  SELECT "campaigns".* FROM "campaigns" ORDER BY "campaigns"."id" DESC LIMIT 1
+BusinessTime Load (0.2ms)  SELECT "business_times".* FROM "business_times" WHERE "business_times"."id" = 1 LIMIT 1
+BusinessTimeMember Load (0.3ms)  SELECT "business_time_members".* FROM "business_time_members" WHERE "business_time_members"."business_time_id" = 1 ORDER BY
+  business_time_id,
+  day_of_month desc,
+  month desc,
+  year desc,
+  weekday desc,
+  time_from desc,
+  time_to asc
+
+=&gt; 0
+</code></pre></div></div>
+<h3 id="migrations">Migrations</h3>
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">create_table</span> <span class="ss">:business_time_members</span> <span class="k">do</span> <span class="o">|</span><span class="n">t</span><span class="o">|</span>
+	<span class="n">t</span><span class="p">.</span><span class="nf">string</span>   <span class="ss">:name</span><span class="p">,</span> <span class="ss">:limit</span> <span class="o">=&gt;</span> <span class="mi">100</span>
+	<span class="n">t</span><span class="p">.</span><span class="nf">integer</span>  <span class="ss">:business_time_id</span>
+	<span class="n">t</span><span class="p">.</span><span class="nf">time</span>     <span class="ss">:time_from</span><span class="p">,</span> <span class="ss">:default</span> <span class="o">=&gt;</span> <span class="s1">'2000-01-01 00:00:00'</span>
+	<span class="n">t</span><span class="p">.</span><span class="nf">time</span>     <span class="ss">:time_to</span><span class="p">,</span> <span class="ss">:default</span> <span class="o">=&gt;</span> <span class="s1">'2000-01-01 23:59:59'</span>
+	<span class="n">t</span><span class="p">.</span><span class="nf">integer</span>  <span class="ss">:weekday</span>      <span class="c1"># 0 - sunday, 1 - monday, 2 -tuesday, ...</span>
+	<span class="n">t</span><span class="p">.</span><span class="nf">integer</span>  <span class="ss">:day_of_month</span> <span class="c1"># 1-31</span>
+	<span class="n">t</span><span class="p">.</span><span class="nf">integer</span>  <span class="ss">:month</span>        <span class="c1"># 1-12</span>
+	<span class="n">t</span><span class="p">.</span><span class="nf">integer</span>  <span class="ss">:year</span>         <span class="c1"># 2012</span>
+	<span class="n">t</span><span class="p">.</span><span class="nf">integer</span>  <span class="ss">:item_id</span><span class="p">,</span> <span class="ss">:default</span> <span class="o">=&gt;</span> <span class="mi">0</span>      <span class="c1"># item with action!</span>
+	<span class="n">t</span><span class="p">.</span><span class="nf">timestamps</span>
+<span class="k">end</span>
+
+<span class="n">create_table</span> <span class="ss">:business_times</span> <span class="k">do</span> <span class="o">|</span><span class="n">t</span><span class="o">|</span>
+	<span class="n">t</span><span class="p">.</span><span class="nf">string</span>  <span class="ss">:name</span><span class="p">,</span> <span class="ss">:limit</span> <span class="o">=&gt;</span> <span class="mi">100</span>
+	<span class="n">t</span><span class="p">.</span><span class="nf">timestamps</span>
+<span class="k">end</span>
+
+<span class="n">execute</span> <span class="s2">"INSERT INTO `business_times` (`id`, `name`)
+	VALUES (1, 'Call Mon-Fri 9 to 21; Sat, Sun 11 to 19')"</span>
+
+<span class="c1"># Always closed!</span>
+<span class="c1"># It is a default condition with lowest priority and will be executed it other conditions did not met.</span>
+<span class="c1"># BusinessTimeMember.create :business_time =&gt; business_time, :item =&gt; closed_action</span>
+<span class="n">execute</span> <span class="s2">"INSERT INTO `business_time_members` (`id`, `business_time_id`, `item_id`) VALUES (?, 1, NULL)"</span>
+<span class="c1"># Make calls on business days (Monday to Friday) from 9:00 to 21:00,</span>
+<span class="c1"># on weekends (Sunday and Saturday) from 11:00 to 19:00</span>
+<span class="c1"># 0 - Sun, 6 - Sat</span>
+<span class="mi">0</span><span class="p">.</span><span class="nf">upto</span><span class="p">(</span><span class="mi">6</span><span class="p">)</span> <span class="k">do</span> <span class="o">|</span><span class="n">day</span><span class="o">|</span>
+	<span class="n">time_from</span><span class="p">,</span> <span class="n">time_to</span> <span class="o">=</span> <span class="k">if</span> <span class="n">day</span> <span class="o">==</span> <span class="mi">0</span> <span class="o">||</span> <span class="n">day</span> <span class="o">==</span> <span class="mi">6</span> <span class="k">then</span>
+		<span class="c1">#[Time.parse("11:00:00"), Time.parse("18:59:59")]</span>
+		<span class="p">[</span><span class="no">Time</span><span class="p">.</span><span class="nf">parse</span><span class="p">(</span><span class="s2">"00:00:00"</span><span class="p">),</span> <span class="no">Time</span><span class="p">.</span><span class="nf">parse</span><span class="p">(</span><span class="s2">"23:59:59"</span><span class="p">)]</span>
+	<span class="k">else</span>
+		<span class="c1">#[Time.parse("9:00:00"), Time.parse("20:59:59")]</span>
+		<span class="p">[</span><span class="no">Time</span><span class="p">.</span><span class="nf">parse</span><span class="p">(</span><span class="s2">"00:00:00"</span><span class="p">),</span> <span class="no">Time</span><span class="p">.</span><span class="nf">parse</span><span class="p">(</span><span class="s2">"23:59:59"</span><span class="p">)]</span>
+	<span class="k">end</span>
+
+	<span class="c1"># item_id 0 = continue dialplan!</span>
+	<span class="c1"># BusinessTimeMember.create :business_time =&gt; business_time,</span>
+	<span class="c1">#   :item_id =&gt; 0, :weekday =&gt; day,</span>
+	<span class="c1">#   :time_from =&gt; "6:00", :time_to =&gt; "17:00"</span>
+	<span class="n">execute</span> <span class="s2">"INSERT INTO `business_time_members`
+		(`id`, `business_time_id`, `weekday`, `time_from`, `time_to`, `item_id`)
+		VALUES (?, 1, </span><span class="si">#{</span><span class="n">day</span><span class="si">}</span><span class="s2">, '</span><span class="si">#{</span><span class="n">time_from</span><span class="si">}</span><span class="s2">', '</span><span class="si">#{</span><span class="n">time_to</span><span class="si">}</span><span class="s2">', 0)"</span>
+<span class="k">end</span>
+</code></pre></div></div>
+<h3 id="models">Models</h3>
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">class</span> <span class="nc">BusinessTimeMember</span> <span class="o">&lt;</span> <span class="no">ActiveRecord</span><span class="o">::</span><span class="no">Base</span>
+  <span class="c1">#validations</span>
+  <span class="n">validates_presence_of</span> <span class="ss">:business_time_id</span>
+  <span class="n">validates_presence_of</span> <span class="ss">:item_id</span>
+  <span class="c1"># 0 (zero) means to continue dialplan after check!</span>
+  <span class="n">validates_numericality_of</span> <span class="ss">:item_id</span> <span class="c1">#, :greater_than =&gt; 0</span>
+
+  <span class="c1"># relations</span>
+  <span class="n">belongs_to</span> <span class="ss">:business_time</span>
+  <span class="n">belongs_to</span> <span class="ss">:item</span>
+<span class="k">end</span>
+
+<span class="k">class</span> <span class="nc">BusinessTime</span> <span class="o">&lt;</span> <span class="no">ActiveRecord</span><span class="o">::</span><span class="no">Base</span>
+  <span class="n">has_many</span> <span class="ss">:business_time_members</span><span class="p">,</span> <span class="ss">:dependent</span> <span class="o">=&gt;</span> <span class="ss">:destroy</span>
+  <span class="n">has_many</span> <span class="ss">:items</span><span class="p">,</span> <span class="ss">:as</span> <span class="o">=&gt;</span> <span class="ss">:routable</span>
+
+  <span class="n">has_many</span> <span class="ss">:soho_pbxes</span>
+
+  <span class="c1"># return false if no records found,</span>
+  <span class="c1"># 0 if specified - means "continue" dialplan,</span>
+  <span class="c1"># or item_id</span>
+  <span class="k">def</span> <span class="nf">operational?</span><span class="p">(</span><span class="n">details</span> <span class="o">=</span> <span class="p">{</span> <span class="ss">:datetime</span> <span class="o">=&gt;</span> <span class="no">Time</span><span class="p">.</span><span class="nf">now</span><span class="p">.</span><span class="nf">utc</span> <span class="p">})</span>
+    <span class="n">d</span> <span class="o">=</span> <span class="n">details</span><span class="p">[</span><span class="ss">:datetime</span><span class="p">]</span>
+
+    <span class="o">=</span><span class="k">begin</span>
+      <span class="k">if</span> <span class="nb">self</span><span class="p">.</span><span class="nf">timezone</span>
+        <span class="k">begin</span>
+          <span class="n">tz</span> <span class="o">=</span> <span class="no">TZInfo</span><span class="o">::</span><span class="no">Timezone</span><span class="p">.</span><span class="nf">get</span><span class="p">(</span><span class="nb">self</span><span class="p">.</span><span class="nf">timezone</span><span class="p">)</span>
+          <span class="n">local</span> <span class="o">=</span> <span class="n">tz</span><span class="p">.</span><span class="nf">utc_to_local</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
+          <span class="nb">puts</span> <span class="s2">"got timezone </span><span class="si">#{</span><span class="nb">self</span><span class="p">.</span><span class="nf">timezone</span><span class="si">}</span><span class="s2"> - utc </span><span class="si">#{</span><span class="n">d</span><span class="si">}</span><span class="s2">, local </span><span class="si">#{</span><span class="n">local</span><span class="si">}</span><span class="s2">"</span>
+          <span class="n">d</span> <span class="o">=</span> <span class="n">local</span>
+        <span class="k">rescue</span>
+          <span class="nb">puts</span> <span class="s2">"got exception for timezone </span><span class="si">#{</span><span class="nb">self</span><span class="p">.</span><span class="nf">timezone</span><span class="si">}</span><span class="s2">"</span>
+        <span class="k">end</span>
+      <span class="k">end</span>
+    <span class="o">=</span><span class="k">end</span>
+
+    <span class="n">tm</span> <span class="o">=</span> <span class="no">BusinessTimeMember</span><span class="p">.</span><span class="nf">find</span><span class="p">(</span>
+      <span class="ss">:all</span><span class="p">,</span>
+      <span class="ss">:conditions</span> <span class="o">=&gt;</span> <span class="p">{</span> <span class="ss">:business_time_id</span> <span class="o">=&gt;</span> <span class="nb">id</span> <span class="p">},</span>
+      <span class="ss">:order</span> <span class="o">=&gt;</span> <span class="s2">"
+        business_time_id,
+        day_of_month desc,
+        month desc,
+        year desc,
+        weekday desc,
+        time_from desc,
+        time_to asc
+      "</span>
+    <span class="p">)</span>
+
+    <span class="k">return</span> <span class="kp">false</span> <span class="k">if</span> <span class="n">tm</span><span class="p">.</span><span class="nf">empty?</span>
+    <span class="n">tm</span><span class="p">.</span><span class="nf">each</span> <span class="p">{</span> <span class="o">|</span><span class="n">t</span><span class="o">|</span>
+      <span class="n">tf</span> <span class="o">=</span> <span class="n">t</span><span class="p">[</span><span class="ss">:time_from</span><span class="p">]</span> <span class="p">?</span> <span class="no">Time</span><span class="p">.</span><span class="nf">parse</span><span class="p">(</span><span class="n">t</span><span class="p">[:</span><span class="n">time_from</span><span class="p">].</span><span class="nf">strftime</span><span class="p">(</span><span class="s2">"%H:%M:%S"</span><span class="p">))</span> <span class="p">:</span> <span class="no">Time</span><span class="p">.</span><span class="nf">parse</span><span class="p">(</span><span class="s2">"00:00:00"</span><span class="p">)</span>
+      <span class="n">tt</span> <span class="o">=</span> <span class="n">t</span><span class="p">[</span><span class="ss">:time_to</span><span class="p">]</span> <span class="p">?</span> <span class="no">Time</span><span class="p">.</span><span class="nf">parse</span><span class="p">(</span><span class="n">t</span><span class="p">[:</span><span class="n">time_to</span><span class="p">].</span><span class="nf">strftime</span><span class="p">(</span><span class="s2">"%H:%M:%S"</span><span class="p">))</span> <span class="p">:</span> <span class="no">Time</span><span class="p">.</span><span class="nf">parse</span><span class="p">(</span><span class="s2">"23:59:59"</span><span class="p">)</span>
+      <span class="n">tw</span> <span class="o">=</span> <span class="n">t</span><span class="p">[</span><span class="ss">:weekday</span><span class="p">]</span> <span class="p">?</span> <span class="n">t</span><span class="p">[:</span><span class="n">weekday</span><span class="p">].</span><span class="nf">to_i</span> <span class="p">:</span> <span class="n">d</span><span class="p">.</span><span class="nf">wday</span>
+      <span class="n">td</span> <span class="o">=</span> <span class="n">t</span><span class="p">[</span><span class="ss">:day_of_month</span><span class="p">]</span> <span class="p">?</span> <span class="n">t</span><span class="p">[:</span><span class="n">day_of_month</span><span class="p">].</span><span class="nf">to_i</span> <span class="p">:</span> <span class="n">d</span><span class="p">.</span><span class="nf">day</span>
+      <span class="n">tm</span> <span class="o">=</span> <span class="n">t</span><span class="p">[</span><span class="ss">:month</span><span class="p">]</span> <span class="p">?</span> <span class="n">t</span><span class="p">[:</span><span class="n">month</span><span class="p">].</span><span class="nf">to_i</span> <span class="p">:</span> <span class="n">d</span><span class="p">.</span><span class="nf">month</span>
+      <span class="n">ty</span> <span class="o">=</span> <span class="n">t</span><span class="p">[</span><span class="ss">:year</span><span class="p">]</span> <span class="p">?</span> <span class="n">t</span><span class="p">[:</span><span class="n">year</span><span class="p">].</span><span class="nf">to_i</span> <span class="p">:</span> <span class="n">d</span><span class="p">.</span><span class="nf">year</span>
+
+      <span class="k">if</span> <span class="n">ty</span> <span class="o">==</span> <span class="n">d</span><span class="p">.</span><span class="nf">year</span> <span class="o">&amp;&amp;</span> <span class="n">tm</span> <span class="o">==</span> <span class="n">d</span><span class="p">.</span><span class="nf">month</span> <span class="o">&amp;&amp;</span> <span class="n">td</span> <span class="o">==</span> <span class="n">d</span><span class="p">.</span><span class="nf">day</span> <span class="o">&amp;&amp;</span> <span class="n">tw</span> <span class="o">==</span> <span class="n">d</span><span class="p">.</span><span class="nf">wday</span> <span class="o">&amp;&amp;</span> <span class="n">d</span> <span class="o">&gt;=</span> <span class="n">tf</span> <span class="o">&amp;&amp;</span> <span class="n">d</span> <span class="o">&lt;=</span> <span class="n">tt</span> <span class="k">then</span>
+        <span class="k">return</span> <span class="n">t</span><span class="p">.</span><span class="nf">item_id</span>
+      <span class="k">end</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="kp">false</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+</code></pre></div></div>
+
+                    ]]>
+                </content:encoded>
+                <guid isPermaLink="false">/2013/02/time-based-conditions-in-agi-application.html</guid>
+                <description>
+                    
+                    Typical telephony system process incoming call-flow based on different times (and of course customer do want to have control on that, handle time-ranges; also whole platform could be an multi-tenant server with different virtual PBX'es).
+                    
+                </description>
+                <pubDate>Fri, 22 Feb 2013 16:54:00 -0600</pubDate>
+                <author>Andrius Kairiukstis</author>
+            </item>
+        
+    
+        
+            <item>
+                <title>Delete voice recordings older than N-days</title>
+                <link>//andrius.mobi/2013/02/delete-voice-recordings-older-than-n-days.html</link>
+                <content:encoded>
+                    <![CDATA[
+                    <p>Disk space running out fast in loaded telephony systems with instant call recording  or either with heavy usage of voicemail. It’s good to purge them on regular basis.</p>
+
+<p>Create an executable bash file and put it to the <code class="highlighter-rouge">cron.daily</code>:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">#!/bin/sh</span>
+<span class="nb">cd</span> /var/spool/asterisk/monitor
+
+<span class="c"># replace rm -f if you want to do other file </span>
+<span class="c"># manipulations, i.e. backup first...</span>
+find <span class="nb">.</span> <span class="nt">-mtime</span> +31 <span class="nt">-exec</span> <span class="nb">rm</span> <span class="nt">-f</span> <span class="o">{}</span> <span class="se">\;</span>
+</code></pre></div></div>
+
+                    ]]>
+                </content:encoded>
+                <guid isPermaLink="false">/2013/02/delete-voice-recordings-older-than-n-days.html</guid>
+                <description>
+                    
+                    Disk space running out fast in loaded telephony systems with instant call recording  or either with heavy usage of voicemail. It's good to purge them on regular basis.
+                    
+                </description>
+                <pubDate>Fri, 22 Feb 2013 09:30:00 -0600</pubDate>
+                <author>Andrius Kairiukstis</author>
+            </item>
+        
+    
+        
+            <item>
+                <title>Questionnaire application with Asterisk PBX AGI + Ruby</title>
+                <link>//andrius.mobi/2013/02/questionnaire-with-asterisk-pbx-agi-ruby.html</link>
+                <content:encoded>
+                    <![CDATA[
+                    <p>There are several Ruby AGI implementations, the best one as for now is <a href="https://github.com/adhearsion/adhearsion">Adhearsion</a>. I do use it for most of my current projects, its great, but sometimes too big and it’s kind a framework that restrict flexibility a bit.</p>
+
+<p>Before Adhearsion I’ve used another one, named <a href="https://github.com/andrius/AsteriskRuby">AsteriskRuby</a>. It does offer AGI and FastAGI connections with Asterisk, and with <a href="https://github.com/andrius/rastman">Rastman</a> its possible to access AMI (Asterisk Manager Interface). Good swiss knife in combination. I love them both for simplicity, you could execute Asterisk commands get AMI events in Asterisk way, easy to troubleshoot, easy to show up for non-Ruby folks. Performance is great, no memory leaks, libraries are simple and flexible.</p>
+
+<p>So back to the Questionnaire application. It were in production for long time for one small project, now I’ve decided to share with VoIP community. It’s based on AsteriskRuby gem.</p>
+
+<p>Code was worked with Asterisk 1.6.x/1.8.x and Ruby 1.8.x.</p>
+
+<p>How to get it working:</p>
+
+<ul>
+  <li>
+    <p>populate code on local server with Asterisk;</p>
+  </li>
+  <li>
+    <p>You need a filename <code class="highlighter-rouge">codes.txt</code> containing phone numbers and PIN codes, and few voice recordings (can get filenames and messages from the application source);</p>
+  </li>
+  <li>
+    <p>update <code class="highlighter-rouge">extensions.conf</code>, point the exten to the FastAGI</p>
+  </li>
+</ul>
+
+<p>And how it works:</p>
+
+<ul>
+  <li>
+    <p>for new caller system would play welcome announcement, for returned caller — “welcome back” announcement (caller authentication based on callerid number and PIN);</p>
+  </li>
+  <li>
+    <p>application will ask caller to enter a PIN code;</p>
+  </li>
+  <li>
+    <p>upon successful authentication, system will continue from last unanswered question (or will start with first question for new caller);</p>
+  </li>
+  <li>
+    <p>Amount of attempts is unlimited, answers and amount of calls are stored into DB.</p>
+  </li>
+</ul>
+
+<p>FastAGI source code (ruby):</p>
+
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">#!/bin/env ruby</span>
+
+<span class="nb">require</span> <span class="s1">'rubygems'</span>
+<span class="nb">require</span> <span class="s1">'mysql'</span>
+<span class="nb">require</span> <span class="s1">'active_record'</span>
+<span class="nb">require</span> <span class="s1">'AGIServer'</span>
+<span class="nb">require</span> <span class="s1">'AGIMenu'</span>
+<span class="nb">require</span> <span class="s1">'AGISelection'</span>
+<span class="nb">require</span> <span class="s1">'daemons'</span>
+
+<span class="no">APP_ROOT</span> <span class="o">=</span> <span class="no">File</span><span class="p">.</span><span class="nf">expand_path</span><span class="p">(</span><span class="no">File</span><span class="p">.</span><span class="nf">dirname</span><span class="p">(</span><span class="kp">__FILE__</span><span class="p">))</span>
+
+<span class="c1"># Questionnaire / voting is statis and here we have a list of correct answers</span>
+<span class="no">CORRECT_ANSWERS</span> <span class="o">=</span> <span class="sx">%w(2 3 2 1 3 1 1 1 1 3)</span>
+
+<span class="c1"># database credentials</span>
+<span class="no">DATABASE</span> <span class="o">=</span> <span class="p">{</span> <span class="ss">:adapter</span> <span class="o">=&gt;</span> <span class="ss">:mysql</span><span class="p">,</span>
+  <span class="ss">:encoding</span> <span class="o">=&gt;</span> <span class="ss">:utf8</span><span class="p">,</span>
+  <span class="ss">:database</span> <span class="o">=&gt;</span> <span class="s1">'voip'</span><span class="p">,</span>
+  <span class="ss">:pool</span> <span class="o">=&gt;</span> <span class="mi">250</span><span class="p">,</span>
+  <span class="ss">:connections</span> <span class="o">=&gt;</span> <span class="mi">12</span><span class="p">,</span>
+  <span class="ss">:username</span> <span class="o">=&gt;</span> <span class="s1">'voip'</span><span class="p">,</span>
+  <span class="ss">:password</span> <span class="o">=&gt;</span> <span class="s1">'PASSWORD'</span><span class="p">,</span>
+  <span class="c1">#:socket =&gt; '/var/run/mysqld/mysqld.pid',</span>
+  <span class="ss">:host</span> <span class="o">=&gt;</span> <span class="s1">'127.0.0.1'</span><span class="p">,</span>
+  <span class="ss">:reconnect</span> <span class="o">=&gt;</span> <span class="kp">true</span>
+<span class="p">}</span>
+
+<span class="no">ActiveRecord</span><span class="o">::</span><span class="no">Base</span><span class="p">.</span><span class="nf">establish_connection</span> <span class="no">DATABASE</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="no">Logger</span><span class="p">.</span><span class="nf">new</span><span class="p">(</span><span class="no">STDERR</span><span class="p">)</span>
+<span class="n">logger</span><span class="p">.</span><span class="nf">level</span> <span class="o">=</span> <span class="no">Logger</span><span class="o">::</span><span class="no">DEBUG</span>
+
+<span class="no">ActiveRecord</span><span class="o">::</span><span class="no">Base</span><span class="p">.</span><span class="nf">logger</span> <span class="o">=</span> <span class="n">logger</span>
+<span class="no">ActiveRecord</span><span class="o">::</span><span class="no">Base</span><span class="p">.</span><span class="nf">colorize_logging</span> <span class="o">=</span> <span class="kp">true</span>
+
+<span class="c1"># create AR classes and DB tables</span>
+<span class="k">class</span> <span class="nc">VoteQuestion</span> <span class="o">&lt;</span> <span class="no">ActiveRecord</span><span class="o">::</span><span class="no">Base</span>
+  <span class="n">set_primary_key</span> <span class="ss">:question_number</span>
+<span class="k">end</span>
+
+<span class="k">class</span> <span class="nc">Questionnaire</span> <span class="o">&lt;</span> <span class="no">ActiveRecord</span><span class="o">::</span><span class="no">Base</span><span class="p">;</span> <span class="k">end</span>
+
+<span class="c1"># create DB tables if not exists (dirty way!)</span>
+<span class="k">if</span> <span class="o">!</span> <span class="no">VoteQuestion</span><span class="p">.</span><span class="nf">table_exists?</span>
+  <span class="no">ActiveRecord</span><span class="o">::</span><span class="no">Schema</span><span class="p">.</span><span class="nf">define</span> <span class="k">do</span>
+    <span class="n">create_table</span> <span class="ss">:questionnairies</span> <span class="k">do</span> <span class="o">|</span><span class="n">table</span><span class="o">|</span>
+      <span class="n">table</span><span class="p">.</span><span class="nf">string</span> <span class="ss">:pin_code</span><span class="p">,</span> <span class="ss">:limit</span> <span class="o">=&gt;</span> <span class="mi">8</span><span class="p">,</span> <span class="ss">:null</span> <span class="o">=&gt;</span> <span class="kp">false</span>
+    <span class="k">end</span>
+  <span class="k">end</span>
+
+  <span class="c1">#(1..10).each do |pin_code|</span>
+  <span class="no">File</span><span class="p">.</span><span class="nf">read</span><span class="p">(</span><span class="s2">"</span><span class="si">#{</span><span class="no">APP_ROOT</span><span class="si">}</span><span class="s2">/codes.txt"</span><span class="p">).</span><span class="nf">chomp</span><span class="p">.</span><span class="nf">split</span><span class="p">(</span><span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="p">).</span><span class="nf">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">pin_code</span><span class="o">|</span>
+    <span class="no">Questionnaire</span><span class="p">.</span><span class="nf">create</span><span class="p">(</span> <span class="ss">:pin_code</span> <span class="o">=&gt;</span> <span class="s2">"00000000</span><span class="si">#{</span><span class="n">pin_code</span><span class="p">.</span><span class="nf">chomp</span><span class="si">}</span><span class="s2">"</span><span class="p">[</span><span class="o">-</span><span class="mi">8</span><span class="p">,</span><span class="mi">8</span><span class="p">]</span> <span class="p">)</span>
+  <span class="k">end</span>
+
+  <span class="no">ActiveRecord</span><span class="o">::</span><span class="no">Schema</span><span class="p">.</span><span class="nf">define</span> <span class="k">do</span>
+    <span class="n">create_table</span> <span class="ss">:phone_numbers</span> <span class="k">do</span> <span class="o">|</span><span class="n">table</span><span class="o">|</span>
+      <span class="n">table</span><span class="p">.</span><span class="nf">integer</span> <span class="ss">:questionnaire_id</span><span class="p">,</span> <span class="ss">:default</span> <span class="o">=&gt;</span> <span class="kp">nil</span>
+      <span class="n">table</span><span class="p">.</span><span class="nf">integer</span> <span class="ss">:number</span><span class="p">,</span> <span class="ss">:limit</span> <span class="o">=&gt;</span> <span class="mi">8</span><span class="p">,</span> <span class="ss">:unsigned</span> <span class="o">=&gt;</span> <span class="kp">true</span><span class="p">,</span> <span class="ss">:null</span> <span class="o">=&gt;</span> <span class="kp">false</span>
+      <span class="n">table</span><span class="p">.</span><span class="nf">integer</span> <span class="ss">:question_number</span><span class="p">,</span> <span class="ss">:null</span> <span class="o">=&gt;</span> <span class="kp">false</span><span class="p">,</span> <span class="ss">:default</span> <span class="o">=&gt;</span> <span class="mi">0</span>
+      <span class="n">table</span><span class="p">.</span><span class="nf">integer</span> <span class="ss">:count_of_calls_made</span><span class="p">,</span> <span class="ss">:null</span> <span class="o">=&gt;</span> <span class="kp">false</span><span class="p">,</span> <span class="ss">:default</span> <span class="o">=&gt;</span> <span class="mi">0</span>
+      <span class="n">table</span><span class="p">.</span><span class="nf">integer</span> <span class="ss">:amount_of_asked_questions</span><span class="p">,</span> <span class="ss">:null</span> <span class="o">=&gt;</span> <span class="kp">false</span><span class="p">,</span> <span class="ss">:default</span> <span class="o">=&gt;</span> <span class="mi">0</span>
+      <span class="n">table</span><span class="p">.</span><span class="nf">integer</span> <span class="ss">:amount_of_correct_answers</span><span class="p">,</span> <span class="ss">:null</span> <span class="o">=&gt;</span> <span class="kp">false</span><span class="p">,</span> <span class="ss">:default</span> <span class="o">=&gt;</span> <span class="mi">0</span>
+      <span class="n">table</span><span class="p">.</span><span class="nf">integer</span> <span class="ss">:total_amount_of_asked_questions</span><span class="p">,</span> <span class="ss">:null</span> <span class="o">=&gt;</span> <span class="kp">false</span><span class="p">,</span> <span class="ss">:default</span> <span class="o">=&gt;</span> <span class="mi">0</span>
+      <span class="n">table</span><span class="p">.</span><span class="nf">integer</span> <span class="ss">:total_amount_of_correct_answers</span><span class="p">,</span> <span class="ss">:null</span> <span class="o">=&gt;</span> <span class="kp">false</span><span class="p">,</span> <span class="ss">:default</span> <span class="o">=&gt;</span> <span class="mi">0</span>
+      <span class="n">table</span><span class="p">.</span><span class="nf">boolean</span> <span class="ss">:sms_sent</span><span class="p">,</span> <span class="ss">:null</span> <span class="o">=&gt;</span> <span class="kp">false</span><span class="p">,</span> <span class="ss">:default</span> <span class="o">=&gt;</span> <span class="kp">false</span>
+      <span class="n">table</span><span class="p">.</span><span class="nf">timestamps</span>
+    <span class="k">end</span>
+    <span class="n">add_index</span> <span class="ss">:phone_numbers</span><span class="p">,</span> <span class="ss">:number</span>
+  <span class="k">end</span>
+
+  <span class="no">ActiveRecord</span><span class="o">::</span><span class="no">Schema</span><span class="p">.</span><span class="nf">define</span> <span class="k">do</span>
+    <span class="n">create_table</span> <span class="ss">:vote_questions</span><span class="p">,</span> <span class="ss">:primary_key</span> <span class="o">=&gt;</span> <span class="ss">:question_number</span> <span class="k">do</span> <span class="o">|</span><span class="n">table</span><span class="o">|</span>
+      <span class="n">table</span><span class="p">.</span><span class="nf">integer</span> <span class="ss">:amount_of_answers</span><span class="p">,</span> <span class="ss">:null</span> <span class="o">=&gt;</span> <span class="kp">false</span><span class="p">,</span> <span class="ss">:default</span> <span class="o">=&gt;</span> <span class="mi">3</span>
+      <span class="n">table</span><span class="p">.</span><span class="nf">integer</span> <span class="ss">:correct_answer</span><span class="p">,</span> <span class="ss">:null</span> <span class="o">=&gt;</span> <span class="kp">false</span>
+    <span class="k">end</span>
+  <span class="k">end</span>
+
+  <span class="p">(</span><span class="mi">1</span><span class="o">..</span><span class="mi">10</span><span class="p">).</span><span class="nf">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">question_no</span><span class="o">|</span>
+    <span class="no">VoteQuestion</span><span class="p">.</span><span class="nf">create</span><span class="p">(</span>
+      <span class="ss">:question_number</span> <span class="o">=&gt;</span> <span class="n">question_no</span><span class="p">,</span>
+      <span class="ss">:amount_of_answers</span> <span class="o">=&gt;</span> <span class="mi">3</span><span class="p">,</span>
+      <span class="ss">:correct_answer</span> <span class="o">=&gt;</span> <span class="no">CORRECT_ANSWERS</span><span class="p">[</span><span class="n">question_no</span><span class="o">-</span><span class="mi">1</span><span class="p">].</span><span class="nf">to_i</span>
+    <span class="p">)</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+
+<span class="k">class</span> <span class="nc">PhoneNumber</span> <span class="o">&lt;</span> <span class="no">ActiveRecord</span><span class="o">::</span><span class="no">Base</span>
+  <span class="n">validates_uniqueness_of</span> <span class="ss">:number</span>
+<span class="k">end</span>
+
+<span class="k">class</span> <span class="nc">CallAttempt</span> <span class="o">&lt;</span> <span class="no">ActiveRecord</span><span class="o">::</span><span class="no">Base</span>
+  <span class="n">belongs_to</span> <span class="ss">:phone_number</span>
+<span class="k">end</span>
+
+<span class="c1"># AGI classes</span>
+<span class="k">class</span> <span class="nc">Farmacy</span> <span class="o">&lt;</span> <span class="no">AGIRoute</span>
+
+  <span class="c1"># this method will be called from asteris dialplan (AGI calling) for every new inbound phone call</span>
+  <span class="k">def</span> <span class="nf">vote</span>
+    <span class="k">begin</span>
+      <span class="n">agi</span><span class="p">.</span><span class="nf">answer</span>
+
+      <span class="no">AGIMenu</span><span class="p">.</span><span class="nf">sounds_dir</span> <span class="o">=</span> <span class="no">AGISelection</span><span class="p">.</span><span class="nf">sounds_dir</span> <span class="o">=</span> <span class="no">APP_ROOT</span> <span class="o">+</span> <span class="s1">'/'</span>
+
+      <span class="c1"># prepare the IVR menu</span>
+      <span class="nb">hash</span> <span class="o">=</span> <span class="p">{</span><span class="ss">:introduction</span><span class="o">=&gt;</span><span class="p">[</span><span class="s2">"welcome"</span><span class="p">,</span> <span class="s2">"instructions"</span><span class="p">],</span>
+        <span class="ss">:conclusion</span><span class="o">=&gt;</span><span class="s2">"what-is-your-choice"</span><span class="p">,</span>
+        <span class="ss">:timeout</span><span class="o">=&gt;</span><span class="mi">17</span><span class="p">,</span>
+        <span class="ss">:choices</span><span class="o">=&gt;</span>
+        <span class="p">[{</span><span class="ss">:dtmf</span><span class="o">=&gt;</span><span class="s2">"*"</span><span class="p">,</span> <span class="ss">:audio</span><span class="o">=&gt;</span><span class="p">[</span><span class="s2">"to-go-back"</span><span class="p">,</span> <span class="s2">"press"</span><span class="p">,</span> <span class="s2">"digits/star"</span><span class="p">]},</span>
+          <span class="p">{</span><span class="ss">:dtmf</span><span class="o">=&gt;</span><span class="mi">1</span><span class="p">,</span> <span class="ss">:audio</span><span class="o">=&gt;</span><span class="p">[</span><span class="s2">"press"</span><span class="p">,</span> <span class="s2">"digits/1"</span><span class="p">,</span> <span class="s2">"for-option-1"</span><span class="p">]},</span>
+          <span class="p">{</span><span class="ss">:dtmf</span><span class="o">=&gt;</span><span class="mi">2</span><span class="p">,</span> <span class="ss">:audio</span><span class="o">=&gt;</span><span class="p">[</span><span class="s2">"press"</span><span class="p">,</span> <span class="s2">"digits/2"</span><span class="p">,</span> <span class="s2">"for-option-2"</span><span class="p">]},</span>
+          <span class="p">{</span><span class="ss">:dtmf</span><span class="o">=&gt;</span><span class="s2">"#"</span><span class="p">,</span> <span class="ss">:audio</span><span class="o">=&gt;</span><span class="p">[</span><span class="s2">"or"</span><span class="p">,</span> <span class="s2">"press"</span><span class="p">,</span> <span class="s2">"digits/pound"</span><span class="p">,</span> <span class="s2">"to-repeat"</span><span class="p">]}]}</span>
+
+      <span class="c1"># fix callerid and locate caller</span>
+      <span class="n">e164</span> <span class="o">=</span> <span class="n">agi</span><span class="p">.</span><span class="nf">channel_params</span><span class="p">[</span><span class="s1">'callerid'</span><span class="p">].</span><span class="nf">to_i</span>
+      <span class="n">number</span> <span class="o">=</span> <span class="no">PhoneNumber</span><span class="p">.</span><span class="nf">find_by_number</span><span class="p">(</span><span class="n">e164</span><span class="p">)</span>
+
+      <span class="c1"># increase calls counter for existiing in DB phone number</span>
+      <span class="k">unless</span> <span class="n">number</span><span class="p">.</span><span class="nf">nil?</span>
+        <span class="n">number</span><span class="p">.</span><span class="nf">count_of_calls_made</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="n">number</span><span class="p">.</span><span class="nf">save</span>
+      <span class="k">end</span>
+      <span class="c1"># create a new DB record for non-existing in DB phone number</span>
+      <span class="n">phone_number</span> <span class="o">=</span> <span class="k">if</span> <span class="n">number</span><span class="p">.</span><span class="nf">nil?</span>
+        <span class="n">pn</span> <span class="o">=</span> <span class="no">PhoneNumber</span><span class="p">.</span><span class="nf">create</span> <span class="ss">:number</span> <span class="o">=&gt;</span> <span class="n">e164</span><span class="p">,</span> <span class="ss">:count_of_calls_made</span> <span class="o">=&gt;</span> <span class="mi">1</span>
+
+        <span class="c1"># say 'welcome' or 'welcome back' &amp; save state of caller</span>
+        <span class="n">pn</span><span class="p">.</span><span class="nf">questionnaire_id</span> <span class="o">=</span> <span class="n">hello_new_caller</span><span class="p">()</span>
+        <span class="n">pn</span><span class="p">.</span><span class="nf">save</span>
+        <span class="n">pn</span>
+
+      <span class="c1"># if caller is not assigned to the specific Questionnaire, ...</span>
+      <span class="k">elsif</span> <span class="n">number</span><span class="p">.</span><span class="nf">questionnaire_id</span><span class="p">.</span><span class="nf">nil?</span>
+        <span class="c1"># say 'welcome' or 'welcome back' &amp; save state of caller</span>
+        <span class="n">number</span><span class="p">.</span><span class="nf">questionnaire_id</span> <span class="o">=</span> <span class="n">hello_new_caller</span><span class="p">()</span>
+        <span class="n">number</span><span class="p">.</span><span class="nf">save</span>
+        <span class="n">number</span>
+
+
+      <span class="k">else</span>
+        <span class="n">welcome_back</span> <span class="n">number</span><span class="p">.</span><span class="nf">question_number</span> <span class="o">==</span> <span class="mi">0</span> <span class="p">?</span> <span class="s1">'Hello_repeat_nopin'</span> <span class="p">:</span> <span class="s1">'Hello_repeat'</span>
+        <span class="n">number</span>
+      <span class="k">end</span>
+
+      <span class="n">agi</span><span class="p">.</span><span class="nf">exec</span> <span class="s1">'Playback silence/1'</span>
+      <span class="n">ask_question</span> <span class="ss">:phone_number</span> <span class="o">=&gt;</span> <span class="n">phone_number</span>
+      <span class="n">thanks!</span> <span class="ss">:phone_number</span> <span class="o">=&gt;</span> <span class="n">phone_number</span>
+
+    <span class="k">rescue</span> <span class="o">=&gt;</span> <span class="n">err</span>
+      <span class="nb">puts</span> <span class="s2">"&gt;&gt;&gt;&gt;&gt;&gt; ERROR: "</span><span class="p">,</span> <span class="n">err</span><span class="p">.</span><span class="nf">backtrace</span>
+    <span class="k">end</span>
+  <span class="k">end</span>
+
+  <span class="kp">private</span>
+
+  <span class="k">def</span> <span class="nf">play_ivr</span><span class="p">(</span><span class="n">ivr</span><span class="p">)</span>
+    <span class="k">begin</span>
+      <span class="n">menu</span> <span class="o">=</span> <span class="no">AGIMenu</span><span class="p">.</span><span class="nf">new</span><span class="p">(</span><span class="n">ivr</span><span class="p">)</span>
+      <span class="n">result</span> <span class="o">=</span> <span class="n">menu</span><span class="p">.</span><span class="nf">play</span><span class="p">(</span><span class="ss">:agi</span> <span class="o">=&gt;</span> <span class="n">agi</span><span class="p">)</span>
+      <span class="n">result</span>
+    <span class="k">rescue</span> <span class="o">=&gt;</span> <span class="n">err</span>
+      <span class="nb">puts</span> <span class="s2">"&gt;&gt;&gt;&gt;&gt;&gt; ERROR: "</span><span class="p">,</span> <span class="n">err</span><span class="p">.</span><span class="nf">backtrace</span>
+      <span class="kp">nil</span>
+    <span class="k">end</span>
+  <span class="k">end</span>
+
+  <span class="k">def</span> <span class="nf">playback</span><span class="p">(</span><span class="n">audio</span><span class="p">,</span> <span class="n">timeout</span> <span class="o">=</span> <span class="mf">0.5</span><span class="p">)</span>
+    <span class="n">play_ivr</span> <span class="ss">:timeout</span> <span class="o">=&gt;</span> <span class="n">timeout</span><span class="p">,</span> <span class="ss">:introduction</span> <span class="o">=&gt;</span> <span class="n">audio</span><span class="p">,</span>
+      <span class="ss">:choices</span> <span class="o">=&gt;</span> <span class="p">[</span>
+        <span class="p">{</span><span class="ss">:dtmf</span> <span class="o">=&gt;</span> <span class="mi">1</span><span class="p">},</span> <span class="p">{</span><span class="ss">:dtmf</span> <span class="o">=&gt;</span> <span class="mi">2</span><span class="p">},</span> <span class="p">{</span><span class="ss">:dtmf</span> <span class="o">=&gt;</span> <span class="mi">3</span><span class="p">},</span>
+        <span class="p">{</span><span class="ss">:dtmf</span> <span class="o">=&gt;</span> <span class="mi">4</span><span class="p">},</span> <span class="p">{</span><span class="ss">:dtmf</span> <span class="o">=&gt;</span> <span class="mi">5</span><span class="p">},</span> <span class="p">{</span><span class="ss">:dtmf</span> <span class="o">=&gt;</span> <span class="mi">6</span><span class="p">},</span>
+        <span class="p">{</span><span class="ss">:dtmf</span> <span class="o">=&gt;</span> <span class="mi">7</span><span class="p">},</span> <span class="p">{</span><span class="ss">:dtmf</span> <span class="o">=&gt;</span> <span class="mi">8</span><span class="p">},</span> <span class="p">{</span><span class="ss">:dtmf</span> <span class="o">=&gt;</span> <span class="mi">9</span><span class="p">},</span>
+        <span class="p">{</span><span class="ss">:dtmf</span><span class="o">=&gt;</span><span class="s1">'*'</span><span class="p">},</span> <span class="p">{</span><span class="ss">:dtmf</span> <span class="o">=&gt;</span> <span class="mi">0</span><span class="p">},</span> <span class="p">{</span><span class="ss">:dtmf</span><span class="o">=&gt;</span><span class="s1">'#'</span><span class="p">}</span> <span class="p">]</span>
+  <span class="k">end</span>
+
+  <span class="k">def</span> <span class="nf">press_one_to_confirm</span><span class="p">(</span><span class="n">return_value</span><span class="o">=</span><span class="kp">nil</span><span class="p">)</span>
+    <span class="n">code</span> <span class="o">=</span> <span class="mi">1</span><span class="p">.</span><span class="nf">upto</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span> <span class="k">do</span> <span class="o">|</span><span class="n">count</span><span class="o">|</span>
+      <span class="n">selection</span> <span class="o">=</span>  <span class="n">playback</span><span class="p">(</span><span class="s1">'Wright'</span><span class="p">,</span> <span class="mi">3</span><span class="p">).</span><span class="nf">to_s</span>
+      <span class="k">break</span> <span class="n">return_value</span> <span class="k">if</span> <span class="n">selection</span><span class="p">.</span><span class="nf">to_s</span> <span class="o">==</span> <span class="s1">'1'</span>
+      <span class="k">if</span> <span class="n">count</span> <span class="o">==</span> <span class="mi">3</span> <span class="k">then</span>
+        <span class="n">agi</span><span class="p">.</span><span class="nf">exec</span> <span class="s2">"Busy 12"</span>
+        <span class="n">agi</span><span class="p">.</span><span class="nf">exec</span> <span class="s2">"Hangup"</span>
+        <span class="k">break</span> <span class="kp">nil</span>
+      <span class="k">end</span>
+    <span class="k">end</span>
+  <span class="k">end</span>
+
+  <span class="k">def</span> <span class="nf">hello_new_caller</span>
+    <span class="k">begin</span>
+      <span class="n">result</span> <span class="o">=</span> <span class="mi">1</span><span class="p">.</span><span class="nf">upto</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span> <span class="k">do</span> <span class="o">|</span><span class="n">count</span><span class="o">|</span>
+        <span class="n">selection</span> <span class="o">=</span> <span class="k">if</span> <span class="n">count</span> <span class="o">==</span> <span class="mi">1</span> <span class="k">then</span>
+          <span class="no">AGISelection</span><span class="p">.</span><span class="nf">new</span> <span class="ss">:audio</span> <span class="o">=&gt;</span> <span class="s1">'Hello'</span><span class="p">,</span> <span class="ss">:max_digits</span> <span class="o">=&gt;</span> <span class="mi">8</span>
+        <span class="k">else</span>
+          <span class="no">AGISelection</span><span class="p">.</span><span class="nf">new</span> <span class="ss">:audio</span> <span class="o">=&gt;</span> <span class="s1">'Wrong'</span><span class="p">,</span> <span class="ss">:max_digits</span> <span class="o">=&gt;</span> <span class="mi">8</span>
+        <span class="k">end</span>
+        <span class="n">code</span> <span class="o">=</span> <span class="n">selection</span><span class="p">.</span><span class="nf">read</span><span class="p">(</span><span class="ss">:agi</span> <span class="o">=&gt;</span> <span class="n">agi</span><span class="p">)</span>
+        <span class="n">questionnaire</span> <span class="o">=</span> <span class="no">Questionnaire</span><span class="p">.</span><span class="nf">find_by_pin_code</span><span class="p">(</span><span class="n">code</span><span class="p">.</span><span class="nf">to_s</span><span class="p">)</span>
+        <span class="k">break</span> <span class="n">questionnaire</span> <span class="k">unless</span> <span class="n">questionnaire</span><span class="p">.</span><span class="nf">nil?</span>
+      <span class="k">end</span>
+      <span class="k">if</span> <span class="n">result</span><span class="p">.</span><span class="nf">class</span> <span class="o">==</span> <span class="no">Questionnaire</span>
+        <span class="n">press_one_to_confirm</span> <span class="n">result</span><span class="p">.</span><span class="nf">id</span>
+      <span class="k">else</span>
+        <span class="n">agi</span><span class="p">.</span><span class="nf">exec</span> <span class="s2">"Busy 12"</span>
+        <span class="n">agi</span><span class="p">.</span><span class="nf">exec</span> <span class="s2">"Hangup"</span>
+        <span class="kp">nil</span>
+      <span class="k">end</span>
+    <span class="k">rescue</span> <span class="o">=&gt;</span> <span class="n">err</span>
+      <span class="nb">puts</span> <span class="s2">"&gt;&gt;&gt;&gt;&gt;&gt; ERROR: "</span><span class="p">,</span> <span class="n">err</span><span class="p">.</span><span class="nf">backtrace</span>
+    <span class="k">end</span>
+  <span class="k">end</span>
+
+  <span class="k">def</span> <span class="nf">welcome_back</span><span class="p">(</span><span class="n">message</span><span class="o">=</span><span class="s1">'Hello_repeat'</span><span class="p">)</span>
+    <span class="n">playback</span> <span class="n">message</span>
+    <span class="n">press_one_to_confirm</span>
+  <span class="k">end</span>
+
+  <span class="k">def</span> <span class="nf">ask_question</span><span class="p">(</span><span class="n">params</span><span class="o">=</span><span class="p">{})</span>
+    <span class="k">begin</span>
+      <span class="n">phone_number</span> <span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="ss">:phone_number</span><span class="p">]</span>
+      <span class="n">question_number</span> <span class="o">=</span> <span class="n">phone_number</span><span class="p">.</span><span class="nf">question_number</span> <span class="o">+</span> <span class="mi">1</span>
+      <span class="n">question_data</span> <span class="o">=</span>  <span class="no">VoteQuestion</span><span class="p">.</span><span class="nf">find_by_question_number</span><span class="p">(</span><span class="n">question_number</span><span class="p">)</span>
+      <span class="k">if</span> <span class="n">question_data</span><span class="p">.</span><span class="nf">nil?</span> <span class="k">then</span> <span class="c1"># finalize work - no more questions</span>
+        <span class="k">return</span>
+      <span class="k">end</span>
+      <span class="n">ivr_data</span> <span class="o">=</span> <span class="p">{</span> <span class="ss">:introduction</span> <span class="o">=&gt;</span> <span class="n">question_number</span><span class="p">,</span> <span class="ss">:choices</span> <span class="o">=&gt;</span> <span class="p">[</span> <span class="p">],</span> <span class="ss">:timeout</span> <span class="o">=&gt;</span> <span class="mi">12</span> <span class="p">}</span>
+      <span class="p">(</span><span class="mi">1</span><span class="o">..</span><span class="p">(</span><span class="n">question_data</span><span class="p">.</span><span class="nf">amount_of_answers</span><span class="p">)).</span><span class="nf">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">possible_answer</span><span class="o">|</span>
+        <span class="n">ivr_data</span><span class="p">[</span><span class="ss">:choices</span><span class="p">].</span><span class="nf">push</span><span class="p">({</span>
+          <span class="ss">:dtmf</span> <span class="o">=&gt;</span> <span class="n">possible_answer</span><span class="p">,</span>
+          <span class="ss">:audio</span> <span class="o">=&gt;</span> <span class="s2">"</span><span class="si">#{</span><span class="n">question_number</span><span class="si">}</span><span class="s2">-</span><span class="si">#{</span><span class="n">possible_answer</span><span class="si">}</span><span class="s2">"</span>
+        <span class="p">})</span>
+      <span class="k">end</span>
+      <span class="n">ivr_result</span> <span class="o">=</span> <span class="n">play_ivr</span> <span class="n">ivr_data</span>
+      <span class="n">phone_number</span><span class="p">.</span><span class="nf">question_number</span> <span class="o">=</span> <span class="n">question_number</span>
+      <span class="n">phone_number</span><span class="p">.</span><span class="nf">amount_of_asked_questions</span> <span class="o">+=</span> <span class="mi">1</span>
+      <span class="n">phone_number</span><span class="p">.</span><span class="nf">total_amount_of_asked_questions</span> <span class="o">+=</span> <span class="mi">1</span>
+      <span class="k">if</span> <span class="n">question_data</span><span class="p">.</span><span class="nf">correct_answer</span> <span class="o">==</span> <span class="n">ivr_result</span><span class="p">.</span><span class="nf">to_i</span>
+        <span class="n">phone_number</span><span class="p">.</span><span class="nf">amount_of_correct_answers</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="n">phone_number</span><span class="p">.</span><span class="nf">total_amount_of_correct_answers</span> <span class="o">+=</span> <span class="mi">1</span>
+      <span class="k">end</span>
+
+      <span class="n">phone_number</span><span class="p">.</span><span class="nf">save</span>
+      <span class="n">ask_question</span> <span class="ss">:phone_number</span> <span class="o">=&gt;</span> <span class="n">phone_number</span>
+    <span class="k">rescue</span> <span class="o">=&gt;</span> <span class="n">err</span>
+      <span class="nb">puts</span> <span class="n">err</span><span class="p">,</span> <span class="n">err</span><span class="p">.</span><span class="nf">backtrace</span>
+    <span class="k">end</span>
+  <span class="k">end</span>
+
+  <span class="k">def</span> <span class="nf">thanks!</span><span class="p">(</span><span class="n">params</span><span class="o">=</span><span class="p">{})</span>
+    <span class="n">phone_number</span> <span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="ss">:phone_number</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">phone_number</span><span class="p">.</span><span class="nf">amount_of_correct_answers</span> <span class="o">==</span> <span class="no">VoteQuestion</span><span class="p">.</span><span class="nf">count</span> <span class="k">then</span>
+      <span class="n">playback</span> <span class="s1">'Goodbye'</span>
+    <span class="k">else</span>
+      <span class="n">phone_number</span><span class="p">.</span><span class="nf">question_number</span> <span class="o">=</span> <span class="mi">0</span>
+      <span class="n">phone_number</span><span class="p">.</span><span class="nf">amount_of_asked_questions</span> <span class="o">=</span> <span class="mi">0</span>
+      <span class="n">phone_number</span><span class="p">.</span><span class="nf">amount_of_correct_answers</span> <span class="o">=</span> <span class="mi">0</span>
+      <span class="n">phone_number</span><span class="p">.</span><span class="nf">save</span>
+      <span class="n">playback</span> <span class="s1">'Goodbye_wrong'</span>
+    <span class="k">end</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+
+<span class="nb">trap</span><span class="p">(</span><span class="s1">'INT'</span><span class="p">)</span>   <span class="p">{</span> <span class="no">AGIServer</span><span class="p">.</span><span class="nf">shutdown</span> <span class="p">}</span>
+<span class="nb">trap</span><span class="p">(</span><span class="s1">'TERM'</span><span class="p">)</span>   <span class="p">{</span> <span class="no">AGIServer</span><span class="p">.</span><span class="nf">shutdown</span> <span class="p">}</span>
+
+<span class="k">begin</span>
+  <span class="n">config</span> <span class="o">=</span> <span class="p">{</span> <span class="ss">:bind_port</span> <span class="o">=&gt;</span> <span class="mi">4574</span><span class="p">,</span>
+    <span class="ss">:min_workers</span> <span class="o">=&gt;</span> <span class="mi">5</span><span class="p">,</span>
+    <span class="ss">:max_workers</span> <span class="o">=&gt;</span> <span class="mi">12</span><span class="p">,</span>
+    <span class="ss">:jobs_per_worker</span> <span class="o">=&gt;</span> <span class="mi">2</span><span class="p">,</span>
+    <span class="ss">:stats</span> <span class="o">=&gt;</span> <span class="kp">false</span><span class="p">,</span>
+    <span class="ss">:bind_host</span> <span class="o">=&gt;</span> <span class="s1">'127.0.0.1'</span><span class="p">,</span>
+    <span class="ss">:logger</span> <span class="o">=&gt;</span> <span class="n">logger</span>
+  <span class="p">}</span>
+  <span class="no">AgiServer</span> <span class="o">=</span> <span class="no">AGIServer</span><span class="p">.</span><span class="nf">new</span> <span class="n">config</span>
+<span class="k">rescue</span> <span class="no">Errno</span><span class="o">::</span><span class="no">EADDRINUSE</span>
+  <span class="n">error</span> <span class="o">=</span> <span class="s2">"Cannot start AGI Server, address already in use."</span>
+  <span class="n">logger</span><span class="p">.</span><span class="nf">fatal</span><span class="p">(</span><span class="n">error</span><span class="p">)</span>
+  <span class="nb">print</span> <span class="s2">"</span><span class="si">#{</span><span class="n">error</span><span class="si">}</span><span class="se">\n</span><span class="s2">"</span>
+  <span class="nb">exit</span>
+<span class="k">else</span>
+  <span class="nb">print</span> <span class="s2">"</span><span class="si">#{</span><span class="vg">$$</span><span class="si">}</span><span class="s2">"</span>
+<span class="k">end</span>
+
+<span class="no">AgiServer</span><span class="p">.</span><span class="nf">start</span>
+<span class="no">AgiServer</span><span class="p">.</span><span class="nf">finish</span>
+</code></pre></div></div>
+
+<p>Good luck!</p>
+
+                    ]]>
+                </content:encoded>
+                <guid isPermaLink="false">/2013/02/questionnaire-with-asterisk-pbx-agi-ruby.html</guid>
+                <description>
+                    
+                    Questionnaire application were in production for long time for one small project, now I've decided to share with VoIP community. It's based on AsteriskRuby gem. How it works: for new caller system would play welcome announcement, for returned caller &quot;welcome back&quot; announcement (caller authentication based on callerid number and PIN); upon successful authentication, system will continue from last unanswered question (or will start with first question for new caller); Amount of attempts is unlimited, answers and amount of calls are stored into DB.
+                    
+                </description>
+                <pubDate>Tue, 12 Feb 2013 16:29:00 -0600</pubDate>
+                <author>Andrius Kairiukstis</author>
+            </item>
+        
+    
+        
+            <item>
+                <title>Telephony system for remote locations</title>
+                <link>//andrius.mobi/2013/02/telephony-system-for-remote-locations.html</link>
+                <content:encoded>
+                    <![CDATA[
+                    <p>Who is living far away from home country. Or working remotely. Who is travelling a lot, or have presence in another country — such people or businesses need some telecommunication system, that will keep them connected to the world.</p>
+
+<h2 id="target-users">Target users</h2>
+
+<ul>
+  <li>Remote workers;</li>
+  <li>Travelers, tourists;</li>
+  <li>Digital nomads;</li>
+  <li>Expats, migrants, students;</li>
+  <li>Business companies operating internationally or having multiple branches;</li>
+  <li>Transport and logistics companies;</li>
+  <li>Travel agencies;</li>
+  <li>…and more!</li>
+</ul>
+
+<p><strong>Such users often searching for:</strong></p>
+
+<ul>
+  <li>a local SIM card to make local calls and to browse internet;</li>
+  <li>an solution to get calls to the old (home) phone number without paying too much roaming fees;</li>
+  <li>low-cost roaming solution;</li>
+  <li>(who is looking to establish an virtual presence) — for local phone number in remote location;</li>
+  <li>low-cost calls;</li>
+</ul>
+
+<h2 id="solution">Solution</h2>
+
+<p>So how that could be implemented?</p>
+
+<p>To create a phone system with low-cost or zero-cost calls between two locations, you need such components:</p>
+
+<ul>
+  <li>
+    <p>VoIP server — hosted PBX or a small server with Linux and Asterisk PBX onboard. This box could be an: old computer, Raspberry Pi, OpenWRT router, VPS server;</p>
+  </li>
+  <li>
+    <p>Prepaid SIM card in present location with mobile internet;</p>
+  </li>
+  <li>
+    <p>DID phone number in home (remote for virtual presence) country. DID is a phone number you could get from an VoIP carrier, forwarded to your phone system</p>
+
+    <p>or</p>
+
+    <p>as an option: an FXO/VoIP box to which you could plug your home phone-line or an Raspberry Pi with GSM USB stick or GSM gateway — with your old SIM card inside;</p>
+  </li>
+</ul>
+
+<p>Setup call diversion from your home SIM card mobile to the DID number (or keep your SIM card within GSM gateway);</p>
+
+<p>Configure SIP account on your softphone, point it to the VoIP server;</p>
+
+<p>Update dialplan and get the calls, easy as 1-2-3 ;)</p>
+
+<p>Of course calls works in both directions! In case if there is no internet coverage, calls could be sent to the cellphone through VoIP trunk (and you would pay some fee for that, but it’s most likely still way cheaper than pay roaming fees).</p>
+
+<p>I do that for years and now working on roaming PBX solution that automate various use cases.</p>
+
+                    ]]>
+                </content:encoded>
+                <guid isPermaLink="false">/2013/02/telephony-system-for-remote-locations.html</guid>
+                <description>
+                    
+                </description>
+                <pubDate>Tue, 05 Feb 2013 16:00:00 -0600</pubDate>
+                <author>Andrius Kairiukstis</author>
+            </item>
+        
+    
+        
+            <item>
+                <title>Asterisk AGI sample in bash</title>
+                <link>//andrius.mobi/2013/02/asterisk-agi-sample-in-bash.html</link>
+                <content:encoded>
+                    <![CDATA[
+                    <p>Asterisk AGI sample in bash, very interesting. Bash is great alternative in situation when external scripts must be executed to implement functionality Asterisk can’t do (and another option is <a href="https://wiki.asterisk.org/wiki/display/AST/Lua+Dialplan+Configuration">Lua dialplan</a>). I am using Ruby for the same purpose (<a href="http://adhearsion.com">Adhearsion</a> or <a href="https://rubygems.org/gems/AsteriskRuby">AsteriskRuby</a>).</p>
+
+<p>Anyways here is the AGI, very basic one but fully functional:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">#!/bin/bash </span>
+<span class="nb">declare</span> <span class="nt">-a</span> array 
+<span class="k">while </span><span class="nb">read</span> <span class="nt">-e</span> ARG <span class="o">&amp;&amp;</span> <span class="o">[</span> <span class="s2">"</span><span class="nv">$ARG</span><span class="s2">"</span> <span class="o">]</span> <span class="p">;</span> <span class="k">do 
+        </span><span class="nv">array</span><span class="o">=(</span><span class="sb">`</span> <span class="nb">echo</span> <span class="nv">$ARG</span> | <span class="nb">sed</span> <span class="nt">-e</span> <span class="s1">'s/://'</span><span class="sb">`</span><span class="o">)</span> 
+        <span class="nb">export</span> <span class="k">${</span><span class="nv">array</span><span class="p">[0]</span><span class="k">}</span><span class="o">=</span><span class="k">${</span><span class="nv">array</span><span class="p">[1]</span><span class="k">}</span> 
+<span class="k">done</span> 
+
+<span class="c"># following variables are available from asterisk </span>
+<span class="nb">echo</span> <span class="nv">$agi_request</span> <span class="o">&gt;</span>&amp;2 
+<span class="nb">echo</span> <span class="nv">$agi_channel</span> <span class="o">&gt;</span>&amp;2 
+<span class="nb">echo</span> <span class="nv">$agi_language</span> <span class="o">&gt;</span>&amp;2 
+<span class="nb">echo</span> <span class="nv">$agi_type</span> <span class="o">&gt;</span>&amp;2 
+<span class="nb">echo</span> <span class="nv">$agi_uniqueid</span> <span class="o">&gt;</span>&amp;2 
+<span class="nb">echo</span> <span class="nv">$agi_callerid</span> <span class="o">&gt;</span>&amp;2 
+<span class="nb">echo</span> <span class="nv">$agi_dnid</span> <span class="o">&gt;</span>&amp;2 
+<span class="nb">echo</span> <span class="nv">$agi_rdnis</span> <span class="o">&gt;</span>&amp;2 
+<span class="nb">echo</span> <span class="nv">$agi_context</span> <span class="o">&gt;</span>&amp;2 
+<span class="nb">echo</span> <span class="nv">$agi_extension</span> <span class="o">&gt;</span>&amp;2 
+<span class="nb">echo</span> <span class="nv">$agi_priority</span> <span class="o">&gt;</span>&amp;2 
+<span class="nb">echo</span> <span class="nv">$agi_enhanced</span> <span class="o">&gt;</span>&amp;2 
+
+checkresults<span class="o">()</span> <span class="o">{</span> 
+        <span class="k">while </span><span class="nb">read </span>line 
+        <span class="k">do 
+        case</span> <span class="k">${</span><span class="nv">line</span>:0:4<span class="k">}</span> <span class="k">in</span> 
+        <span class="s2">"200 "</span> <span class="p">)</span> <span class="nb">echo</span> <span class="nv">$line</span> <span class="o">&gt;</span>&amp;2 
+                 <span class="k">return</span><span class="p">;;</span> 
+        <span class="s2">"510 "</span> <span class="p">)</span> <span class="nb">echo</span> <span class="nv">$line</span> <span class="o">&gt;</span>&amp;2 
+                 <span class="k">return</span><span class="p">;;</span> 
+        <span class="s2">"520 "</span> <span class="p">)</span> <span class="nb">echo</span> <span class="nv">$line</span> <span class="o">&gt;</span>&amp;2 
+                 <span class="k">return</span><span class="p">;;</span> 
+        <span class="k">*</span>      <span class="p">)</span> <span class="nb">echo</span> <span class="nv">$line</span> <span class="o">&gt;</span>&amp;2<span class="p">;;</span> <span class="c">#keep on reading those Invlid command </span>
+                                  <span class="c">#command syntax until "520 End ..." </span>
+        <span class="k">esac</span> 
+        <span class="k">done</span> 
+<span class="o">}</span> 
+
+<span class="nv">res</span><span class="o">=</span>&lt;SOME SCRIPT&gt; 
+
+<span class="nb">echo</span> <span class="s2">"1.  Setting Variable 'Test Variable' ..."</span> <span class="o">&gt;</span>&amp;2 
+<span class="nb">echo</span> <span class="s2">"SET VARIABLE TestVariable </span><span class="se">\"</span><span class="nv">$res</span><span class="se">\"</span><span class="s2">"</span> 
+checkresults 
+
+<span class="nb">echo</span> <span class="s2">"=================== Complete ===================="</span> <span class="o">&gt;</span>&amp;2
+</code></pre></div></div>
+
+                    ]]>
+                </content:encoded>
+                <guid isPermaLink="false">/2013/02/asterisk-agi-sample-in-bash.html</guid>
+                <description>
+                    
+                    Asterisk AGI sample in bash, very interesting. Bash is great alternative in situation when external scripts must be executed to implement functionality Asterisk can't do.
+                    
+                </description>
+                <pubDate>Sat, 02 Feb 2013 14:29:00 -0600</pubDate>
+                <author>Andrius Kairiukstis</author>
+            </item>
+        
+    
+  </channel>
+</rss>

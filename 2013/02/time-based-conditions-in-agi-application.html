@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Time based conditions in voice (AGI) application &#8211; Voice Applications</title>
+    <link rel="dns-prefetch" href="//fonts.googleapis.com">
+    <link rel="dns-prefetch" href="//fonts.gstatic.com">
+    <link rel="dns-prefetch" href="//maxcdn.bootstrapcdn.com">
+    <link rel="dns-prefetch" href="//cdnjs.cloudflare.com">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Typical telephony system process incoming call-flow based on different times (and of course customer do want to have control on that, handle time-ranges; also whole platform could be an multi-tenant server with different virtual PBX'es).">
+    <meta name="robots" content="all">
+    <meta name="author" content="Andrius Kairiukstis">
+    <meta property="fb:pages" content="ctiapps" />
+    <meta name="keywords" content="">
+    <link rel="canonical" href="//andrius.mobi/2013/02/time-based-conditions-in-agi-application.html">
+    <link rel="alternate" type="application/rss+xml" title="RSS Feed for Voice Applications" href="/feed.xml" />
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/css/pixyll.css?201911060412" type="text/css">
+
+    <!-- Fonts -->
+    
+    <link href='//fonts.googleapis.com/css?family=Merriweather:900,900italic,300,300italic&amp;subset=latin-ext,latin' rel='stylesheet' type='text/css'>
+    <link href='//fonts.googleapis.com/css?family=Lato:900,300&amp;subset=latin-ext,latin' rel='stylesheet' type='text/css'>
+    
+    
+      <link href="//maxcdn.bootstrapcdn.com/font-awesome/latest/css/font-awesome.min.css" rel="stylesheet">
+    
+
+    <!-- MathJax -->
+    
+
+    <!-- Verifications -->
+    
+    
+
+    <!-- Open Graph -->
+    <!-- From: https://github.com/mmistakes/hpstr-jekyll-theme/blob/master/_includes/head.html -->
+    <meta property="og:locale" content="en_US">
+    <meta property="og:type" content="article">
+    <meta property="og:title" content="Time based conditions in voice (AGI) application">
+    <meta property="og:description" content="Realtime voice applications. Notes about Unified Communications, CTI, call-centers; open-source VoIP (Asterisk, Freeswitch, Kamailio); with test automation, and scaled container (docker) apps.">
+    <meta property="og:url" content="//andrius.mobi/2013/02/time-based-conditions-in-agi-application.html">
+    <meta property="og:site_name" content="Voice Applications">
+    
+    <meta property="og:image" content="//andrius.mobi/images/me.jpeg">
+    
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary" />
+    
+        <meta name="twitter:site" content="@andrius_kai" />
+        <meta name="twitter:creator" content="@andrius_kai" />
+    
+    <meta name="twitter:title" content="Time based conditions in voice (AGI) application" />
+    <meta name="twitter:description" content="Typical telephony system process incoming call-flow based on different times (and of course customer do want to have control on that, handle time-ranges; also whole platform could be an multi-tenant server with different virtual PBX'es)." />
+    <meta name="twitter:url" content="//andrius.mobi/2013/02/time-based-conditions-in-agi-application.html" />
+    
+    <meta name="twitter:image" content="//andrius.mobi/images/me.jpeg" />
+    
+
+    <!-- Icons -->
+    <link rel="apple-touch-icon" sizes="57x57" href="/apple-touch-icon-57x57.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="/apple-touch-icon-114x114.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="/apple-touch-icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="144x144" href="/apple-touch-icon-144x144.png">
+    <link rel="apple-touch-icon" sizes="60x60" href="/apple-touch-icon-60x60.png">
+    <link rel="apple-touch-icon" sizes="120x120" href="/apple-touch-icon-120x120.png">
+    <link rel="apple-touch-icon" sizes="76x76" href="/apple-touch-icon-76x76.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="/apple-touch-icon-152x152.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon-180x180.png">
+    <link rel="icon" type="image/png" href="/favicon-192x192.png" sizes="192x192">
+    <link rel="icon" type="image/png" href="/favicon-160x160.png" sizes="160x160">
+    <link rel="icon" type="image/png" href="/favicon-96x96.png" sizes="96x96">
+    <link rel="icon" type="image/png" href="/favicon-16x16.png" sizes="16x16">
+    <link rel="icon" type="image/png" href="/favicon-32x32.png" sizes="32x32">
+    <link rel="shortcut icon" href="/favicon.ico">
+
+    
+    <script type="text/javascript">
+       (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+       (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+       m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+       })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+       ga('create', 'UA-38523949-3', 'auto');
+       ga('send', 'pageview');
+    </script>
+    
+</head>
+
+<body class="site animated fade-in-down">
+  
+	
+
+  <div class="site-wrap">
+    <header class="site-header px2 px-responsive">
+  <div class="mt2 wrap">
+    <div class="measure">
+      <a href="/" class="site-title">Voice Applications</a>
+      <nav class="site-nav">
+        
+
+
+
+
+    
+
+    
+
+
+
+
+    
+
+    
+
+
+
+
+      </nav>
+      <div class="clearfix"></div>
+      
+        <div class="social-icons">
+  <div class="social-icons-right">
+    
+      <a class="fa fa-github" href="https://github.com/andrius"></a>
+    
+    
+    
+    
+    
+      <a class="fa fa-twitter" href="https://twitter.com/andrius_kai"></a>
+    
+    
+    
+    
+      <a class="fa fa-linkedin" href="https://www.linkedin.com/in/andrius-kairiukstis"></a>
+    
+    
+    
+    
+      <a class="fa fa-telegram" href="https://t.me/andrius_kai"></a>
+    
+    
+    
+      <a class="fa fa-whatsapp" href="https://wa.me/34652299183"></a>
+    
+    
+  </div>
+  <div class="right">
+    
+    
+    
+  </div>
+</div>
+<div class="clearfix"></div>
+
+      
+    </div>
+  </div>
+</header>
+
+
+    <div class="post p2 p-responsive wrap" role="main">
+      <div class="measure">
+        
+
+
+<div class="post-header mb2">
+  <h1>Time based conditions in voice (AGI) application</h1>
+  <span class="post-meta">Feb 22, 2013</span><br>
+  
+  <span class="post-meta small">
+  
+    3 minute read
+  
+  </span>
+</div>
+
+<article class="post-content">
+  <p>Typical telephony system process incoming call-flow based on different times (and of course customer do want to have control on that, handle time-ranges; also whole platform could be an multi-tenant server with different virtual PBX’es):</p>
+
+<ul>
+  <li>
+    <p>During night call should be delivered to the voicemail;</p>
+  </li>
+  <li>
+    <p>In the morning, lunch time and evening should be forwarded to the cell phone;</p>
+  </li>
+  <li>
+    <p>During business hours, call should be processed following standard call-flow logic;</p>
+  </li>
+  <li>
+    <p>Friday’s time is shorter;</p>
+  </li>
+  <li>
+    <p>at Saturday company works only until lunch time;</p>
+  </li>
+  <li>
+    <p>and it’s closed at Sunday (calls should be routed to the voicemail);</p>
+  </li>
+  <li>
+    <p>Calls on public holidays should be forwarded to the voicemail too.</p>
+  </li>
+</ul>
+
+<p>Long time ago I’ve created an following Ruby classes and ActiveRecord migrations for flexible business times management.  And now sharing this, it could be useful for anyone who deal with time conditions in the backend apps (and that’s not only telephony-related).</p>
+
+<p><code class="highlighter-rouge">Item</code> is and kind polymorphic association that points to any voice-related “thing” in a PBX. I.e. to the extension, or voicemail, conference, whatever…</p>
+
+<p>If we would trigger method <code class="highlighter-rouge">operational?</code> for given business-time collection, it should return “item_id” or nil if time conditions did not met (office closed?).</p>
+<h3 id="tests">Tests</h3>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>1.9.3-p327 :001 &gt; Campaign.last.business_time.operational?
+
+Campaign Load (0.1ms)  SELECT "campaigns".* FROM "campaigns" ORDER BY "campaigns"."id" DESC LIMIT 1
+BusinessTime Load (0.2ms)  SELECT "business_times".* FROM "business_times" WHERE "business_times"."id" = 1 LIMIT 1
+BusinessTimeMember Load (0.3ms)  SELECT "business_time_members".* FROM "business_time_members" WHERE "business_time_members"."business_time_id" = 1 ORDER BY
+  business_time_id,
+  day_of_month desc,
+  month desc,
+  year desc,
+  weekday desc,
+  time_from desc,
+  time_to asc
+
+=&gt; 0
+</code></pre></div></div>
+<h3 id="migrations">Migrations</h3>
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">create_table</span> <span class="ss">:business_time_members</span> <span class="k">do</span> <span class="o">|</span><span class="n">t</span><span class="o">|</span>
+	<span class="n">t</span><span class="p">.</span><span class="nf">string</span>   <span class="ss">:name</span><span class="p">,</span> <span class="ss">:limit</span> <span class="o">=&gt;</span> <span class="mi">100</span>
+	<span class="n">t</span><span class="p">.</span><span class="nf">integer</span>  <span class="ss">:business_time_id</span>
+	<span class="n">t</span><span class="p">.</span><span class="nf">time</span>     <span class="ss">:time_from</span><span class="p">,</span> <span class="ss">:default</span> <span class="o">=&gt;</span> <span class="s1">'2000-01-01 00:00:00'</span>
+	<span class="n">t</span><span class="p">.</span><span class="nf">time</span>     <span class="ss">:time_to</span><span class="p">,</span> <span class="ss">:default</span> <span class="o">=&gt;</span> <span class="s1">'2000-01-01 23:59:59'</span>
+	<span class="n">t</span><span class="p">.</span><span class="nf">integer</span>  <span class="ss">:weekday</span>      <span class="c1"># 0 - sunday, 1 - monday, 2 -tuesday, ...</span>
+	<span class="n">t</span><span class="p">.</span><span class="nf">integer</span>  <span class="ss">:day_of_month</span> <span class="c1"># 1-31</span>
+	<span class="n">t</span><span class="p">.</span><span class="nf">integer</span>  <span class="ss">:month</span>        <span class="c1"># 1-12</span>
+	<span class="n">t</span><span class="p">.</span><span class="nf">integer</span>  <span class="ss">:year</span>         <span class="c1"># 2012</span>
+	<span class="n">t</span><span class="p">.</span><span class="nf">integer</span>  <span class="ss">:item_id</span><span class="p">,</span> <span class="ss">:default</span> <span class="o">=&gt;</span> <span class="mi">0</span>      <span class="c1"># item with action!</span>
+	<span class="n">t</span><span class="p">.</span><span class="nf">timestamps</span>
+<span class="k">end</span>
+
+<span class="n">create_table</span> <span class="ss">:business_times</span> <span class="k">do</span> <span class="o">|</span><span class="n">t</span><span class="o">|</span>
+	<span class="n">t</span><span class="p">.</span><span class="nf">string</span>  <span class="ss">:name</span><span class="p">,</span> <span class="ss">:limit</span> <span class="o">=&gt;</span> <span class="mi">100</span>
+	<span class="n">t</span><span class="p">.</span><span class="nf">timestamps</span>
+<span class="k">end</span>
+
+<span class="n">execute</span> <span class="s2">"INSERT INTO `business_times` (`id`, `name`)
+	VALUES (1, 'Call Mon-Fri 9 to 21; Sat, Sun 11 to 19')"</span>
+
+<span class="c1"># Always closed!</span>
+<span class="c1"># It is a default condition with lowest priority and will be executed it other conditions did not met.</span>
+<span class="c1"># BusinessTimeMember.create :business_time =&gt; business_time, :item =&gt; closed_action</span>
+<span class="n">execute</span> <span class="s2">"INSERT INTO `business_time_members` (`id`, `business_time_id`, `item_id`) VALUES (?, 1, NULL)"</span>
+<span class="c1"># Make calls on business days (Monday to Friday) from 9:00 to 21:00,</span>
+<span class="c1"># on weekends (Sunday and Saturday) from 11:00 to 19:00</span>
+<span class="c1"># 0 - Sun, 6 - Sat</span>
+<span class="mi">0</span><span class="p">.</span><span class="nf">upto</span><span class="p">(</span><span class="mi">6</span><span class="p">)</span> <span class="k">do</span> <span class="o">|</span><span class="n">day</span><span class="o">|</span>
+	<span class="n">time_from</span><span class="p">,</span> <span class="n">time_to</span> <span class="o">=</span> <span class="k">if</span> <span class="n">day</span> <span class="o">==</span> <span class="mi">0</span> <span class="o">||</span> <span class="n">day</span> <span class="o">==</span> <span class="mi">6</span> <span class="k">then</span>
+		<span class="c1">#[Time.parse("11:00:00"), Time.parse("18:59:59")]</span>
+		<span class="p">[</span><span class="no">Time</span><span class="p">.</span><span class="nf">parse</span><span class="p">(</span><span class="s2">"00:00:00"</span><span class="p">),</span> <span class="no">Time</span><span class="p">.</span><span class="nf">parse</span><span class="p">(</span><span class="s2">"23:59:59"</span><span class="p">)]</span>
+	<span class="k">else</span>
+		<span class="c1">#[Time.parse("9:00:00"), Time.parse("20:59:59")]</span>
+		<span class="p">[</span><span class="no">Time</span><span class="p">.</span><span class="nf">parse</span><span class="p">(</span><span class="s2">"00:00:00"</span><span class="p">),</span> <span class="no">Time</span><span class="p">.</span><span class="nf">parse</span><span class="p">(</span><span class="s2">"23:59:59"</span><span class="p">)]</span>
+	<span class="k">end</span>
+
+	<span class="c1"># item_id 0 = continue dialplan!</span>
+	<span class="c1"># BusinessTimeMember.create :business_time =&gt; business_time,</span>
+	<span class="c1">#   :item_id =&gt; 0, :weekday =&gt; day,</span>
+	<span class="c1">#   :time_from =&gt; "6:00", :time_to =&gt; "17:00"</span>
+	<span class="n">execute</span> <span class="s2">"INSERT INTO `business_time_members`
+		(`id`, `business_time_id`, `weekday`, `time_from`, `time_to`, `item_id`)
+		VALUES (?, 1, </span><span class="si">#{</span><span class="n">day</span><span class="si">}</span><span class="s2">, '</span><span class="si">#{</span><span class="n">time_from</span><span class="si">}</span><span class="s2">', '</span><span class="si">#{</span><span class="n">time_to</span><span class="si">}</span><span class="s2">', 0)"</span>
+<span class="k">end</span>
+</code></pre></div></div>
+<h3 id="models">Models</h3>
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">class</span> <span class="nc">BusinessTimeMember</span> <span class="o">&lt;</span> <span class="no">ActiveRecord</span><span class="o">::</span><span class="no">Base</span>
+  <span class="c1">#validations</span>
+  <span class="n">validates_presence_of</span> <span class="ss">:business_time_id</span>
+  <span class="n">validates_presence_of</span> <span class="ss">:item_id</span>
+  <span class="c1"># 0 (zero) means to continue dialplan after check!</span>
+  <span class="n">validates_numericality_of</span> <span class="ss">:item_id</span> <span class="c1">#, :greater_than =&gt; 0</span>
+
+  <span class="c1"># relations</span>
+  <span class="n">belongs_to</span> <span class="ss">:business_time</span>
+  <span class="n">belongs_to</span> <span class="ss">:item</span>
+<span class="k">end</span>
+
+<span class="k">class</span> <span class="nc">BusinessTime</span> <span class="o">&lt;</span> <span class="no">ActiveRecord</span><span class="o">::</span><span class="no">Base</span>
+  <span class="n">has_many</span> <span class="ss">:business_time_members</span><span class="p">,</span> <span class="ss">:dependent</span> <span class="o">=&gt;</span> <span class="ss">:destroy</span>
+  <span class="n">has_many</span> <span class="ss">:items</span><span class="p">,</span> <span class="ss">:as</span> <span class="o">=&gt;</span> <span class="ss">:routable</span>
+
+  <span class="n">has_many</span> <span class="ss">:soho_pbxes</span>
+
+  <span class="c1"># return false if no records found,</span>
+  <span class="c1"># 0 if specified - means "continue" dialplan,</span>
+  <span class="c1"># or item_id</span>
+  <span class="k">def</span> <span class="nf">operational?</span><span class="p">(</span><span class="n">details</span> <span class="o">=</span> <span class="p">{</span> <span class="ss">:datetime</span> <span class="o">=&gt;</span> <span class="no">Time</span><span class="p">.</span><span class="nf">now</span><span class="p">.</span><span class="nf">utc</span> <span class="p">})</span>
+    <span class="n">d</span> <span class="o">=</span> <span class="n">details</span><span class="p">[</span><span class="ss">:datetime</span><span class="p">]</span>
+
+    <span class="o">=</span><span class="k">begin</span>
+      <span class="k">if</span> <span class="nb">self</span><span class="p">.</span><span class="nf">timezone</span>
+        <span class="k">begin</span>
+          <span class="n">tz</span> <span class="o">=</span> <span class="no">TZInfo</span><span class="o">::</span><span class="no">Timezone</span><span class="p">.</span><span class="nf">get</span><span class="p">(</span><span class="nb">self</span><span class="p">.</span><span class="nf">timezone</span><span class="p">)</span>
+          <span class="n">local</span> <span class="o">=</span> <span class="n">tz</span><span class="p">.</span><span class="nf">utc_to_local</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
+          <span class="nb">puts</span> <span class="s2">"got timezone </span><span class="si">#{</span><span class="nb">self</span><span class="p">.</span><span class="nf">timezone</span><span class="si">}</span><span class="s2"> - utc </span><span class="si">#{</span><span class="n">d</span><span class="si">}</span><span class="s2">, local </span><span class="si">#{</span><span class="n">local</span><span class="si">}</span><span class="s2">"</span>
+          <span class="n">d</span> <span class="o">=</span> <span class="n">local</span>
+        <span class="k">rescue</span>
+          <span class="nb">puts</span> <span class="s2">"got exception for timezone </span><span class="si">#{</span><span class="nb">self</span><span class="p">.</span><span class="nf">timezone</span><span class="si">}</span><span class="s2">"</span>
+        <span class="k">end</span>
+      <span class="k">end</span>
+    <span class="o">=</span><span class="k">end</span>
+
+    <span class="n">tm</span> <span class="o">=</span> <span class="no">BusinessTimeMember</span><span class="p">.</span><span class="nf">find</span><span class="p">(</span>
+      <span class="ss">:all</span><span class="p">,</span>
+      <span class="ss">:conditions</span> <span class="o">=&gt;</span> <span class="p">{</span> <span class="ss">:business_time_id</span> <span class="o">=&gt;</span> <span class="nb">id</span> <span class="p">},</span>
+      <span class="ss">:order</span> <span class="o">=&gt;</span> <span class="s2">"
+        business_time_id,
+        day_of_month desc,
+        month desc,
+        year desc,
+        weekday desc,
+        time_from desc,
+        time_to asc
+      "</span>
+    <span class="p">)</span>
+
+    <span class="k">return</span> <span class="kp">false</span> <span class="k">if</span> <span class="n">tm</span><span class="p">.</span><span class="nf">empty?</span>
+    <span class="n">tm</span><span class="p">.</span><span class="nf">each</span> <span class="p">{</span> <span class="o">|</span><span class="n">t</span><span class="o">|</span>
+      <span class="n">tf</span> <span class="o">=</span> <span class="n">t</span><span class="p">[</span><span class="ss">:time_from</span><span class="p">]</span> <span class="p">?</span> <span class="no">Time</span><span class="p">.</span><span class="nf">parse</span><span class="p">(</span><span class="n">t</span><span class="p">[:</span><span class="n">time_from</span><span class="p">].</span><span class="nf">strftime</span><span class="p">(</span><span class="s2">"%H:%M:%S"</span><span class="p">))</span> <span class="p">:</span> <span class="no">Time</span><span class="p">.</span><span class="nf">parse</span><span class="p">(</span><span class="s2">"00:00:00"</span><span class="p">)</span>
+      <span class="n">tt</span> <span class="o">=</span> <span class="n">t</span><span class="p">[</span><span class="ss">:time_to</span><span class="p">]</span> <span class="p">?</span> <span class="no">Time</span><span class="p">.</span><span class="nf">parse</span><span class="p">(</span><span class="n">t</span><span class="p">[:</span><span class="n">time_to</span><span class="p">].</span><span class="nf">strftime</span><span class="p">(</span><span class="s2">"%H:%M:%S"</span><span class="p">))</span> <span class="p">:</span> <span class="no">Time</span><span class="p">.</span><span class="nf">parse</span><span class="p">(</span><span class="s2">"23:59:59"</span><span class="p">)</span>
+      <span class="n">tw</span> <span class="o">=</span> <span class="n">t</span><span class="p">[</span><span class="ss">:weekday</span><span class="p">]</span> <span class="p">?</span> <span class="n">t</span><span class="p">[:</span><span class="n">weekday</span><span class="p">].</span><span class="nf">to_i</span> <span class="p">:</span> <span class="n">d</span><span class="p">.</span><span class="nf">wday</span>
+      <span class="n">td</span> <span class="o">=</span> <span class="n">t</span><span class="p">[</span><span class="ss">:day_of_month</span><span class="p">]</span> <span class="p">?</span> <span class="n">t</span><span class="p">[:</span><span class="n">day_of_month</span><span class="p">].</span><span class="nf">to_i</span> <span class="p">:</span> <span class="n">d</span><span class="p">.</span><span class="nf">day</span>
+      <span class="n">tm</span> <span class="o">=</span> <span class="n">t</span><span class="p">[</span><span class="ss">:month</span><span class="p">]</span> <span class="p">?</span> <span class="n">t</span><span class="p">[:</span><span class="n">month</span><span class="p">].</span><span class="nf">to_i</span> <span class="p">:</span> <span class="n">d</span><span class="p">.</span><span class="nf">month</span>
+      <span class="n">ty</span> <span class="o">=</span> <span class="n">t</span><span class="p">[</span><span class="ss">:year</span><span class="p">]</span> <span class="p">?</span> <span class="n">t</span><span class="p">[:</span><span class="n">year</span><span class="p">].</span><span class="nf">to_i</span> <span class="p">:</span> <span class="n">d</span><span class="p">.</span><span class="nf">year</span>
+
+      <span class="k">if</span> <span class="n">ty</span> <span class="o">==</span> <span class="n">d</span><span class="p">.</span><span class="nf">year</span> <span class="o">&amp;&amp;</span> <span class="n">tm</span> <span class="o">==</span> <span class="n">d</span><span class="p">.</span><span class="nf">month</span> <span class="o">&amp;&amp;</span> <span class="n">td</span> <span class="o">==</span> <span class="n">d</span><span class="p">.</span><span class="nf">day</span> <span class="o">&amp;&amp;</span> <span class="n">tw</span> <span class="o">==</span> <span class="n">d</span><span class="p">.</span><span class="nf">wday</span> <span class="o">&amp;&amp;</span> <span class="n">d</span> <span class="o">&gt;=</span> <span class="n">tf</span> <span class="o">&amp;&amp;</span> <span class="n">d</span> <span class="o">&lt;=</span> <span class="n">tt</span> <span class="k">then</span>
+        <span class="k">return</span> <span class="n">t</span><span class="p">.</span><span class="nf">item_id</span>
+      <span class="k">end</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="kp">false</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+</code></pre></div></div>
+
+</article>
+
+
+
+
+
+
+  <div id="disqus_thread"></div>
+  <script type="text/javascript">
+    var disqus_shortname  = 'andrius-mobi';
+    var disqus_identifier = '/2013/02/time-based-conditions-in-agi-application';
+    var disqus_title      = "Time based conditions in voice (AGI) application";
+
+    (function() {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+  </script>
+  <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+
+
+
+
+
+
+      </div>
+    </div>
+  </div>
+
+  <footer class="center">
+  <div class="measure">
+    <small>
+      Content by Andrius Kairiukstis.<br>
+      Jekyll site based on <a href="https://github.com/johno/pixyll">Pixyll theme</a>.
+    </small>
+  </div>
+</footer>
+<!-- AnchorJS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/anchor-js/3.0.0/anchor.min.js"></script>
+<script>
+    anchors.options.visible = 'always';
+    anchors.add('article h2, article h3, article h4, article h5, article h6');
+</script>
+
+</body>
+</html>

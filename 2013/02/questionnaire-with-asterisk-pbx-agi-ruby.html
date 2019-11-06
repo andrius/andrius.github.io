@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Questionnaire application with Asterisk PBX AGI + Ruby &#8211; Voice Applications</title>
+    <link rel="dns-prefetch" href="//fonts.googleapis.com">
+    <link rel="dns-prefetch" href="//fonts.gstatic.com">
+    <link rel="dns-prefetch" href="//maxcdn.bootstrapcdn.com">
+    <link rel="dns-prefetch" href="//cdnjs.cloudflare.com">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Questionnaire application were in production for long time for one small project, now I've decided to share with VoIP community. It's based on AsteriskRuby gem. How it works: for new caller system would play welcome announcement, for returned caller &quot;welcome back&quot; announcement (caller authentication based on callerid number and PIN); upon successful authentication, system will continue from last unanswered question (or will start with first question for new caller); Amount of attempts is unlimited, answers and amount of calls are stored into DB.">
+    <meta name="robots" content="all">
+    <meta name="author" content="Andrius Kairiukstis">
+    <meta property="fb:pages" content="ctiapps" />
+    <meta name="keywords" content="">
+    <link rel="canonical" href="//andrius.mobi/2013/02/questionnaire-with-asterisk-pbx-agi-ruby.html">
+    <link rel="alternate" type="application/rss+xml" title="RSS Feed for Voice Applications" href="/feed.xml" />
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/css/pixyll.css?201911060412" type="text/css">
+
+    <!-- Fonts -->
+    
+    <link href='//fonts.googleapis.com/css?family=Merriweather:900,900italic,300,300italic&amp;subset=latin-ext,latin' rel='stylesheet' type='text/css'>
+    <link href='//fonts.googleapis.com/css?family=Lato:900,300&amp;subset=latin-ext,latin' rel='stylesheet' type='text/css'>
+    
+    
+      <link href="//maxcdn.bootstrapcdn.com/font-awesome/latest/css/font-awesome.min.css" rel="stylesheet">
+    
+
+    <!-- MathJax -->
+    
+
+    <!-- Verifications -->
+    
+    
+
+    <!-- Open Graph -->
+    <!-- From: https://github.com/mmistakes/hpstr-jekyll-theme/blob/master/_includes/head.html -->
+    <meta property="og:locale" content="en_US">
+    <meta property="og:type" content="article">
+    <meta property="og:title" content="Questionnaire application with Asterisk PBX AGI + Ruby">
+    <meta property="og:description" content="Realtime voice applications. Notes about Unified Communications, CTI, call-centers; open-source VoIP (Asterisk, Freeswitch, Kamailio); with test automation, and scaled container (docker) apps.">
+    <meta property="og:url" content="//andrius.mobi/2013/02/questionnaire-with-asterisk-pbx-agi-ruby.html">
+    <meta property="og:site_name" content="Voice Applications">
+    
+    <meta property="og:image" content="//andrius.mobi/images/me.jpeg">
+    
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary" />
+    
+        <meta name="twitter:site" content="@andrius_kai" />
+        <meta name="twitter:creator" content="@andrius_kai" />
+    
+    <meta name="twitter:title" content="Questionnaire application with Asterisk PBX AGI + Ruby" />
+    <meta name="twitter:description" content="Questionnaire application were in production for long time for one small project, now I've decided to share with VoIP community. It's based on AsteriskRuby gem. How it works: for new caller system would play welcome announcement, for returned caller "welcome back" announcement (caller authentication based on callerid number and PIN); upon successful authentication, system will continue from last unanswered question (or will start with first question for new caller); Amount of attempts is unlimited, answers and amount of calls are stored into DB." />
+    <meta name="twitter:url" content="//andrius.mobi/2013/02/questionnaire-with-asterisk-pbx-agi-ruby.html" />
+    
+    <meta name="twitter:image" content="//andrius.mobi/images/me.jpeg" />
+    
+
+    <!-- Icons -->
+    <link rel="apple-touch-icon" sizes="57x57" href="/apple-touch-icon-57x57.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="/apple-touch-icon-114x114.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="/apple-touch-icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="144x144" href="/apple-touch-icon-144x144.png">
+    <link rel="apple-touch-icon" sizes="60x60" href="/apple-touch-icon-60x60.png">
+    <link rel="apple-touch-icon" sizes="120x120" href="/apple-touch-icon-120x120.png">
+    <link rel="apple-touch-icon" sizes="76x76" href="/apple-touch-icon-76x76.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="/apple-touch-icon-152x152.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon-180x180.png">
+    <link rel="icon" type="image/png" href="/favicon-192x192.png" sizes="192x192">
+    <link rel="icon" type="image/png" href="/favicon-160x160.png" sizes="160x160">
+    <link rel="icon" type="image/png" href="/favicon-96x96.png" sizes="96x96">
+    <link rel="icon" type="image/png" href="/favicon-16x16.png" sizes="16x16">
+    <link rel="icon" type="image/png" href="/favicon-32x32.png" sizes="32x32">
+    <link rel="shortcut icon" href="/favicon.ico">
+
+    
+    <script type="text/javascript">
+       (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+       (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+       m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+       })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+       ga('create', 'UA-38523949-3', 'auto');
+       ga('send', 'pageview');
+    </script>
+    
+</head>
+
+<body class="site animated fade-in-down">
+  
+	
+
+  <div class="site-wrap">
+    <header class="site-header px2 px-responsive">
+  <div class="mt2 wrap">
+    <div class="measure">
+      <a href="/" class="site-title">Voice Applications</a>
+      <nav class="site-nav">
+        
+
+
+
+
+    
+
+    
+
+
+
+
+    
+
+    
+
+
+
+
+      </nav>
+      <div class="clearfix"></div>
+      
+        <div class="social-icons">
+  <div class="social-icons-right">
+    
+      <a class="fa fa-github" href="https://github.com/andrius"></a>
+    
+    
+    
+    
+    
+      <a class="fa fa-twitter" href="https://twitter.com/andrius_kai"></a>
+    
+    
+    
+    
+      <a class="fa fa-linkedin" href="https://www.linkedin.com/in/andrius-kairiukstis"></a>
+    
+    
+    
+    
+      <a class="fa fa-telegram" href="https://t.me/andrius_kai"></a>
+    
+    
+    
+      <a class="fa fa-whatsapp" href="https://wa.me/34652299183"></a>
+    
+    
+  </div>
+  <div class="right">
+    
+    
+    
+  </div>
+</div>
+<div class="clearfix"></div>
+
+      
+    </div>
+  </div>
+</header>
+
+
+    <div class="post p2 p-responsive wrap" role="main">
+      <div class="measure">
+        
+
+
+<div class="post-header mb2">
+  <h1>Questionnaire application with Asterisk PBX AGI + Ruby</h1>
+  <span class="post-meta">Feb 12, 2013</span><br>
+  
+  <span class="post-meta small">
+  
+    6 minute read
+  
+  </span>
+</div>
+
+<article class="post-content">
+  <p>There are several Ruby AGI implementations, the best one as for now is <a href="https://github.com/adhearsion/adhearsion">Adhearsion</a>. I do use it for most of my current projects, its great, but sometimes too big and it’s kind a framework that restrict flexibility a bit.</p>
+
+<p>Before Adhearsion I’ve used another one, named <a href="https://github.com/andrius/AsteriskRuby">AsteriskRuby</a>. It does offer AGI and FastAGI connections with Asterisk, and with <a href="https://github.com/andrius/rastman">Rastman</a> its possible to access AMI (Asterisk Manager Interface). Good swiss knife in combination. I love them both for simplicity, you could execute Asterisk commands get AMI events in Asterisk way, easy to troubleshoot, easy to show up for non-Ruby folks. Performance is great, no memory leaks, libraries are simple and flexible.</p>
+
+<p>So back to the Questionnaire application. It were in production for long time for one small project, now I’ve decided to share with VoIP community. It’s based on AsteriskRuby gem.</p>
+
+<p>Code was worked with Asterisk 1.6.x/1.8.x and Ruby 1.8.x.</p>
+
+<p>How to get it working:</p>
+
+<ul>
+  <li>
+    <p>populate code on local server with Asterisk;</p>
+  </li>
+  <li>
+    <p>You need a filename <code class="highlighter-rouge">codes.txt</code> containing phone numbers and PIN codes, and few voice recordings (can get filenames and messages from the application source);</p>
+  </li>
+  <li>
+    <p>update <code class="highlighter-rouge">extensions.conf</code>, point the exten to the FastAGI</p>
+  </li>
+</ul>
+
+<p>And how it works:</p>
+
+<ul>
+  <li>
+    <p>for new caller system would play welcome announcement, for returned caller — “welcome back” announcement (caller authentication based on callerid number and PIN);</p>
+  </li>
+  <li>
+    <p>application will ask caller to enter a PIN code;</p>
+  </li>
+  <li>
+    <p>upon successful authentication, system will continue from last unanswered question (or will start with first question for new caller);</p>
+  </li>
+  <li>
+    <p>Amount of attempts is unlimited, answers and amount of calls are stored into DB.</p>
+  </li>
+</ul>
+
+<p>FastAGI source code (ruby):</p>
+
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">#!/bin/env ruby</span>
+
+<span class="nb">require</span> <span class="s1">'rubygems'</span>
+<span class="nb">require</span> <span class="s1">'mysql'</span>
+<span class="nb">require</span> <span class="s1">'active_record'</span>
+<span class="nb">require</span> <span class="s1">'AGIServer'</span>
+<span class="nb">require</span> <span class="s1">'AGIMenu'</span>
+<span class="nb">require</span> <span class="s1">'AGISelection'</span>
+<span class="nb">require</span> <span class="s1">'daemons'</span>
+
+<span class="no">APP_ROOT</span> <span class="o">=</span> <span class="no">File</span><span class="p">.</span><span class="nf">expand_path</span><span class="p">(</span><span class="no">File</span><span class="p">.</span><span class="nf">dirname</span><span class="p">(</span><span class="kp">__FILE__</span><span class="p">))</span>
+
+<span class="c1"># Questionnaire / voting is statis and here we have a list of correct answers</span>
+<span class="no">CORRECT_ANSWERS</span> <span class="o">=</span> <span class="sx">%w(2 3 2 1 3 1 1 1 1 3)</span>
+
+<span class="c1"># database credentials</span>
+<span class="no">DATABASE</span> <span class="o">=</span> <span class="p">{</span> <span class="ss">:adapter</span> <span class="o">=&gt;</span> <span class="ss">:mysql</span><span class="p">,</span>
+  <span class="ss">:encoding</span> <span class="o">=&gt;</span> <span class="ss">:utf8</span><span class="p">,</span>
+  <span class="ss">:database</span> <span class="o">=&gt;</span> <span class="s1">'voip'</span><span class="p">,</span>
+  <span class="ss">:pool</span> <span class="o">=&gt;</span> <span class="mi">250</span><span class="p">,</span>
+  <span class="ss">:connections</span> <span class="o">=&gt;</span> <span class="mi">12</span><span class="p">,</span>
+  <span class="ss">:username</span> <span class="o">=&gt;</span> <span class="s1">'voip'</span><span class="p">,</span>
+  <span class="ss">:password</span> <span class="o">=&gt;</span> <span class="s1">'PASSWORD'</span><span class="p">,</span>
+  <span class="c1">#:socket =&gt; '/var/run/mysqld/mysqld.pid',</span>
+  <span class="ss">:host</span> <span class="o">=&gt;</span> <span class="s1">'127.0.0.1'</span><span class="p">,</span>
+  <span class="ss">:reconnect</span> <span class="o">=&gt;</span> <span class="kp">true</span>
+<span class="p">}</span>
+
+<span class="no">ActiveRecord</span><span class="o">::</span><span class="no">Base</span><span class="p">.</span><span class="nf">establish_connection</span> <span class="no">DATABASE</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="no">Logger</span><span class="p">.</span><span class="nf">new</span><span class="p">(</span><span class="no">STDERR</span><span class="p">)</span>
+<span class="n">logger</span><span class="p">.</span><span class="nf">level</span> <span class="o">=</span> <span class="no">Logger</span><span class="o">::</span><span class="no">DEBUG</span>
+
+<span class="no">ActiveRecord</span><span class="o">::</span><span class="no">Base</span><span class="p">.</span><span class="nf">logger</span> <span class="o">=</span> <span class="n">logger</span>
+<span class="no">ActiveRecord</span><span class="o">::</span><span class="no">Base</span><span class="p">.</span><span class="nf">colorize_logging</span> <span class="o">=</span> <span class="kp">true</span>
+
+<span class="c1"># create AR classes and DB tables</span>
+<span class="k">class</span> <span class="nc">VoteQuestion</span> <span class="o">&lt;</span> <span class="no">ActiveRecord</span><span class="o">::</span><span class="no">Base</span>
+  <span class="n">set_primary_key</span> <span class="ss">:question_number</span>
+<span class="k">end</span>
+
+<span class="k">class</span> <span class="nc">Questionnaire</span> <span class="o">&lt;</span> <span class="no">ActiveRecord</span><span class="o">::</span><span class="no">Base</span><span class="p">;</span> <span class="k">end</span>
+
+<span class="c1"># create DB tables if not exists (dirty way!)</span>
+<span class="k">if</span> <span class="o">!</span> <span class="no">VoteQuestion</span><span class="p">.</span><span class="nf">table_exists?</span>
+  <span class="no">ActiveRecord</span><span class="o">::</span><span class="no">Schema</span><span class="p">.</span><span class="nf">define</span> <span class="k">do</span>
+    <span class="n">create_table</span> <span class="ss">:questionnairies</span> <span class="k">do</span> <span class="o">|</span><span class="n">table</span><span class="o">|</span>
+      <span class="n">table</span><span class="p">.</span><span class="nf">string</span> <span class="ss">:pin_code</span><span class="p">,</span> <span class="ss">:limit</span> <span class="o">=&gt;</span> <span class="mi">8</span><span class="p">,</span> <span class="ss">:null</span> <span class="o">=&gt;</span> <span class="kp">false</span>
+    <span class="k">end</span>
+  <span class="k">end</span>
+
+  <span class="c1">#(1..10).each do |pin_code|</span>
+  <span class="no">File</span><span class="p">.</span><span class="nf">read</span><span class="p">(</span><span class="s2">"</span><span class="si">#{</span><span class="no">APP_ROOT</span><span class="si">}</span><span class="s2">/codes.txt"</span><span class="p">).</span><span class="nf">chomp</span><span class="p">.</span><span class="nf">split</span><span class="p">(</span><span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="p">).</span><span class="nf">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">pin_code</span><span class="o">|</span>
+    <span class="no">Questionnaire</span><span class="p">.</span><span class="nf">create</span><span class="p">(</span> <span class="ss">:pin_code</span> <span class="o">=&gt;</span> <span class="s2">"00000000</span><span class="si">#{</span><span class="n">pin_code</span><span class="p">.</span><span class="nf">chomp</span><span class="si">}</span><span class="s2">"</span><span class="p">[</span><span class="o">-</span><span class="mi">8</span><span class="p">,</span><span class="mi">8</span><span class="p">]</span> <span class="p">)</span>
+  <span class="k">end</span>
+
+  <span class="no">ActiveRecord</span><span class="o">::</span><span class="no">Schema</span><span class="p">.</span><span class="nf">define</span> <span class="k">do</span>
+    <span class="n">create_table</span> <span class="ss">:phone_numbers</span> <span class="k">do</span> <span class="o">|</span><span class="n">table</span><span class="o">|</span>
+      <span class="n">table</span><span class="p">.</span><span class="nf">integer</span> <span class="ss">:questionnaire_id</span><span class="p">,</span> <span class="ss">:default</span> <span class="o">=&gt;</span> <span class="kp">nil</span>
+      <span class="n">table</span><span class="p">.</span><span class="nf">integer</span> <span class="ss">:number</span><span class="p">,</span> <span class="ss">:limit</span> <span class="o">=&gt;</span> <span class="mi">8</span><span class="p">,</span> <span class="ss">:unsigned</span> <span class="o">=&gt;</span> <span class="kp">true</span><span class="p">,</span> <span class="ss">:null</span> <span class="o">=&gt;</span> <span class="kp">false</span>
+      <span class="n">table</span><span class="p">.</span><span class="nf">integer</span> <span class="ss">:question_number</span><span class="p">,</span> <span class="ss">:null</span> <span class="o">=&gt;</span> <span class="kp">false</span><span class="p">,</span> <span class="ss">:default</span> <span class="o">=&gt;</span> <span class="mi">0</span>
+      <span class="n">table</span><span class="p">.</span><span class="nf">integer</span> <span class="ss">:count_of_calls_made</span><span class="p">,</span> <span class="ss">:null</span> <span class="o">=&gt;</span> <span class="kp">false</span><span class="p">,</span> <span class="ss">:default</span> <span class="o">=&gt;</span> <span class="mi">0</span>
+      <span class="n">table</span><span class="p">.</span><span class="nf">integer</span> <span class="ss">:amount_of_asked_questions</span><span class="p">,</span> <span class="ss">:null</span> <span class="o">=&gt;</span> <span class="kp">false</span><span class="p">,</span> <span class="ss">:default</span> <span class="o">=&gt;</span> <span class="mi">0</span>
+      <span class="n">table</span><span class="p">.</span><span class="nf">integer</span> <span class="ss">:amount_of_correct_answers</span><span class="p">,</span> <span class="ss">:null</span> <span class="o">=&gt;</span> <span class="kp">false</span><span class="p">,</span> <span class="ss">:default</span> <span class="o">=&gt;</span> <span class="mi">0</span>
+      <span class="n">table</span><span class="p">.</span><span class="nf">integer</span> <span class="ss">:total_amount_of_asked_questions</span><span class="p">,</span> <span class="ss">:null</span> <span class="o">=&gt;</span> <span class="kp">false</span><span class="p">,</span> <span class="ss">:default</span> <span class="o">=&gt;</span> <span class="mi">0</span>
+      <span class="n">table</span><span class="p">.</span><span class="nf">integer</span> <span class="ss">:total_amount_of_correct_answers</span><span class="p">,</span> <span class="ss">:null</span> <span class="o">=&gt;</span> <span class="kp">false</span><span class="p">,</span> <span class="ss">:default</span> <span class="o">=&gt;</span> <span class="mi">0</span>
+      <span class="n">table</span><span class="p">.</span><span class="nf">boolean</span> <span class="ss">:sms_sent</span><span class="p">,</span> <span class="ss">:null</span> <span class="o">=&gt;</span> <span class="kp">false</span><span class="p">,</span> <span class="ss">:default</span> <span class="o">=&gt;</span> <span class="kp">false</span>
+      <span class="n">table</span><span class="p">.</span><span class="nf">timestamps</span>
+    <span class="k">end</span>
+    <span class="n">add_index</span> <span class="ss">:phone_numbers</span><span class="p">,</span> <span class="ss">:number</span>
+  <span class="k">end</span>
+
+  <span class="no">ActiveRecord</span><span class="o">::</span><span class="no">Schema</span><span class="p">.</span><span class="nf">define</span> <span class="k">do</span>
+    <span class="n">create_table</span> <span class="ss">:vote_questions</span><span class="p">,</span> <span class="ss">:primary_key</span> <span class="o">=&gt;</span> <span class="ss">:question_number</span> <span class="k">do</span> <span class="o">|</span><span class="n">table</span><span class="o">|</span>
+      <span class="n">table</span><span class="p">.</span><span class="nf">integer</span> <span class="ss">:amount_of_answers</span><span class="p">,</span> <span class="ss">:null</span> <span class="o">=&gt;</span> <span class="kp">false</span><span class="p">,</span> <span class="ss">:default</span> <span class="o">=&gt;</span> <span class="mi">3</span>
+      <span class="n">table</span><span class="p">.</span><span class="nf">integer</span> <span class="ss">:correct_answer</span><span class="p">,</span> <span class="ss">:null</span> <span class="o">=&gt;</span> <span class="kp">false</span>
+    <span class="k">end</span>
+  <span class="k">end</span>
+
+  <span class="p">(</span><span class="mi">1</span><span class="o">..</span><span class="mi">10</span><span class="p">).</span><span class="nf">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">question_no</span><span class="o">|</span>
+    <span class="no">VoteQuestion</span><span class="p">.</span><span class="nf">create</span><span class="p">(</span>
+      <span class="ss">:question_number</span> <span class="o">=&gt;</span> <span class="n">question_no</span><span class="p">,</span>
+      <span class="ss">:amount_of_answers</span> <span class="o">=&gt;</span> <span class="mi">3</span><span class="p">,</span>
+      <span class="ss">:correct_answer</span> <span class="o">=&gt;</span> <span class="no">CORRECT_ANSWERS</span><span class="p">[</span><span class="n">question_no</span><span class="o">-</span><span class="mi">1</span><span class="p">].</span><span class="nf">to_i</span>
+    <span class="p">)</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+
+<span class="k">class</span> <span class="nc">PhoneNumber</span> <span class="o">&lt;</span> <span class="no">ActiveRecord</span><span class="o">::</span><span class="no">Base</span>
+  <span class="n">validates_uniqueness_of</span> <span class="ss">:number</span>
+<span class="k">end</span>
+
+<span class="k">class</span> <span class="nc">CallAttempt</span> <span class="o">&lt;</span> <span class="no">ActiveRecord</span><span class="o">::</span><span class="no">Base</span>
+  <span class="n">belongs_to</span> <span class="ss">:phone_number</span>
+<span class="k">end</span>
+
+<span class="c1"># AGI classes</span>
+<span class="k">class</span> <span class="nc">Farmacy</span> <span class="o">&lt;</span> <span class="no">AGIRoute</span>
+
+  <span class="c1"># this method will be called from asteris dialplan (AGI calling) for every new inbound phone call</span>
+  <span class="k">def</span> <span class="nf">vote</span>
+    <span class="k">begin</span>
+      <span class="n">agi</span><span class="p">.</span><span class="nf">answer</span>
+
+      <span class="no">AGIMenu</span><span class="p">.</span><span class="nf">sounds_dir</span> <span class="o">=</span> <span class="no">AGISelection</span><span class="p">.</span><span class="nf">sounds_dir</span> <span class="o">=</span> <span class="no">APP_ROOT</span> <span class="o">+</span> <span class="s1">'/'</span>
+
+      <span class="c1"># prepare the IVR menu</span>
+      <span class="nb">hash</span> <span class="o">=</span> <span class="p">{</span><span class="ss">:introduction</span><span class="o">=&gt;</span><span class="p">[</span><span class="s2">"welcome"</span><span class="p">,</span> <span class="s2">"instructions"</span><span class="p">],</span>
+        <span class="ss">:conclusion</span><span class="o">=&gt;</span><span class="s2">"what-is-your-choice"</span><span class="p">,</span>
+        <span class="ss">:timeout</span><span class="o">=&gt;</span><span class="mi">17</span><span class="p">,</span>
+        <span class="ss">:choices</span><span class="o">=&gt;</span>
+        <span class="p">[{</span><span class="ss">:dtmf</span><span class="o">=&gt;</span><span class="s2">"*"</span><span class="p">,</span> <span class="ss">:audio</span><span class="o">=&gt;</span><span class="p">[</span><span class="s2">"to-go-back"</span><span class="p">,</span> <span class="s2">"press"</span><span class="p">,</span> <span class="s2">"digits/star"</span><span class="p">]},</span>
+          <span class="p">{</span><span class="ss">:dtmf</span><span class="o">=&gt;</span><span class="mi">1</span><span class="p">,</span> <span class="ss">:audio</span><span class="o">=&gt;</span><span class="p">[</span><span class="s2">"press"</span><span class="p">,</span> <span class="s2">"digits/1"</span><span class="p">,</span> <span class="s2">"for-option-1"</span><span class="p">]},</span>
+          <span class="p">{</span><span class="ss">:dtmf</span><span class="o">=&gt;</span><span class="mi">2</span><span class="p">,</span> <span class="ss">:audio</span><span class="o">=&gt;</span><span class="p">[</span><span class="s2">"press"</span><span class="p">,</span> <span class="s2">"digits/2"</span><span class="p">,</span> <span class="s2">"for-option-2"</span><span class="p">]},</span>
+          <span class="p">{</span><span class="ss">:dtmf</span><span class="o">=&gt;</span><span class="s2">"#"</span><span class="p">,</span> <span class="ss">:audio</span><span class="o">=&gt;</span><span class="p">[</span><span class="s2">"or"</span><span class="p">,</span> <span class="s2">"press"</span><span class="p">,</span> <span class="s2">"digits/pound"</span><span class="p">,</span> <span class="s2">"to-repeat"</span><span class="p">]}]}</span>
+
+      <span class="c1"># fix callerid and locate caller</span>
+      <span class="n">e164</span> <span class="o">=</span> <span class="n">agi</span><span class="p">.</span><span class="nf">channel_params</span><span class="p">[</span><span class="s1">'callerid'</span><span class="p">].</span><span class="nf">to_i</span>
+      <span class="n">number</span> <span class="o">=</span> <span class="no">PhoneNumber</span><span class="p">.</span><span class="nf">find_by_number</span><span class="p">(</span><span class="n">e164</span><span class="p">)</span>
+
+      <span class="c1"># increase calls counter for existiing in DB phone number</span>
+      <span class="k">unless</span> <span class="n">number</span><span class="p">.</span><span class="nf">nil?</span>
+        <span class="n">number</span><span class="p">.</span><span class="nf">count_of_calls_made</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="n">number</span><span class="p">.</span><span class="nf">save</span>
+      <span class="k">end</span>
+      <span class="c1"># create a new DB record for non-existing in DB phone number</span>
+      <span class="n">phone_number</span> <span class="o">=</span> <span class="k">if</span> <span class="n">number</span><span class="p">.</span><span class="nf">nil?</span>
+        <span class="n">pn</span> <span class="o">=</span> <span class="no">PhoneNumber</span><span class="p">.</span><span class="nf">create</span> <span class="ss">:number</span> <span class="o">=&gt;</span> <span class="n">e164</span><span class="p">,</span> <span class="ss">:count_of_calls_made</span> <span class="o">=&gt;</span> <span class="mi">1</span>
+
+        <span class="c1"># say 'welcome' or 'welcome back' &amp; save state of caller</span>
+        <span class="n">pn</span><span class="p">.</span><span class="nf">questionnaire_id</span> <span class="o">=</span> <span class="n">hello_new_caller</span><span class="p">()</span>
+        <span class="n">pn</span><span class="p">.</span><span class="nf">save</span>
+        <span class="n">pn</span>
+
+      <span class="c1"># if caller is not assigned to the specific Questionnaire, ...</span>
+      <span class="k">elsif</span> <span class="n">number</span><span class="p">.</span><span class="nf">questionnaire_id</span><span class="p">.</span><span class="nf">nil?</span>
+        <span class="c1"># say 'welcome' or 'welcome back' &amp; save state of caller</span>
+        <span class="n">number</span><span class="p">.</span><span class="nf">questionnaire_id</span> <span class="o">=</span> <span class="n">hello_new_caller</span><span class="p">()</span>
+        <span class="n">number</span><span class="p">.</span><span class="nf">save</span>
+        <span class="n">number</span>
+
+
+      <span class="k">else</span>
+        <span class="n">welcome_back</span> <span class="n">number</span><span class="p">.</span><span class="nf">question_number</span> <span class="o">==</span> <span class="mi">0</span> <span class="p">?</span> <span class="s1">'Hello_repeat_nopin'</span> <span class="p">:</span> <span class="s1">'Hello_repeat'</span>
+        <span class="n">number</span>
+      <span class="k">end</span>
+
+      <span class="n">agi</span><span class="p">.</span><span class="nf">exec</span> <span class="s1">'Playback silence/1'</span>
+      <span class="n">ask_question</span> <span class="ss">:phone_number</span> <span class="o">=&gt;</span> <span class="n">phone_number</span>
+      <span class="n">thanks!</span> <span class="ss">:phone_number</span> <span class="o">=&gt;</span> <span class="n">phone_number</span>
+
+    <span class="k">rescue</span> <span class="o">=&gt;</span> <span class="n">err</span>
+      <span class="nb">puts</span> <span class="s2">"&gt;&gt;&gt;&gt;&gt;&gt; ERROR: "</span><span class="p">,</span> <span class="n">err</span><span class="p">.</span><span class="nf">backtrace</span>
+    <span class="k">end</span>
+  <span class="k">end</span>
+
+  <span class="kp">private</span>
+
+  <span class="k">def</span> <span class="nf">play_ivr</span><span class="p">(</span><span class="n">ivr</span><span class="p">)</span>
+    <span class="k">begin</span>
+      <span class="n">menu</span> <span class="o">=</span> <span class="no">AGIMenu</span><span class="p">.</span><span class="nf">new</span><span class="p">(</span><span class="n">ivr</span><span class="p">)</span>
+      <span class="n">result</span> <span class="o">=</span> <span class="n">menu</span><span class="p">.</span><span class="nf">play</span><span class="p">(</span><span class="ss">:agi</span> <span class="o">=&gt;</span> <span class="n">agi</span><span class="p">)</span>
+      <span class="n">result</span>
+    <span class="k">rescue</span> <span class="o">=&gt;</span> <span class="n">err</span>
+      <span class="nb">puts</span> <span class="s2">"&gt;&gt;&gt;&gt;&gt;&gt; ERROR: "</span><span class="p">,</span> <span class="n">err</span><span class="p">.</span><span class="nf">backtrace</span>
+      <span class="kp">nil</span>
+    <span class="k">end</span>
+  <span class="k">end</span>
+
+  <span class="k">def</span> <span class="nf">playback</span><span class="p">(</span><span class="n">audio</span><span class="p">,</span> <span class="n">timeout</span> <span class="o">=</span> <span class="mf">0.5</span><span class="p">)</span>
+    <span class="n">play_ivr</span> <span class="ss">:timeout</span> <span class="o">=&gt;</span> <span class="n">timeout</span><span class="p">,</span> <span class="ss">:introduction</span> <span class="o">=&gt;</span> <span class="n">audio</span><span class="p">,</span>
+      <span class="ss">:choices</span> <span class="o">=&gt;</span> <span class="p">[</span>
+        <span class="p">{</span><span class="ss">:dtmf</span> <span class="o">=&gt;</span> <span class="mi">1</span><span class="p">},</span> <span class="p">{</span><span class="ss">:dtmf</span> <span class="o">=&gt;</span> <span class="mi">2</span><span class="p">},</span> <span class="p">{</span><span class="ss">:dtmf</span> <span class="o">=&gt;</span> <span class="mi">3</span><span class="p">},</span>
+        <span class="p">{</span><span class="ss">:dtmf</span> <span class="o">=&gt;</span> <span class="mi">4</span><span class="p">},</span> <span class="p">{</span><span class="ss">:dtmf</span> <span class="o">=&gt;</span> <span class="mi">5</span><span class="p">},</span> <span class="p">{</span><span class="ss">:dtmf</span> <span class="o">=&gt;</span> <span class="mi">6</span><span class="p">},</span>
+        <span class="p">{</span><span class="ss">:dtmf</span> <span class="o">=&gt;</span> <span class="mi">7</span><span class="p">},</span> <span class="p">{</span><span class="ss">:dtmf</span> <span class="o">=&gt;</span> <span class="mi">8</span><span class="p">},</span> <span class="p">{</span><span class="ss">:dtmf</span> <span class="o">=&gt;</span> <span class="mi">9</span><span class="p">},</span>
+        <span class="p">{</span><span class="ss">:dtmf</span><span class="o">=&gt;</span><span class="s1">'*'</span><span class="p">},</span> <span class="p">{</span><span class="ss">:dtmf</span> <span class="o">=&gt;</span> <span class="mi">0</span><span class="p">},</span> <span class="p">{</span><span class="ss">:dtmf</span><span class="o">=&gt;</span><span class="s1">'#'</span><span class="p">}</span> <span class="p">]</span>
+  <span class="k">end</span>
+
+  <span class="k">def</span> <span class="nf">press_one_to_confirm</span><span class="p">(</span><span class="n">return_value</span><span class="o">=</span><span class="kp">nil</span><span class="p">)</span>
+    <span class="n">code</span> <span class="o">=</span> <span class="mi">1</span><span class="p">.</span><span class="nf">upto</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span> <span class="k">do</span> <span class="o">|</span><span class="n">count</span><span class="o">|</span>
+      <span class="n">selection</span> <span class="o">=</span>  <span class="n">playback</span><span class="p">(</span><span class="s1">'Wright'</span><span class="p">,</span> <span class="mi">3</span><span class="p">).</span><span class="nf">to_s</span>
+      <span class="k">break</span> <span class="n">return_value</span> <span class="k">if</span> <span class="n">selection</span><span class="p">.</span><span class="nf">to_s</span> <span class="o">==</span> <span class="s1">'1'</span>
+      <span class="k">if</span> <span class="n">count</span> <span class="o">==</span> <span class="mi">3</span> <span class="k">then</span>
+        <span class="n">agi</span><span class="p">.</span><span class="nf">exec</span> <span class="s2">"Busy 12"</span>
+        <span class="n">agi</span><span class="p">.</span><span class="nf">exec</span> <span class="s2">"Hangup"</span>
+        <span class="k">break</span> <span class="kp">nil</span>
+      <span class="k">end</span>
+    <span class="k">end</span>
+  <span class="k">end</span>
+
+  <span class="k">def</span> <span class="nf">hello_new_caller</span>
+    <span class="k">begin</span>
+      <span class="n">result</span> <span class="o">=</span> <span class="mi">1</span><span class="p">.</span><span class="nf">upto</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span> <span class="k">do</span> <span class="o">|</span><span class="n">count</span><span class="o">|</span>
+        <span class="n">selection</span> <span class="o">=</span> <span class="k">if</span> <span class="n">count</span> <span class="o">==</span> <span class="mi">1</span> <span class="k">then</span>
+          <span class="no">AGISelection</span><span class="p">.</span><span class="nf">new</span> <span class="ss">:audio</span> <span class="o">=&gt;</span> <span class="s1">'Hello'</span><span class="p">,</span> <span class="ss">:max_digits</span> <span class="o">=&gt;</span> <span class="mi">8</span>
+        <span class="k">else</span>
+          <span class="no">AGISelection</span><span class="p">.</span><span class="nf">new</span> <span class="ss">:audio</span> <span class="o">=&gt;</span> <span class="s1">'Wrong'</span><span class="p">,</span> <span class="ss">:max_digits</span> <span class="o">=&gt;</span> <span class="mi">8</span>
+        <span class="k">end</span>
+        <span class="n">code</span> <span class="o">=</span> <span class="n">selection</span><span class="p">.</span><span class="nf">read</span><span class="p">(</span><span class="ss">:agi</span> <span class="o">=&gt;</span> <span class="n">agi</span><span class="p">)</span>
+        <span class="n">questionnaire</span> <span class="o">=</span> <span class="no">Questionnaire</span><span class="p">.</span><span class="nf">find_by_pin_code</span><span class="p">(</span><span class="n">code</span><span class="p">.</span><span class="nf">to_s</span><span class="p">)</span>
+        <span class="k">break</span> <span class="n">questionnaire</span> <span class="k">unless</span> <span class="n">questionnaire</span><span class="p">.</span><span class="nf">nil?</span>
+      <span class="k">end</span>
+      <span class="k">if</span> <span class="n">result</span><span class="p">.</span><span class="nf">class</span> <span class="o">==</span> <span class="no">Questionnaire</span>
+        <span class="n">press_one_to_confirm</span> <span class="n">result</span><span class="p">.</span><span class="nf">id</span>
+      <span class="k">else</span>
+        <span class="n">agi</span><span class="p">.</span><span class="nf">exec</span> <span class="s2">"Busy 12"</span>
+        <span class="n">agi</span><span class="p">.</span><span class="nf">exec</span> <span class="s2">"Hangup"</span>
+        <span class="kp">nil</span>
+      <span class="k">end</span>
+    <span class="k">rescue</span> <span class="o">=&gt;</span> <span class="n">err</span>
+      <span class="nb">puts</span> <span class="s2">"&gt;&gt;&gt;&gt;&gt;&gt; ERROR: "</span><span class="p">,</span> <span class="n">err</span><span class="p">.</span><span class="nf">backtrace</span>
+    <span class="k">end</span>
+  <span class="k">end</span>
+
+  <span class="k">def</span> <span class="nf">welcome_back</span><span class="p">(</span><span class="n">message</span><span class="o">=</span><span class="s1">'Hello_repeat'</span><span class="p">)</span>
+    <span class="n">playback</span> <span class="n">message</span>
+    <span class="n">press_one_to_confirm</span>
+  <span class="k">end</span>
+
+  <span class="k">def</span> <span class="nf">ask_question</span><span class="p">(</span><span class="n">params</span><span class="o">=</span><span class="p">{})</span>
+    <span class="k">begin</span>
+      <span class="n">phone_number</span> <span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="ss">:phone_number</span><span class="p">]</span>
+      <span class="n">question_number</span> <span class="o">=</span> <span class="n">phone_number</span><span class="p">.</span><span class="nf">question_number</span> <span class="o">+</span> <span class="mi">1</span>
+      <span class="n">question_data</span> <span class="o">=</span>  <span class="no">VoteQuestion</span><span class="p">.</span><span class="nf">find_by_question_number</span><span class="p">(</span><span class="n">question_number</span><span class="p">)</span>
+      <span class="k">if</span> <span class="n">question_data</span><span class="p">.</span><span class="nf">nil?</span> <span class="k">then</span> <span class="c1"># finalize work - no more questions</span>
+        <span class="k">return</span>
+      <span class="k">end</span>
+      <span class="n">ivr_data</span> <span class="o">=</span> <span class="p">{</span> <span class="ss">:introduction</span> <span class="o">=&gt;</span> <span class="n">question_number</span><span class="p">,</span> <span class="ss">:choices</span> <span class="o">=&gt;</span> <span class="p">[</span> <span class="p">],</span> <span class="ss">:timeout</span> <span class="o">=&gt;</span> <span class="mi">12</span> <span class="p">}</span>
+      <span class="p">(</span><span class="mi">1</span><span class="o">..</span><span class="p">(</span><span class="n">question_data</span><span class="p">.</span><span class="nf">amount_of_answers</span><span class="p">)).</span><span class="nf">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">possible_answer</span><span class="o">|</span>
+        <span class="n">ivr_data</span><span class="p">[</span><span class="ss">:choices</span><span class="p">].</span><span class="nf">push</span><span class="p">({</span>
+          <span class="ss">:dtmf</span> <span class="o">=&gt;</span> <span class="n">possible_answer</span><span class="p">,</span>
+          <span class="ss">:audio</span> <span class="o">=&gt;</span> <span class="s2">"</span><span class="si">#{</span><span class="n">question_number</span><span class="si">}</span><span class="s2">-</span><span class="si">#{</span><span class="n">possible_answer</span><span class="si">}</span><span class="s2">"</span>
+        <span class="p">})</span>
+      <span class="k">end</span>
+      <span class="n">ivr_result</span> <span class="o">=</span> <span class="n">play_ivr</span> <span class="n">ivr_data</span>
+      <span class="n">phone_number</span><span class="p">.</span><span class="nf">question_number</span> <span class="o">=</span> <span class="n">question_number</span>
+      <span class="n">phone_number</span><span class="p">.</span><span class="nf">amount_of_asked_questions</span> <span class="o">+=</span> <span class="mi">1</span>
+      <span class="n">phone_number</span><span class="p">.</span><span class="nf">total_amount_of_asked_questions</span> <span class="o">+=</span> <span class="mi">1</span>
+      <span class="k">if</span> <span class="n">question_data</span><span class="p">.</span><span class="nf">correct_answer</span> <span class="o">==</span> <span class="n">ivr_result</span><span class="p">.</span><span class="nf">to_i</span>
+        <span class="n">phone_number</span><span class="p">.</span><span class="nf">amount_of_correct_answers</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="n">phone_number</span><span class="p">.</span><span class="nf">total_amount_of_correct_answers</span> <span class="o">+=</span> <span class="mi">1</span>
+      <span class="k">end</span>
+
+      <span class="n">phone_number</span><span class="p">.</span><span class="nf">save</span>
+      <span class="n">ask_question</span> <span class="ss">:phone_number</span> <span class="o">=&gt;</span> <span class="n">phone_number</span>
+    <span class="k">rescue</span> <span class="o">=&gt;</span> <span class="n">err</span>
+      <span class="nb">puts</span> <span class="n">err</span><span class="p">,</span> <span class="n">err</span><span class="p">.</span><span class="nf">backtrace</span>
+    <span class="k">end</span>
+  <span class="k">end</span>
+
+  <span class="k">def</span> <span class="nf">thanks!</span><span class="p">(</span><span class="n">params</span><span class="o">=</span><span class="p">{})</span>
+    <span class="n">phone_number</span> <span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="ss">:phone_number</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">phone_number</span><span class="p">.</span><span class="nf">amount_of_correct_answers</span> <span class="o">==</span> <span class="no">VoteQuestion</span><span class="p">.</span><span class="nf">count</span> <span class="k">then</span>
+      <span class="n">playback</span> <span class="s1">'Goodbye'</span>
+    <span class="k">else</span>
+      <span class="n">phone_number</span><span class="p">.</span><span class="nf">question_number</span> <span class="o">=</span> <span class="mi">0</span>
+      <span class="n">phone_number</span><span class="p">.</span><span class="nf">amount_of_asked_questions</span> <span class="o">=</span> <span class="mi">0</span>
+      <span class="n">phone_number</span><span class="p">.</span><span class="nf">amount_of_correct_answers</span> <span class="o">=</span> <span class="mi">0</span>
+      <span class="n">phone_number</span><span class="p">.</span><span class="nf">save</span>
+      <span class="n">playback</span> <span class="s1">'Goodbye_wrong'</span>
+    <span class="k">end</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+
+<span class="nb">trap</span><span class="p">(</span><span class="s1">'INT'</span><span class="p">)</span>   <span class="p">{</span> <span class="no">AGIServer</span><span class="p">.</span><span class="nf">shutdown</span> <span class="p">}</span>
+<span class="nb">trap</span><span class="p">(</span><span class="s1">'TERM'</span><span class="p">)</span>   <span class="p">{</span> <span class="no">AGIServer</span><span class="p">.</span><span class="nf">shutdown</span> <span class="p">}</span>
+
+<span class="k">begin</span>
+  <span class="n">config</span> <span class="o">=</span> <span class="p">{</span> <span class="ss">:bind_port</span> <span class="o">=&gt;</span> <span class="mi">4574</span><span class="p">,</span>
+    <span class="ss">:min_workers</span> <span class="o">=&gt;</span> <span class="mi">5</span><span class="p">,</span>
+    <span class="ss">:max_workers</span> <span class="o">=&gt;</span> <span class="mi">12</span><span class="p">,</span>
+    <span class="ss">:jobs_per_worker</span> <span class="o">=&gt;</span> <span class="mi">2</span><span class="p">,</span>
+    <span class="ss">:stats</span> <span class="o">=&gt;</span> <span class="kp">false</span><span class="p">,</span>
+    <span class="ss">:bind_host</span> <span class="o">=&gt;</span> <span class="s1">'127.0.0.1'</span><span class="p">,</span>
+    <span class="ss">:logger</span> <span class="o">=&gt;</span> <span class="n">logger</span>
+  <span class="p">}</span>
+  <span class="no">AgiServer</span> <span class="o">=</span> <span class="no">AGIServer</span><span class="p">.</span><span class="nf">new</span> <span class="n">config</span>
+<span class="k">rescue</span> <span class="no">Errno</span><span class="o">::</span><span class="no">EADDRINUSE</span>
+  <span class="n">error</span> <span class="o">=</span> <span class="s2">"Cannot start AGI Server, address already in use."</span>
+  <span class="n">logger</span><span class="p">.</span><span class="nf">fatal</span><span class="p">(</span><span class="n">error</span><span class="p">)</span>
+  <span class="nb">print</span> <span class="s2">"</span><span class="si">#{</span><span class="n">error</span><span class="si">}</span><span class="se">\n</span><span class="s2">"</span>
+  <span class="nb">exit</span>
+<span class="k">else</span>
+  <span class="nb">print</span> <span class="s2">"</span><span class="si">#{</span><span class="vg">$$</span><span class="si">}</span><span class="s2">"</span>
+<span class="k">end</span>
+
+<span class="no">AgiServer</span><span class="p">.</span><span class="nf">start</span>
+<span class="no">AgiServer</span><span class="p">.</span><span class="nf">finish</span>
+</code></pre></div></div>
+
+<p>Good luck!</p>
+
+</article>
+
+
+
+
+
+
+  <div id="disqus_thread"></div>
+  <script type="text/javascript">
+    var disqus_shortname  = 'andrius-mobi';
+    var disqus_identifier = '/2013/02/questionnaire-with-asterisk-pbx-agi-ruby';
+    var disqus_title      = "Questionnaire application with Asterisk PBX AGI + Ruby";
+
+    (function() {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+  </script>
+  <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+
+
+
+
+
+
+      </div>
+    </div>
+  </div>
+
+  <footer class="center">
+  <div class="measure">
+    <small>
+      Content by Andrius Kairiukstis.<br>
+      Jekyll site based on <a href="https://github.com/johno/pixyll">Pixyll theme</a>.
+    </small>
+  </div>
+</footer>
+<!-- AnchorJS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/anchor-js/3.0.0/anchor.min.js"></script>
+<script>
+    anchors.options.visible = 'always';
+    anchors.add('article h2, article h3, article h4, article h5, article h6');
+</script>
+
+</body>
+</html>

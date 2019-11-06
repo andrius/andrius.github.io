@@ -1,0 +1,465 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Voice Applications</title>
+    <description>Realtime voice applications. Notes about Unified Communications, CTI, call-centers; open-source VoIP (Asterisk, Freeswitch, Kamailio); with test automation, and scaled container (docker) apps.</description>
+    <link>//andrius.mobi/</link>
+    <atom:link href="//andrius.mobi/feed.xml" rel="self" type="application/rss+xml" />
+    
+      <item>
+        <title>Properly terminate crystal-lang service in docker</title>
+        <description>&lt;p&gt;Production-ready crystal application in docker must process correctly several
+signals to shutdown properly. There is two commands in docker can be used to stop running container: &lt;code class=&quot;highlighter-rouge&quot;&gt;docker stop&lt;/code&gt; and &lt;code class=&quot;highlighter-rouge&quot;&gt;docker kill&lt;/code&gt;. First one, &lt;code class=&quot;highlighter-rouge&quot;&gt;docker stop&lt;/code&gt; stops a running container by sending it SIGTERM signal, let the main process process it, and after a grace period uses SIGKILL to terminate the application.&lt;/p&gt;
+
+&lt;p&gt;In this article I’ll show how to process SIGING (Ctrl-C), SIGTERM and SIGKILL with Crystal-lang.&lt;/p&gt;
+
+&lt;h2 id=&quot;download&quot;&gt;Download&lt;/h2&gt;
+
+&lt;p&gt;It’s a part of my sandbox repository, &lt;a href=&quot;https://github.com/andrius/sandbox/tree/develop/crystal/signal_trap&quot;&gt;download it here&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;Not familiar with crystal-lang? &lt;a href=&quot;https://github.com/andrius/sandbox/blob/develop/crystal-signal-trap/src/signal_trap.cr&quot;&gt;This is the main file with business logic&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h2 id=&quot;installation&quot;&gt;Installation&lt;/h2&gt;
+
+&lt;p&gt;Everything is dockerised, just get docker installed and download git repository.&lt;/p&gt;
+
+&lt;h2 id=&quot;usage&quot;&gt;Usage&lt;/h2&gt;
+
+&lt;p&gt;For development-mode application run this:&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;docker build &lt;span class=&quot;nt&quot;&gt;--pull&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;--force-rm&lt;/span&gt; &lt;span class=&quot;se&quot;&gt;\&lt;/span&gt;
+  &lt;span class=&quot;nt&quot;&gt;-t&lt;/span&gt; crystal-signal-trap &lt;span class=&quot;se&quot;&gt;\&lt;/span&gt;
+  &lt;span class=&quot;nt&quot;&gt;--file&lt;/span&gt; ./Dockerfile &lt;span class=&quot;nb&quot;&gt;.&lt;/span&gt; &lt;span class=&quot;se&quot;&gt;\&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;&amp;amp;&amp;amp;&lt;/span&gt; docker run &lt;span class=&quot;nt&quot;&gt;-ti&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;--rm&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;--name&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;trap &lt;/span&gt;crystal-signal-trap
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;But most important is to get signals trap working in production-ready docker,
+which is scratch, busybox or alpine-based. To test it, run following snippet:&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;docker build &lt;span class=&quot;nt&quot;&gt;--pull&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;--force-rm&lt;/span&gt; &lt;span class=&quot;se&quot;&gt;\&lt;/span&gt;
+  &lt;span class=&quot;nt&quot;&gt;-t&lt;/span&gt; crystal-signal-trap &lt;span class=&quot;se&quot;&gt;\&lt;/span&gt;
+  &lt;span class=&quot;nt&quot;&gt;--file&lt;/span&gt; ./Dockerfile-production &lt;span class=&quot;nb&quot;&gt;.&lt;/span&gt; &lt;span class=&quot;se&quot;&gt;\&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;&amp;amp;&amp;amp;&lt;/span&gt; docker run &lt;span class=&quot;nt&quot;&gt;-ti&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;--rm&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;--name&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;trap &lt;/span&gt;crystal-signal-trap
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h2 id=&quot;demo&quot;&gt;Demo&lt;/h2&gt;
+
+&lt;p&gt;&lt;a href=&quot;https://asciinema.org/a/eIFSoH00QsLKpsfyypsL0i6cr&quot;&gt;&lt;img src=&quot;https://asciinema.org/a/eIFSoH00QsLKpsfyypsL0i6cr.svg&quot; alt=&quot;asciicast&quot; /&gt;&lt;/a&gt;&lt;/p&gt;
+
+&lt;h2 id=&quot;i-want-to-process-signals-separately&quot;&gt;I want to process signals separately!&lt;/h2&gt;
+
+&lt;p&gt;Instead of grouping signals trap as it’s &lt;a href=&quot;https://github.com/andrius/sandbox/blob/develop/crystal/signal_trap/src/signal_trap.cr#L9-L16&quot;&gt;made in the demo app&lt;/a&gt;, it is possible just to process any of them:&lt;/p&gt;
+
+&lt;div class=&quot;language-crystal highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt; &lt;span class=&quot;no&quot;&gt;Signal&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;::&lt;/span&gt;&lt;span class=&quot;no&quot;&gt;INT&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;trap&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;do&lt;/span&gt;
+   &lt;span class=&quot;c1&quot;&gt;# Processing SIGING&lt;/span&gt;
+ &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h2 id=&quot;more-signals&quot;&gt;More signals?&lt;/h2&gt;
+
+&lt;p&gt;It is possible to send other signals with docker:&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;docker &lt;span class=&quot;nb&quot;&gt;kill&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;--signal&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;SIGHUP  my_container
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;In this case, Crystal-lang app shall catch that signal: &lt;code class=&quot;highlighter-rouge&quot;&gt;Signal::INT.trap { ... }&lt;/code&gt;. Here is the &lt;a href=&quot;https://crystal-lang.org/api/latest/Signal.html&quot;&gt;list of known by Crystal-lang signals&lt;/a&gt;.&lt;/p&gt;
+
+&lt;hr /&gt;
+
+&lt;p&gt;References:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;https://docs.docker.com/engine/reference/commandline/kill&quot;&gt;docker kill command syntax&lt;/a&gt;;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://docs.docker.com/engine/reference/commandline/stop&quot;&gt;docker stop command syntax&lt;/a&gt;;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://medium.com/@gchudnov/trapping-signals-in-docker-containers-7a57fdda7d86&quot;&gt;Trapping signals in Docker containers&lt;/a&gt;.&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+        <pubDate>Sun, 03 Nov 2019 00:00:00 -0500</pubDate>
+        <link>//andrius.mobi/2019/11/proxperly-terminate-crystal-lang-service-in-docker.html</link>
+        <guid isPermaLink="true">//andrius.mobi/2019/11/proxperly-terminate-crystal-lang-service-in-docker.html</guid>
+      </item>
+    
+      <item>
+        <title>Create the smallest Crystal-lang docker image based on scratch</title>
+        <description>&lt;p&gt;Official &lt;a href=&quot;https://hub.docker.com/r/crystallang/crystal/tags&quot;&gt;Crystal-lang docker image&lt;/a&gt; is Ubuntu-based and relatively big, but production-ready image could be tiny, if we will use docker multi-stage builds. The smallest image could be created using &lt;a href=&quot;https://hub.docker.com/_/scratch&quot;&gt;scratch&lt;/a&gt; image, but if it’s needed to do some processing before actual code starts, &lt;a href=&quot;https://hub.docker.com/_/busybox&quot;&gt;busybox&lt;/a&gt; or &lt;a href=&quot;https://hub.docker.com/_/alpine&quot;&gt;alpine&lt;/a&gt; is recommended.&lt;/p&gt;
+
+&lt;h2 id=&quot;dockerfile&quot;&gt;Dockerfile&lt;/h2&gt;
+
+&lt;p&gt;Well, just compile app using crystal image and copy resulting binary to the scratch, like below:&lt;/p&gt;
+
+&lt;div class=&quot;language-docker highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;c&quot;&gt;# vim:set ft=dockerfile:&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;FROM&lt;/span&gt;&lt;span class=&quot;s&quot;&gt; crystallang/crystal:0.31.1 as builder&lt;/span&gt;
+
+&lt;span class=&quot;k&quot;&gt;LABEL&lt;/span&gt;&lt;span class=&quot;s&quot;&gt; maintainer=&quot;Andrius Kairiukstis &amp;lt;****&amp;gt;&quot;&lt;/span&gt;
+
+&lt;span class=&quot;k&quot;&gt;WORKDIR&lt;/span&gt;&lt;span class=&quot;s&quot;&gt; /src&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;COPY&lt;/span&gt;&lt;span class=&quot;s&quot;&gt; . .&lt;/span&gt;
+
+&lt;span class=&quot;k&quot;&gt;RUN &lt;/span&gt;shards build &lt;span class=&quot;nt&quot;&gt;--production&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;--progress&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;--verbose&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;--warnings&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;all
+&lt;span class=&quot;k&quot;&gt;RUN &lt;/span&gt;ldd ./bin/app | &lt;span class=&quot;nb&quot;&gt;tr&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;-s&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'[:blank:]'&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'\n'&lt;/span&gt; | &lt;span class=&quot;nb&quot;&gt;grep&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'^/'&lt;/span&gt; | &lt;span class=&quot;se&quot;&gt;\
+&lt;/span&gt;    xargs &lt;span class=&quot;nt&quot;&gt;-I&lt;/span&gt; % sh &lt;span class=&quot;nt&quot;&gt;-c&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'mkdir -p $(dirname deps%); cp % deps%;'&lt;/span&gt;
+&lt;span class=&quot;c&quot;&gt;# RUN find ./deps/&lt;/span&gt;
+
+&lt;span class=&quot;c&quot;&gt;################################################################################&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;FROM&lt;/span&gt;&lt;span class=&quot;s&quot;&gt; scratch&lt;/span&gt;
+
+&lt;span class=&quot;k&quot;&gt;LABEL&lt;/span&gt;&lt;span class=&quot;s&quot;&gt; maintainer=&quot;Andrius Kairiukstis &amp;lt;****&amp;gt;&quot;&lt;/span&gt;
+
+&lt;span class=&quot;c&quot;&gt;# Dependences. That will fix DNS resolve issue in docker&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;COPY&lt;/span&gt;&lt;span class=&quot;s&quot;&gt; --from=builder /src/deps /&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;COPY&lt;/span&gt;&lt;span class=&quot;s&quot;&gt; --from=builder /lib/x86_64-linux-gnu/libnss_dns.so.* /lib/x86_64-linux-gnu/&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;COPY&lt;/span&gt;&lt;span class=&quot;s&quot;&gt; --from=builder /lib/x86_64-linux-gnu/libresolv.so.*  /lib/x86_64-linux-gnu/&lt;/span&gt;
+
+&lt;span class=&quot;c&quot;&gt;# app&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;COPY&lt;/span&gt;&lt;span class=&quot;s&quot;&gt; --from=builder /src/bin/app /app&lt;/span&gt;
+
+&lt;span class=&quot;k&quot;&gt;ENTRYPOINT&lt;/span&gt;&lt;span class=&quot;s&quot;&gt; [&quot;/app&quot;]&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h2 id=&quot;crystal-lang-notes&quot;&gt;Crystal-lang notes&lt;/h2&gt;
+
+&lt;p&gt;There is issues with DNS – see this &lt;a href=&quot;https://github.com/crystal-lang/crystal/issues/2426&quot;&gt;https://github.com/crystal-lang/crystal/issues/2426&lt;/a&gt; and &lt;a href=&quot;https://github.com/crystal-lang/crystal/issues/6099&quot;&gt;https://github.com/crystal-lang/crystal/issues/6099&lt;/a&gt;. The best way to resolve I’ve found is to &lt;a href=&quot;https://gist.github.com/bcardiff/85ae47e66ff0df35a78697508fcb49af#gistcomment-2578255&quot;&gt;copy libnss and libresolv files&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;I’ve also tried to compile with &lt;code class=&quot;highlighter-rouge&quot;&gt;--static&lt;/code&gt; option, copying (and not) the DNS libraries (&lt;code class=&quot;highlighter-rouge&quot;&gt;libnss_dns.so&lt;/code&gt; and &lt;code class=&quot;highlighter-rouge&quot;&gt;libresolv.so&lt;/code&gt;), but did not get DNS working – that image is good only for listening services.&lt;/p&gt;
+
+&lt;h2 id=&quot;result&quot;&gt;Result&lt;/h2&gt;
+
+&lt;p&gt;Resulting image is tiny, only 10MB (and the smallest one is 6.25MB only, but DNS won’t working)&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;$ docker image list dial_demo
+
+# REPOSITORY             TAG                    IMAGE ID      CREATED         SIZE
+# smallest-docker-image  scratch-ldd            d819bf2a43f3  21 minutes ago  10MB
+# smallest-docker-image  scratch-static-no-dns  595afcfad6f0  13 minutes ago  6.25MB
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h2 id=&quot;can-i-download-this&quot;&gt;Can I download this?&lt;/h2&gt;
+
+&lt;p&gt;Sure. &lt;a href=&quot;https://github.com/andrius/sandbox/tree/develop/crystal/smallest-docker-image&quot;&gt;I’ve pushed stuff to my sandbox repository&lt;/a&gt;. There is three Dockerfiles, for &lt;a href=&quot;https://github.com/andrius/sandbox/tree/develop/crystal/smallest-docker-image/scratch/ldd&quot;&gt;scratch&lt;/a&gt; – 10MB, &lt;a href=&quot;https://github.com/andrius/sandbox/tree/develop/crystal/smallest-docker-image/busybox/ldd&quot;&gt;busybox&lt;/a&gt; – 11.2MB and &lt;a href=&quot;https://github.com/andrius/sandbox/tree/develop/crystal/smallest-docker-image/alpine/ldd&quot;&gt;alpine linux&lt;/a&gt; – 15.6MB.&lt;/p&gt;
+
+&lt;hr /&gt;
+</description>
+        <pubDate>Fri, 25 Oct 2019 00:00:00 -0500</pubDate>
+        <link>//andrius.mobi/2019/10/Create-the-smallest-Crystal-lang-docker-image-based-on-scratch.html</link>
+        <guid isPermaLink="true">//andrius.mobi/2019/10/Create-the-smallest-Crystal-lang-docker-image-based-on-scratch.html</guid>
+      </item>
+    
+      <item>
+        <title>All-in-one (Crystal-lang library that handle all the Asterisk PBX interfaces)</title>
+        <description>&lt;p&gt;I’ve created and open-sourced a Crystal-lang shard (library) that handle all the Asterisk PBX interfaces (ARI, AMI and all types of AGI). Get it here: &lt;a href=&quot;https://github.com/ctiapps/asterisk&quot;&gt;https://github.com/ctiapps/asterisk&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h2 id=&quot;another-library&quot;&gt;Another library?&lt;/h2&gt;
+
+&lt;p&gt;There were no &lt;a href=&quot;https://crystalshards.xyz/?filter=voip&quot;&gt;libraries for VoIP&lt;/a&gt; with Crystal-lang so I’ve created my own.&lt;/p&gt;
+
+&lt;p&gt;Working on recent project we had a need to deal with AMI and ARI together, with a lot of async processing. Initial code were Ruby-based, but there it only single Ruby-gem for ARI and async support in Ruby is not the best one.&lt;/p&gt;
+
+&lt;p&gt;I really love &lt;a href=&quot;https://crystal-lang.org&quot;&gt;Crystal-lang&lt;/a&gt;. It’s inspired by Ruby and I had no issues switching to it (however it is not Ruby, only syntax is more or less shared). It is fast, really fast, no lags, no delays! It compiles and resulting code is tiny, docker image with all the stuff packed-in is around 20MB in size. Before making decision I also have tried Elixir. Golang might be also an option, but after Ruby I don’t want to leave comfort zone ;)&lt;/p&gt;
+
+&lt;h2 id=&quot;whats-in-a-box&quot;&gt;What’s in a box?&lt;/h2&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;All the interfaces ARI, AMI, AGI, FastAGI and AsyncAGI;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/ctiapps/asterisk/tree/develop/spec&quot;&gt;Test specs using live Asterisk PBX (in a Docker)&lt;/a&gt;. Specs also demonstrate how to use library, but more documentation is coming;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://asterisk.ctiapps.pro&quot;&gt;Documentation&lt;/a&gt;.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;further-plans&quot;&gt;Further plans&lt;/h2&gt;
+
+&lt;p&gt;First of all, the library will be continuously supported. I hope, community members will join to help me;&lt;/p&gt;
+
+&lt;p&gt;Documentation site with examples;&lt;/p&gt;
+
+&lt;p&gt;Considering to add Freeswitch support too;&lt;/p&gt;
+
+&lt;hr /&gt;
+</description>
+        <pubDate>Wed, 23 Oct 2019 00:00:00 -0500</pubDate>
+        <link>//andrius.mobi/2019/10/all-in-one-asterisk-with-crysyal.html</link>
+        <guid isPermaLink="true">//andrius.mobi/2019/10/all-in-one-asterisk-with-crysyal.html</guid>
+      </item>
+    
+      <item>
+        <title>How to install software on firewalled server</title>
+        <description>&lt;p&gt;Quick answer: Reverse SSH proxy. Create dynamic tunnel: &lt;code class=&quot;highlighter-rouge&quot;&gt;ssh -D 51010 localhost&lt;/code&gt;, ssh to the remote machine: &lt;code class=&quot;highlighter-rouge&quot;&gt;ssh -R 51010:127.0.0.1:51010 firewalled-server&lt;/code&gt; and install the software using proxychains command.&lt;/p&gt;
+
+&lt;h2 id=&quot;preparation&quot;&gt;Preparation&lt;/h2&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;At host machine open terminal and SSH to self, in order to create dynamic tunnel:
+    &lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;ssh &lt;span class=&quot;nt&quot;&gt;-D&lt;/span&gt; 51010 localhost
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;    &lt;/div&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;Now in new termial tab, SSH to the remote machine &lt;sup id=&quot;fnref:1&quot;&gt;&lt;a href=&quot;#fn:1&quot; class=&quot;footnote&quot;&gt;1&lt;/a&gt;&lt;/sup&gt;:&lt;/p&gt;
+
+    &lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;ssh &lt;span class=&quot;nt&quot;&gt;-R&lt;/span&gt; 51010:127.0.0.1:51010 firewalled-server
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;    &lt;/div&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;Check that everything works fine (I assume that curl is already installed):&lt;/p&gt;
+
+    &lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nv&quot;&gt;ALL_PROXY&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;socks5://127.0.0.1:51010&quot;&lt;/span&gt; curl ifconfig.co
+&lt;span class=&quot;nv&quot;&gt;ALL_PROXY&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;socks5h://127.0.0.1:51010&quot;&lt;/span&gt; curl ifconfig.co
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;    &lt;/div&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;If both commands was failed, check sshd settings on the firewalled server (does port forwarding enabled etc.), and if only the first command failed &lt;sup id=&quot;fnref:2&quot;&gt;&lt;a href=&quot;#fn:2&quot; class=&quot;footnote&quot;&gt;2&lt;/a&gt;&lt;/sup&gt;, then it looks that DNS resolution also firewalled&lt;/p&gt;
+
+&lt;p&gt;Almost ready!&lt;/p&gt;
+
+&lt;h2 id=&quot;installing-packages&quot;&gt;Installing packages&lt;/h2&gt;
+
+&lt;p&gt;There is two options available:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;
+    &lt;p&gt;“socksify” apt-get through proxychains &lt;sup id=&quot;fnref:3&quot;&gt;&lt;a href=&quot;#fn:3&quot; class=&quot;footnote&quot;&gt;3&lt;/a&gt;&lt;/sup&gt;:&lt;/p&gt;
+
+    &lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;proxychains4 &lt;span class=&quot;nt&quot;&gt;-q&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;-f&lt;/span&gt; /home/user/.proxychains/proxychains.conf &lt;span class=&quot;se&quot;&gt;\&lt;/span&gt;
+apt-get &lt;span class=&quot;nt&quot;&gt;-yqq&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;install &lt;/span&gt;ngrep sngrep
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;    &lt;/div&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;Or by creating entry in apt.conf file &lt;sup id=&quot;fnref:4&quot;&gt;&lt;a href=&quot;#fn:4&quot; class=&quot;footnote&quot;&gt;4&lt;/a&gt;&lt;/sup&gt;:&lt;/p&gt;
+
+    &lt;p&gt;Describe proxy in &lt;code class=&quot;highlighter-rouge&quot;&gt;apt.conf&lt;/code&gt;&lt;/p&gt;
+
+    &lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nb&quot;&gt;echo&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'Acquire::socks::Proxy &quot;socks5h://127.0.0.1:51010/&quot;;'&lt;/span&gt; &lt;span class=&quot;se&quot;&gt;\&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&lt;/span&gt; /etc/apt/apt.conf
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;    &lt;/div&gt;
+
+    &lt;p&gt;and then install packages with apt-get:&lt;/p&gt;
+
+    &lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;apt-get &lt;span class=&quot;nt&quot;&gt;-yqq&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;install &lt;/span&gt;ngrep sngrep
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;    &lt;/div&gt;
+
+    &lt;p&gt;(Don’t forget to comment out or remove proxy directive in apt.conf after installation)&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;hr /&gt;
+
+&lt;div class=&quot;footnotes&quot;&gt;
+  &lt;ol&gt;
+    &lt;li id=&quot;fn:1&quot;&gt;
+      &lt;p&gt;Possible issues with &lt;code class=&quot;highlighter-rouge&quot;&gt;ssh -R&lt;/code&gt;: &lt;a href=&quot;https://serverfault.com/questions/595323/ssh-remote-port-forwarding-failed&quot;&gt;https://serverfault.com/questions/595323/ssh-remote-port-forwarding-failed&lt;/a&gt;; &lt;a href=&quot;#fnref:1&quot; class=&quot;reversefootnote&quot;&gt;&amp;#8617;&lt;/a&gt;&lt;/p&gt;
+    &lt;/li&gt;
+    &lt;li id=&quot;fn:2&quot;&gt;
+      &lt;p&gt;Check &lt;a href=&quot;https://unix.stackexchange.com/questions/175888/curl-7-27-any-proxy-set-curl-does-not-resolve-the-hostname-via-proxy&quot;&gt;https://unix.stackexchange.com/questions/175888/curl-7-27-any-proxy-set-curl-does-not-resolve-the-hostname-via-proxy&lt;/a&gt;; &lt;a href=&quot;#fnref:2&quot; class=&quot;reversefootnote&quot;&gt;&amp;#8617;&lt;/a&gt;&lt;/p&gt;
+    &lt;/li&gt;
+    &lt;li id=&quot;fn:3&quot;&gt;
+      &lt;p&gt;How to get proxychains on remote host: there is few dependencies for proxychains4: &lt;a href=&quot;https://packages.debian.org/buster/proxychains4&quot;&gt;https://packages.debian.org/buster/proxychains4&lt;/a&gt;, if command is not installed, there is always an option just to &lt;code class=&quot;highlighter-rouge&quot;&gt;scp&lt;/code&gt; necessary files and install them manually. &lt;a href=&quot;#fnref:3&quot; class=&quot;reversefootnote&quot;&gt;&amp;#8617;&lt;/a&gt;&lt;/p&gt;
+    &lt;/li&gt;
+    &lt;li id=&quot;fn:4&quot;&gt;
+      &lt;p&gt;More options: &lt;a href=&quot;https://askubuntu.com/questions/35223/syntax-for-socks-proxy-in-apt-conf&quot;&gt;https://askubuntu.com/questions/35223/syntax-for-socks-proxy-in-apt-conf&lt;/a&gt;. &lt;a href=&quot;#fnref:4&quot; class=&quot;reversefootnote&quot;&gt;&amp;#8617;&lt;/a&gt;&lt;/p&gt;
+    &lt;/li&gt;
+  &lt;/ol&gt;
+&lt;/div&gt;
+</description>
+        <pubDate>Thu, 27 Dec 2018 00:00:00 -0600</pubDate>
+        <link>//andrius.mobi/2018/12/how-to-install-software-on-firewalled-server.html</link>
+        <guid isPermaLink="true">//andrius.mobi/2018/12/how-to-install-software-on-firewalled-server.html</guid>
+      </item>
+    
+      <item>
+        <title>Digital Ocean, Floating IP and VoIP</title>
+        <description>&lt;p&gt;Digital Ocean (&lt;a href=&quot;https://m.do.co/c/492078597684&quot;&gt;here is an referral link, claim your $100 credit&lt;/a&gt;) were introduced &lt;a href=&quot;https://www.digitalocean.com/docs/networking/floating-ips/overview/&quot;&gt;floating IP&lt;/a&gt; in the 2015, but I never use it with VoIP. Time to fix it.&lt;/p&gt;
+
+&lt;p&gt;(Dear hackers, at the moment of publishing all the IP addresses releases and data vanished)&lt;/p&gt;
+&lt;h2 id=&quot;droplet-and-floating-ip&quot;&gt;Droplet and floating IP&lt;/h2&gt;
+&lt;p&gt;Floating IP 206.189.246.114 pointed in the Digital Ocean console to the newly created droplet with Debian linux. IP addresses of test droplet:&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;root@test:~# /sbin/ifconfig | &lt;span class=&quot;nb&quot;&gt;grep&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;-B&lt;/span&gt; 1 &lt;span class=&quot;s1&quot;&gt;'inet '&lt;/span&gt;
+
+eth0: &lt;span class=&quot;nv&quot;&gt;flags&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;4163&amp;lt;UP,BROADCAST,RUNNING,MULTICAST&amp;gt;  mtu 1500
+        inet 206.189.20.174  netmask 255.255.240.0  broadcast 206.189.31.255
+&lt;span class=&quot;nt&quot;&gt;--&lt;/span&gt;
+eth0:1: &lt;span class=&quot;nv&quot;&gt;flags&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;4163&amp;lt;UP,BROADCAST,RUNNING,MULTICAST&amp;gt;  mtu 1500
+        inet 10.16.0.5  netmask 255.255.0.0  broadcast 10.16.255.255
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;h2 id=&quot;sip-configuration&quot;&gt;SIP configuration&lt;/h2&gt;
+&lt;p&gt;For test purpose I’ve installed Asterisk from the OS repository (&lt;code class=&quot;highlighter-rouge&quot;&gt;apt-get install -yqq asterisk&lt;/code&gt;) and configured  SIP client to register on 206.189.246.114. No luck as expected, SIP packets does not flowing properly:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/floating-ip/1-failure.png&quot; alt=&quot;/images/floating-ip/1-failure.png&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Okay, lets try to update sip.conf with following. It’s typical setup for asterisk behind NAT (there is description notes in default sip.conf about externip, externhost and externaddr)&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;externip=206.189.246.114
+nat=force_rport,comedia
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;And get random results, but in most of cases SIP registration did not worked.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/floating-ip/2-ok-but.png&quot; alt=&quot;/images/floating-ip/2-ok-but.png&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;After quick investigation (why there is 3rd IP in the SIP dump), I decided to change SIP bind address to the private IP:&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;udpbindaddr=10.16.0.5
+tcpenable=yes
+tcpbindaddr=10.16.0.5
+; ...
+externip=206.189.246.114
+nat=force_rport,comedia
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;Now all right&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/floating-ip/3-ok.png&quot; alt=&quot;/images/floating-ip/3-ok.png&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Calls also working&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/floating-ip/4-call-ok.png&quot; alt=&quot;/images/floating-ip/4-call-ok.png&quot; /&gt;&lt;/p&gt;
+&lt;h2 id=&quot;docker-setup&quot;&gt;Docker setup&lt;/h2&gt;
+&lt;p&gt;Let’s try to get the same result with docker.&lt;/p&gt;
+
+&lt;p&gt;It works if asterisk can bind to the same private IP address where floating IP points, but requires to run container with &lt;code class=&quot;highlighter-rouge&quot;&gt;--net=host&lt;/code&gt; option:&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;docker run &lt;span class=&quot;nt&quot;&gt;-ti&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;--rm&lt;/span&gt; &lt;span class=&quot;se&quot;&gt;\&lt;/span&gt;
+  &lt;span class=&quot;nt&quot;&gt;--net&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;host &lt;span class=&quot;se&quot;&gt;\&lt;/span&gt;
+  &lt;span class=&quot;nt&quot;&gt;--name&lt;/span&gt; asterisk &lt;span class=&quot;se&quot;&gt;\&lt;/span&gt;
+  &lt;span class=&quot;nt&quot;&gt;-v&lt;/span&gt; /etc/asterisk/sip.conf:/etc/asterisk/sip.conf &lt;span class=&quot;se&quot;&gt;\&lt;/span&gt;
+  andrius/asterisk &lt;span class=&quot;se&quot;&gt;\&lt;/span&gt;
+  asterisk &lt;span class=&quot;nt&quot;&gt;-vvvddddc&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;Technically that’s enough for most of use cases, but such Asterisk won’t fit well into development environment with docker-compose; other containers won’t “see” it. I’ll be digging this little bit more. Perhaps if I would pass NET_ADMIN capability or will start container in privileged mode, I would be able to do necessary trick with iptables.&lt;/p&gt;
+</description>
+        <pubDate>Tue, 18 Dec 2018 00:00:00 -0600</pubDate>
+        <link>//andrius.mobi/2018/12/digital-ocean-floating-ip-and-voip.html</link>
+        <guid isPermaLink="true">//andrius.mobi/2018/12/digital-ocean-floating-ip-and-voip.html</guid>
+      </item>
+    
+      <item>
+        <title>Tiny docker image with ngrok</title>
+        <description>&lt;p&gt;I’ve found an excellent tiny Docker image for ngrok (wernight/ngrok). From now just using it to handle this blog.&lt;/p&gt;
+
+&lt;p&gt;Links at &lt;a href=&quot;https://hub.docker.com/r/wernight/ngrok&quot;&gt;Docker hub&lt;/a&gt; and &lt;a href=&quot;https://hub.docker.com/r/wernight/ngrok&quot;&gt;Github&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;Some handy snippets. Note, it’s possible to use docker-compose commands, i.e. to check tunnels &lt;code class=&quot;highlighter-rouge&quot;&gt;curl $(docker-compose port ngrok 4040)/api/tunnels&lt;/code&gt;, but I’m using &lt;code class=&quot;highlighter-rouge&quot;&gt;$(docker ps -l -q --filter &quot;name=blog_ngrok&quot;)&lt;/code&gt; statement to identify container ID, as it works with both docker-compose “up” and “run” modes and with docker without using docker-compose.&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Logs&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nv&quot;&gt;BLOG&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;si&quot;&gt;$(&lt;/span&gt;docker ps &lt;span class=&quot;nt&quot;&gt;-l&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;-q&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;--filter&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;name=blog_ngrok&quot;&lt;/span&gt;&lt;span class=&quot;si&quot;&gt;)&lt;/span&gt;
+docker logs &lt;span class=&quot;nt&quot;&gt;-f&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;$BLOG&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Check open ngrok tunnels&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nv&quot;&gt;BLOG&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;si&quot;&gt;$(&lt;/span&gt;docker ps &lt;span class=&quot;nt&quot;&gt;-l&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;-q&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;--filter&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;name=blog_ngrok&quot;&lt;/span&gt;&lt;span class=&quot;si&quot;&gt;)&lt;/span&gt;
+curl &lt;span class=&quot;si&quot;&gt;$(&lt;/span&gt;docker port &lt;span class=&quot;nv&quot;&gt;$BLOG&lt;/span&gt; 4040&lt;span class=&quot;si&quot;&gt;)&lt;/span&gt;/api/tunnels
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Open browser window with ngrok http console&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nv&quot;&gt;BLOG&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;si&quot;&gt;$(&lt;/span&gt;docker ps &lt;span class=&quot;nt&quot;&gt;-l&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;-q&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;--filter&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;name=blog_ngrok&quot;&lt;/span&gt;&lt;span class=&quot;si&quot;&gt;)&lt;/span&gt;
+open http://&lt;span class=&quot;si&quot;&gt;$(&lt;/span&gt;docker port &lt;span class=&quot;nv&quot;&gt;$BLOG&lt;/span&gt; 4040&lt;span class=&quot;si&quot;&gt;)&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;It is how docker-compose file looks like for this Jekyll site:&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;version: '3'
+
+volumes:
+  ruby-cache:
+    driver: local
+
+services:
+  build:
+    image: jekyll/jekyll
+    volumes:
+      - ruby-cache:/usr/local/bundle
+      - ./:/srv/jekyll
+    command: jekyll build
+
+  jekyll:
+    image: jekyll/jekyll
+    volumes:
+      - ruby-cache:/usr/local/bundle
+      - ./:/srv/jekyll
+    command: jekyll serve --incremental --watch
+    ports:
+      - 127.0.0.1:4000:4000
+
+  ngrok:
+    image: wernight/ngrok
+    links:
+      - jekyll
+    stdin_open: true
+    tty: true
+    ports:
+      - 127.0.0.1:4040:4040
+    environment:
+      - NGROK_REGION=eu
+      - NGROK_AUTH=...
+      - NGROK_SUBDOMAIN=...
+      - NGROK_PROTOCOL=http
+      - NGROK_PORT=jekyll:4000
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+</description>
+        <pubDate>Mon, 17 Dec 2018 00:00:00 -0600</pubDate>
+        <link>//andrius.mobi/2018/12/tiny-docker-image-with-ngrok.html</link>
+        <guid isPermaLink="true">//andrius.mobi/2018/12/tiny-docker-image-with-ngrok.html</guid>
+      </item>
+    
+      <item>
+        <title>Asterisk OPUS patch for 11.11.0</title>
+        <description>&lt;p&gt;Released updated patch, now it supports Asterisk 11.11.0 and 12.2.5. With VP8 in pass-through mode, tested — it works well. &lt;a href=&quot;https://github.com/andrius/asterisk-opus&quot;&gt;Get it here!&lt;/a&gt;&lt;/p&gt;
+</description>
+        <pubDate>Fri, 08 Aug 2014 05:07:00 -0500</pubDate>
+        <link>//andrius.mobi/2014/08/asterisk-opus-patch-for-11110.html</link>
+        <guid isPermaLink="true">//andrius.mobi/2014/08/asterisk-opus-patch-for-11110.html</guid>
+      </item>
+    
+      <item>
+        <title>WebRTC with Asterisk 11?</title>
+        <description>&lt;p&gt;Tonight I have tried two WebRTC clients (&lt;a href=&quot;http://jssip.net/&quot;&gt;JsSIP&lt;/a&gt; and &lt;a href=&quot;http://sipml5.org/&quot;&gt;sipML5&lt;/a&gt;) with Asterisk 11 and get both of them working — echo test calls with ulaw (g711u) codec works, but with one-way audio if I call from WebRTC to the SIP softphone.&lt;/p&gt;
+
+&lt;p&gt;I’ve followed Asterisk wiki articles: &lt;a href=&quot;https://wiki.asterisk.org/wiki/display/AST/Asterisk+WebRTC+Support&quot;&gt;Asterisk WebRTC Support&lt;/a&gt; and &lt;a href=&quot;https://wiki.asterisk.org/wiki/display/AST/WebRTC+tutorial+using+SIPML5&quot;&gt;WebRTC tutorial using SIPML5&lt;/a&gt; to configure WebRTC.&lt;/p&gt;
+
+&lt;p&gt;Good news!&lt;/p&gt;
+</description>
+        <pubDate>Thu, 11 Jul 2013 06:38:00 -0500</pubDate>
+        <link>//andrius.mobi/2013/07/webrtc-with-asterisk-11.html</link>
+        <guid isPermaLink="true">//andrius.mobi/2013/07/webrtc-with-asterisk-11.html</guid>
+      </item>
+    
+      <item>
+        <title>Opus and VP8 in Asterisk 11 (Experimental support)</title>
+        <description>&lt;p&gt;Great news! Meetecho just introduced experimental OPUS support in Asterisk 11. &lt;a href=&quot;https://github.com/meetecho/asterisk-opus&quot;&gt;https://github.com/meetecho/asterisk-opus&lt;/a&gt;  Time to test it with WebRTC!&lt;/p&gt;
+
+&lt;p&gt;Why OPUS is great? &lt;a href=&quot;http://www.circleid.com/posts/200130727_why_the_opus_codec_matters_even_if_you_dont_care_about_audio/&quot;&gt;Read this article!&lt;/a&gt;&lt;/p&gt;
+</description>
+        <pubDate>Mon, 27 May 2013 12:37:00 -0500</pubDate>
+        <link>//andrius.mobi/2013/05/opus-and-vp8-in-asterisk-11.html</link>
+        <guid isPermaLink="true">//andrius.mobi/2013/05/opus-and-vp8-in-asterisk-11.html</guid>
+      </item>
+    
+      <item>
+        <title>Roaming PBX update</title>
+        <description>&lt;p&gt;What’s new:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Asterisk 11.4;&lt;/li&gt;
+  &lt;li&gt;SILK codec.&lt;/li&gt;
+  &lt;li&gt;Watchdog, so Raspberry Pi board works better, without deadlocks;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Download link: &lt;a href=&quot;//j.mp/tinypbx&quot;&gt;j.mp/tinypbx&lt;/a&gt;, image name for given release: &lt;code class=&quot;highlighter-rouge&quot;&gt;raspbian_basic_wheezy_20130523.img.gz&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;Credentials: ssh (port 22), username: &lt;code class=&quot;highlighter-rouge&quot;&gt;root&lt;/code&gt;, password: &lt;code class=&quot;highlighter-rouge&quot;&gt;raspberry&lt;/code&gt;. Don’t forget to update passwords after flashing and first boot!&lt;/p&gt;
+</description>
+        <pubDate>Thu, 23 May 2013 18:30:00 -0500</pubDate>
+        <link>//andrius.mobi/2013/05/roaming-pbx-update.html</link>
+        <guid isPermaLink="true">//andrius.mobi/2013/05/roaming-pbx-update.html</guid>
+      </item>
+    
+  </channel>
+</rss>

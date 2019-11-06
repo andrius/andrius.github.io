@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Digital Ocean, Floating IP and VoIP &#8211; Voice Applications</title>
+    <link rel="dns-prefetch" href="//fonts.googleapis.com">
+    <link rel="dns-prefetch" href="//fonts.gstatic.com">
+    <link rel="dns-prefetch" href="//maxcdn.bootstrapcdn.com">
+    <link rel="dns-prefetch" href="//cdnjs.cloudflare.com">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Realtime voice applications. Notes about Unified Communications, CTI, call-centers; open-source VoIP (Asterisk, Freeswitch, Kamailio); with test automation, and scaled container (docker) apps.">
+    <meta name="robots" content="all">
+    <meta name="author" content="Andrius Kairiukstis">
+    <meta property="fb:pages" content="ctiapps" />
+    <meta name="keywords" content="">
+    <link rel="canonical" href="//andrius.mobi/2018/12/digital-ocean-floating-ip-and-voip.html">
+    <link rel="alternate" type="application/rss+xml" title="RSS Feed for Voice Applications" href="/feed.xml" />
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/css/pixyll.css?201911060412" type="text/css">
+
+    <!-- Fonts -->
+    
+    <link href='//fonts.googleapis.com/css?family=Merriweather:900,900italic,300,300italic&amp;subset=latin-ext,latin' rel='stylesheet' type='text/css'>
+    <link href='//fonts.googleapis.com/css?family=Lato:900,300&amp;subset=latin-ext,latin' rel='stylesheet' type='text/css'>
+    
+    
+      <link href="//maxcdn.bootstrapcdn.com/font-awesome/latest/css/font-awesome.min.css" rel="stylesheet">
+    
+
+    <!-- MathJax -->
+    
+
+    <!-- Verifications -->
+    
+    
+
+    <!-- Open Graph -->
+    <!-- From: https://github.com/mmistakes/hpstr-jekyll-theme/blob/master/_includes/head.html -->
+    <meta property="og:locale" content="en_US">
+    <meta property="og:type" content="article">
+    <meta property="og:title" content="Digital Ocean, Floating IP and VoIP">
+    <meta property="og:description" content="Realtime voice applications. Notes about Unified Communications, CTI, call-centers; open-source VoIP (Asterisk, Freeswitch, Kamailio); with test automation, and scaled container (docker) apps.">
+    <meta property="og:url" content="//andrius.mobi/2018/12/digital-ocean-floating-ip-and-voip.html">
+    <meta property="og:site_name" content="Voice Applications">
+    
+    <meta property="og:image" content="//andrius.mobi/images/me.jpeg">
+    
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary" />
+    
+        <meta name="twitter:site" content="@andrius_kai" />
+        <meta name="twitter:creator" content="@andrius_kai" />
+    
+    <meta name="twitter:title" content="Digital Ocean, Floating IP and VoIP" />
+    <meta name="twitter:description" content="Realtime voice applications. Notes about Unified Communications, CTI, call-centers; open-source VoIP (Asterisk, Freeswitch, Kamailio); with test automation, and scaled container (docker) apps." />
+    <meta name="twitter:url" content="//andrius.mobi/2018/12/digital-ocean-floating-ip-and-voip.html" />
+    
+    <meta name="twitter:image" content="//andrius.mobi/images/me.jpeg" />
+    
+
+    <!-- Icons -->
+    <link rel="apple-touch-icon" sizes="57x57" href="/apple-touch-icon-57x57.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="/apple-touch-icon-114x114.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="/apple-touch-icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="144x144" href="/apple-touch-icon-144x144.png">
+    <link rel="apple-touch-icon" sizes="60x60" href="/apple-touch-icon-60x60.png">
+    <link rel="apple-touch-icon" sizes="120x120" href="/apple-touch-icon-120x120.png">
+    <link rel="apple-touch-icon" sizes="76x76" href="/apple-touch-icon-76x76.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="/apple-touch-icon-152x152.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon-180x180.png">
+    <link rel="icon" type="image/png" href="/favicon-192x192.png" sizes="192x192">
+    <link rel="icon" type="image/png" href="/favicon-160x160.png" sizes="160x160">
+    <link rel="icon" type="image/png" href="/favicon-96x96.png" sizes="96x96">
+    <link rel="icon" type="image/png" href="/favicon-16x16.png" sizes="16x16">
+    <link rel="icon" type="image/png" href="/favicon-32x32.png" sizes="32x32">
+    <link rel="shortcut icon" href="/favicon.ico">
+
+    
+    <script type="text/javascript">
+       (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+       (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+       m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+       })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+       ga('create', 'UA-38523949-3', 'auto');
+       ga('send', 'pageview');
+    </script>
+    
+</head>
+
+<body class="site animated fade-in-down">
+  
+	
+
+  <div class="site-wrap">
+    <header class="site-header px2 px-responsive">
+  <div class="mt2 wrap">
+    <div class="measure">
+      <a href="/" class="site-title">Voice Applications</a>
+      <nav class="site-nav">
+        
+
+
+
+
+    
+
+    
+
+
+
+
+    
+
+    
+
+
+
+
+      </nav>
+      <div class="clearfix"></div>
+      
+        <div class="social-icons">
+  <div class="social-icons-right">
+    
+      <a class="fa fa-github" href="https://github.com/andrius"></a>
+    
+    
+    
+    
+    
+      <a class="fa fa-twitter" href="https://twitter.com/andrius_kai"></a>
+    
+    
+    
+    
+      <a class="fa fa-linkedin" href="https://www.linkedin.com/in/andrius-kairiukstis"></a>
+    
+    
+    
+    
+      <a class="fa fa-telegram" href="https://t.me/andrius_kai"></a>
+    
+    
+    
+      <a class="fa fa-whatsapp" href="https://wa.me/34652299183"></a>
+    
+    
+  </div>
+  <div class="right">
+    
+    
+    
+  </div>
+</div>
+<div class="clearfix"></div>
+
+      
+    </div>
+  </div>
+</header>
+
+
+    <div class="post p2 p-responsive wrap" role="main">
+      <div class="measure">
+        
+
+
+<div class="post-header mb2">
+  <h1>Digital Ocean, Floating IP and VoIP</h1>
+  <span class="post-meta">Dec 18, 2018</span><br>
+  
+  <span class="post-meta small">
+  
+    1 minute read
+  
+  </span>
+</div>
+
+<article class="post-content">
+  <p>Digital Ocean (<a href="https://m.do.co/c/492078597684">here is an referral link, claim your $100 credit</a>) were introduced <a href="https://www.digitalocean.com/docs/networking/floating-ips/overview/">floating IP</a> in the 2015, but I never use it with VoIP. Time to fix it.</p>
+
+<p>(Dear hackers, at the moment of publishing all the IP addresses releases and data vanished)</p>
+<h2 id="droplet-and-floating-ip">Droplet and floating IP</h2>
+<p>Floating IP 206.189.246.114 pointed in the Digital Ocean console to the newly created droplet with Debian linux. IP addresses of test droplet:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>root@test:~# /sbin/ifconfig | <span class="nb">grep</span> <span class="nt">-B</span> 1 <span class="s1">'inet '</span>
+
+eth0: <span class="nv">flags</span><span class="o">=</span>4163&lt;UP,BROADCAST,RUNNING,MULTICAST&gt;  mtu 1500
+        inet 206.189.20.174  netmask 255.255.240.0  broadcast 206.189.31.255
+<span class="nt">--</span>
+eth0:1: <span class="nv">flags</span><span class="o">=</span>4163&lt;UP,BROADCAST,RUNNING,MULTICAST&gt;  mtu 1500
+        inet 10.16.0.5  netmask 255.255.0.0  broadcast 10.16.255.255
+</code></pre></div></div>
+<h2 id="sip-configuration">SIP configuration</h2>
+<p>For test purpose I’ve installed Asterisk from the OS repository (<code class="highlighter-rouge">apt-get install -yqq asterisk</code>) and configured  SIP client to register on 206.189.246.114. No luck as expected, SIP packets does not flowing properly:</p>
+
+<p><img src="/images/floating-ip/1-failure.png" alt="/images/floating-ip/1-failure.png" /></p>
+
+<p>Okay, lets try to update sip.conf with following. It’s typical setup for asterisk behind NAT (there is description notes in default sip.conf about externip, externhost and externaddr)</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>externip=206.189.246.114
+nat=force_rport,comedia
+</code></pre></div></div>
+
+<p>And get random results, but in most of cases SIP registration did not worked.</p>
+
+<p><img src="/images/floating-ip/2-ok-but.png" alt="/images/floating-ip/2-ok-but.png" /></p>
+
+<p>After quick investigation (why there is 3rd IP in the SIP dump), I decided to change SIP bind address to the private IP:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>udpbindaddr=10.16.0.5
+tcpenable=yes
+tcpbindaddr=10.16.0.5
+; ...
+externip=206.189.246.114
+nat=force_rport,comedia
+</code></pre></div></div>
+
+<p>Now all right</p>
+
+<p><img src="/images/floating-ip/3-ok.png" alt="/images/floating-ip/3-ok.png" /></p>
+
+<p>Calls also working</p>
+
+<p><img src="/images/floating-ip/4-call-ok.png" alt="/images/floating-ip/4-call-ok.png" /></p>
+<h2 id="docker-setup">Docker setup</h2>
+<p>Let’s try to get the same result with docker.</p>
+
+<p>It works if asterisk can bind to the same private IP address where floating IP points, but requires to run container with <code class="highlighter-rouge">--net=host</code> option:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>docker run <span class="nt">-ti</span> <span class="nt">--rm</span> <span class="se">\</span>
+  <span class="nt">--net</span><span class="o">=</span>host <span class="se">\</span>
+  <span class="nt">--name</span> asterisk <span class="se">\</span>
+  <span class="nt">-v</span> /etc/asterisk/sip.conf:/etc/asterisk/sip.conf <span class="se">\</span>
+  andrius/asterisk <span class="se">\</span>
+  asterisk <span class="nt">-vvvddddc</span>
+</code></pre></div></div>
+
+<p>Technically that’s enough for most of use cases, but such Asterisk won’t fit well into development environment with docker-compose; other containers won’t “see” it. I’ll be digging this little bit more. Perhaps if I would pass NET_ADMIN capability or will start container in privileged mode, I would be able to do necessary trick with iptables.</p>
+
+</article>
+
+
+
+
+
+
+  <div id="disqus_thread"></div>
+  <script type="text/javascript">
+    var disqus_shortname  = 'andrius-mobi';
+    var disqus_identifier = '/2018/12/digital-ocean-floating-ip-and-voip';
+    var disqus_title      = "Digital Ocean, Floating IP and VoIP";
+
+    (function() {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+  </script>
+  <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+
+
+
+
+
+
+      </div>
+    </div>
+  </div>
+
+  <footer class="center">
+  <div class="measure">
+    <small>
+      Content by Andrius Kairiukstis.<br>
+      Jekyll site based on <a href="https://github.com/johno/pixyll">Pixyll theme</a>.
+    </small>
+  </div>
+</footer>
+<!-- AnchorJS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/anchor-js/3.0.0/anchor.min.js"></script>
+<script>
+    anchors.options.visible = 'always';
+    anchors.add('article h2, article h3, article h4, article h5, article h6');
+</script>
+
+</body>
+</html>
