@@ -7,79 +7,6 @@
     <atom:link href="//andrius.mobi/feed.xml" rel="self" type="application/rss+xml" />
     
       <item>
-        <title>Properly terminate crystal-lang service in docker</title>
-        <description>&lt;p&gt;Production-ready crystal application in docker must process correctly several
-signals to shutdown properly. There is two commands in docker can be used to stop running container: &lt;code class=&quot;highlighter-rouge&quot;&gt;docker stop&lt;/code&gt; and &lt;code class=&quot;highlighter-rouge&quot;&gt;docker kill&lt;/code&gt;. First one, &lt;code class=&quot;highlighter-rouge&quot;&gt;docker stop&lt;/code&gt; stops a running container by sending it SIGTERM signal, let the main process process it, and after a grace period uses SIGKILL to terminate the application.&lt;/p&gt;
-
-&lt;p&gt;In this article I’ll show how to process SIGING (Ctrl-C), SIGTERM and SIGKILL with Crystal-lang.&lt;/p&gt;
-
-&lt;h2 id=&quot;download&quot;&gt;Download&lt;/h2&gt;
-
-&lt;p&gt;It’s a part of my sandbox repository, &lt;a href=&quot;https://github.com/andrius/sandbox/tree/develop/crystal/signal_trap&quot;&gt;download it here&lt;/a&gt;.&lt;/p&gt;
-
-&lt;p&gt;Not familiar with crystal-lang? &lt;a href=&quot;https://github.com/andrius/sandbox/blob/develop/crystal-signal-trap/src/signal_trap.cr&quot;&gt;This is the main file with business logic&lt;/a&gt;.&lt;/p&gt;
-
-&lt;h2 id=&quot;installation&quot;&gt;Installation&lt;/h2&gt;
-
-&lt;p&gt;Everything is dockerised, just get docker installed and download git repository.&lt;/p&gt;
-
-&lt;h2 id=&quot;usage&quot;&gt;Usage&lt;/h2&gt;
-
-&lt;p&gt;For development-mode application run this:&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;docker build &lt;span class=&quot;nt&quot;&gt;--pull&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;--force-rm&lt;/span&gt; &lt;span class=&quot;se&quot;&gt;\&lt;/span&gt;
-  &lt;span class=&quot;nt&quot;&gt;-t&lt;/span&gt; crystal-signal-trap &lt;span class=&quot;se&quot;&gt;\&lt;/span&gt;
-  &lt;span class=&quot;nt&quot;&gt;--file&lt;/span&gt; ./Dockerfile &lt;span class=&quot;nb&quot;&gt;.&lt;/span&gt; &lt;span class=&quot;se&quot;&gt;\&lt;/span&gt;
-&lt;span class=&quot;o&quot;&gt;&amp;amp;&amp;amp;&lt;/span&gt; docker run &lt;span class=&quot;nt&quot;&gt;-ti&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;--rm&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;--name&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;trap &lt;/span&gt;crystal-signal-trap
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;p&gt;But most important is to get signals trap working in production-ready docker,
-which is scratch, busybox or alpine-based. To test it, run following snippet:&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;docker build &lt;span class=&quot;nt&quot;&gt;--pull&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;--force-rm&lt;/span&gt; &lt;span class=&quot;se&quot;&gt;\&lt;/span&gt;
-  &lt;span class=&quot;nt&quot;&gt;-t&lt;/span&gt; crystal-signal-trap &lt;span class=&quot;se&quot;&gt;\&lt;/span&gt;
-  &lt;span class=&quot;nt&quot;&gt;--file&lt;/span&gt; ./Dockerfile-production &lt;span class=&quot;nb&quot;&gt;.&lt;/span&gt; &lt;span class=&quot;se&quot;&gt;\&lt;/span&gt;
-&lt;span class=&quot;o&quot;&gt;&amp;amp;&amp;amp;&lt;/span&gt; docker run &lt;span class=&quot;nt&quot;&gt;-ti&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;--rm&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;--name&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;trap &lt;/span&gt;crystal-signal-trap
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;h2 id=&quot;demo&quot;&gt;Demo&lt;/h2&gt;
-
-&lt;p&gt;&lt;a href=&quot;https://asciinema.org/a/eIFSoH00QsLKpsfyypsL0i6cr&quot;&gt;&lt;img src=&quot;https://asciinema.org/a/eIFSoH00QsLKpsfyypsL0i6cr.svg&quot; alt=&quot;asciicast&quot; /&gt;&lt;/a&gt;&lt;/p&gt;
-
-&lt;h2 id=&quot;i-want-to-process-signals-separately&quot;&gt;I want to process signals separately!&lt;/h2&gt;
-
-&lt;p&gt;Instead of grouping signals trap as it’s &lt;a href=&quot;https://github.com/andrius/sandbox/blob/develop/crystal/signal_trap/src/signal_trap.cr#L9-L16&quot;&gt;made in the demo app&lt;/a&gt;, it is possible just to process any of them:&lt;/p&gt;
-
-&lt;div class=&quot;language-crystal highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt; &lt;span class=&quot;no&quot;&gt;Signal&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;::&lt;/span&gt;&lt;span class=&quot;no&quot;&gt;INT&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;trap&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;do&lt;/span&gt;
-   &lt;span class=&quot;c1&quot;&gt;# Processing SIGING&lt;/span&gt;
- &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;h2 id=&quot;more-signals&quot;&gt;More signals?&lt;/h2&gt;
-
-&lt;p&gt;It is possible to send other signals with docker:&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;docker &lt;span class=&quot;nb&quot;&gt;kill&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;--signal&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;SIGHUP  my_container
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;p&gt;In this case, Crystal-lang app shall catch that signal: &lt;code class=&quot;highlighter-rouge&quot;&gt;Signal::INT.trap { ... }&lt;/code&gt;. Here is the &lt;a href=&quot;https://crystal-lang.org/api/latest/Signal.html&quot;&gt;list of known by Crystal-lang signals&lt;/a&gt;.&lt;/p&gt;
-
-&lt;hr /&gt;
-
-&lt;p&gt;References:&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;&lt;a href=&quot;https://docs.docker.com/engine/reference/commandline/kill&quot;&gt;docker kill command syntax&lt;/a&gt;;&lt;/li&gt;
-  &lt;li&gt;&lt;a href=&quot;https://docs.docker.com/engine/reference/commandline/stop&quot;&gt;docker stop command syntax&lt;/a&gt;;&lt;/li&gt;
-  &lt;li&gt;&lt;a href=&quot;https://medium.com/@gchudnov/trapping-signals-in-docker-containers-7a57fdda7d86&quot;&gt;Trapping signals in Docker containers&lt;/a&gt;.&lt;/li&gt;
-&lt;/ul&gt;
-</description>
-        <pubDate>Sun, 03 Nov 2019 00:00:00 -0500</pubDate>
-        <link>//andrius.mobi/2019/11/proxperly-terminate-crystal-lang-service-in-docker.html</link>
-        <guid isPermaLink="true">//andrius.mobi/2019/11/proxperly-terminate-crystal-lang-service-in-docker.html</guid>
-      </item>
-    
-      <item>
         <title>Create the smallest Crystal-lang docker image based on scratch</title>
         <description>&lt;p&gt;Official &lt;a href=&quot;https://hub.docker.com/r/crystallang/crystal/tags&quot;&gt;Crystal-lang docker image&lt;/a&gt; is Ubuntu-based and relatively big, but production-ready image could be tiny, if we will use docker multi-stage builds. The smallest image could be created using &lt;a href=&quot;https://hub.docker.com/_/scratch&quot;&gt;scratch&lt;/a&gt; image, but if it’s needed to do some processing before actual code starts, &lt;a href=&quot;https://hub.docker.com/_/busybox&quot;&gt;busybox&lt;/a&gt; or &lt;a href=&quot;https://hub.docker.com/_/alpine&quot;&gt;alpine&lt;/a&gt; is recommended.&lt;/p&gt;
 
@@ -459,6 +386,19 @@ services:
         <pubDate>Thu, 23 May 2013 18:30:00 -0500</pubDate>
         <link>//andrius.mobi/2013/05/roaming-pbx-update.html</link>
         <guid isPermaLink="true">//andrius.mobi/2013/05/roaming-pbx-update.html</guid>
+      </item>
+    
+      <item>
+        <title>Roaming PBX – first release</title>
+        <description>Today I have baked latest image (containing&amp;nbsp;ruby, pcapsipdump, asterisk, silk codec).
+Because it is still a bit alpha, I was created shorted URL, download link, containing latest image: [j.mp/tinypbx](//j.mp/tinypbx).
+
+Standard flashing instructions: gunzip .gz file, insert SD card, flash with Linux DD command... [This site](http://www.andrewmunsell.com/blog/getting-started-raspberry-pi-install-raspbian/) for example, describing flashing procedure well.
+
+[GIT repository with script](https://github.com/andrius/build-raspbian-image), which creates RPI images, was updated and I will create&amp;nbsp;separate&amp;nbsp;post describing it. In few words: installer creates minimal raspbian image, at the end, mounts folder &quot;delivery&quot; to the target image and executes bash script &quot;install.sh&quot; (you find sample in GIT repository).&lt;/div&gt;</description>
+        <pubDate>Tue, 07 May 2013 16:32:00 -0500</pubDate>
+        <link>//andrius.mobi/2013/05/roaming-pbx-first-release.html</link>
+        <guid isPermaLink="true">//andrius.mobi/2013/05/roaming-pbx-first-release.html</guid>
       </item>
     
   </channel>

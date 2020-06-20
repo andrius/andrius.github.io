@@ -19,7 +19,7 @@
     <link rel="alternate" type="application/rss+xml" title="RSS Feed for Voice Applications" href="/feed.xml" />
 
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="/css/pixyll.css?201911060412" type="text/css">
+    <link rel="stylesheet" href="/css/pixyll.css?202006200848" type="text/css">
 
     <!-- Fonts -->
     
@@ -171,23 +171,6 @@
 <div class="home">
   
     <div class="posts">
-      
-        <div class="post py3">
-          <p class="post-meta">
-	    
-	      Nov 3, 2019
-	    
-	  </p>
-          <a href="/2019/11/proxperly-terminate-crystal-lang-service-in-docker.html" class="post-link"><h3 class="h1 post-title">Properly terminate crystal-lang service in docker</h3></a>
-          <span class="post-summary">
-            
-              <p>Production-ready crystal application in docker must process correctly several
-signals to shutdown properly. There is two commands in docker can be used to stop running container: <code class="highlighter-rouge">docker stop</code> and <code class="highlighter-rouge">docker kill</code>. First one, <code class="highlighter-rouge">docker stop</code> stops a running container by sending it SIGTERM signal, let the main process process it, and after a grace period uses SIGKILL to terminate the application.</p>
-
-
-            
-          </span>
-        </div>
       
         <div class="post py3">
           <p class="post-meta">
@@ -478,6 +461,22 @@ Because it is still a bit alpha, I was created shorted URL, download link, conta
           <span class="post-summary">
             
               <div dir="ltr" style="text-align: left;" trbidi="on">Asterisk dial-plan is powerful, and possible to create a number of custom voice applications only with its functions... AEL looks like high-level language, of course, it is just a view of standard expressions, same as in extensions.conf, but.<br />You can manipulate database data through func_odbc, you can call a Linux system script and process result, in case if you want to send a notice about event to a web application, you can use a curl function.<br />No problem to send out email or jabber/google talk notification...<br /><br />So, why and when you should use AGI? I believe, correct answers are:<br /><ul style="text-align: left;"><li>Dial-plan is complex, you have a growing amount of huge&nbsp;macros&nbsp;and contexts;</li><li>System are hosted or cluster with various customers with different needs and functions;</li><li>You do integration with another application or web app and have to process inbound events (and send outbound);</li><li>Want to create an API to support 3rd apps;</li><li>Application API of another application;</li><li>And most important – database is a core part of application and should access data permanently.</li></ul><div>There are many reasons too, but basically it is good to always keep in mind a <a href="http://en.wikipedia.org/wiki/KISS_principle" target="_blank">KISS principle</a>. If task can be resolved without using AGI, do that and use dial-plan. If dial-plan call a lot of external shell scripts – create AGI app.</div></div>
+            
+          </span>
+        </div>
+      
+        <div class="post py3">
+          <p class="post-meta">
+	    
+	      Mar 10, 2013
+	    
+	  </p>
+          <a href="/2013/03/your-own-click-to-call-with-asterisk.html" class="post-link"><h3 class="h1 post-title">Click-to-call script</h3></a>
+          <span class="post-summary">
+            
+              <p>Sharing one my ancient projects with Asterisk: click-to-call library with client and server part. Windows user could activate <code class="highlighter-rouge">callto.rb</code> script, the customer just integrated it with their CRM application; after user start script, his SIP phone rings. Here it is: <a href="https://github.com/andrius/asterisk-click-to-call-windows">https://github.com/andrius/asterisk-click-to-call-windows</a>.</p>
+
+
             
           </span>
         </div>

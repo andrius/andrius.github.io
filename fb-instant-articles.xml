@@ -9,89 +9,6 @@
     
         
             <item>
-                <title>Properly terminate crystal-lang service in docker</title>
-                <link>//andrius.mobi/2019/11/proxperly-terminate-crystal-lang-service-in-docker.html</link>
-                <content:encoded>
-                    <![CDATA[
-                    <p>Production-ready crystal application in docker must process correctly several
-signals to shutdown properly. There is two commands in docker can be used to stop running container: <code class="highlighter-rouge">docker stop</code> and <code class="highlighter-rouge">docker kill</code>. First one, <code class="highlighter-rouge">docker stop</code> stops a running container by sending it SIGTERM signal, let the main process process it, and after a grace period uses SIGKILL to terminate the application.</p>
-
-<p>In this article I’ll show how to process SIGING (Ctrl-C), SIGTERM and SIGKILL with Crystal-lang.</p>
-
-<h2 id="download">Download</h2>
-
-<p>It’s a part of my sandbox repository, <a href="https://github.com/andrius/sandbox/tree/develop/crystal/signal_trap">download it here</a>.</p>
-
-<p>Not familiar with crystal-lang? <a href="https://github.com/andrius/sandbox/blob/develop/crystal-signal-trap/src/signal_trap.cr">This is the main file with business logic</a>.</p>
-
-<h2 id="installation">Installation</h2>
-
-<p>Everything is dockerised, just get docker installed and download git repository.</p>
-
-<h2 id="usage">Usage</h2>
-
-<p>For development-mode application run this:</p>
-
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>docker build <span class="nt">--pull</span> <span class="nt">--force-rm</span> <span class="se">\</span>
-  <span class="nt">-t</span> crystal-signal-trap <span class="se">\</span>
-  <span class="nt">--file</span> ./Dockerfile <span class="nb">.</span> <span class="se">\</span>
-<span class="o">&amp;&amp;</span> docker run <span class="nt">-ti</span> <span class="nt">--rm</span> <span class="nt">--name</span><span class="o">=</span><span class="nb">trap </span>crystal-signal-trap
-</code></pre></div></div>
-
-<p>But most important is to get signals trap working in production-ready docker,
-which is scratch, busybox or alpine-based. To test it, run following snippet:</p>
-
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>docker build <span class="nt">--pull</span> <span class="nt">--force-rm</span> <span class="se">\</span>
-  <span class="nt">-t</span> crystal-signal-trap <span class="se">\</span>
-  <span class="nt">--file</span> ./Dockerfile-production <span class="nb">.</span> <span class="se">\</span>
-<span class="o">&amp;&amp;</span> docker run <span class="nt">-ti</span> <span class="nt">--rm</span> <span class="nt">--name</span><span class="o">=</span><span class="nb">trap </span>crystal-signal-trap
-</code></pre></div></div>
-
-<h2 id="demo">Demo</h2>
-
-<p><a href="https://asciinema.org/a/eIFSoH00QsLKpsfyypsL0i6cr"><img src="https://asciinema.org/a/eIFSoH00QsLKpsfyypsL0i6cr.svg" alt="asciicast" /></a></p>
-
-<h2 id="i-want-to-process-signals-separately">I want to process signals separately!</h2>
-
-<p>Instead of grouping signals trap as it’s <a href="https://github.com/andrius/sandbox/blob/develop/crystal/signal_trap/src/signal_trap.cr#L9-L16">made in the demo app</a>, it is possible just to process any of them:</p>
-
-<div class="language-crystal highlighter-rouge"><div class="highlight"><pre class="highlight"><code> <span class="no">Signal</span><span class="o">::</span><span class="no">INT</span><span class="p">.</span><span class="nf">trap</span> <span class="k">do</span>
-   <span class="c1"># Processing SIGING</span>
- <span class="k">end</span>
-</code></pre></div></div>
-
-<h2 id="more-signals">More signals?</h2>
-
-<p>It is possible to send other signals with docker:</p>
-
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>docker <span class="nb">kill</span> <span class="nt">--signal</span><span class="o">=</span>SIGHUP  my_container
-</code></pre></div></div>
-
-<p>In this case, Crystal-lang app shall catch that signal: <code class="highlighter-rouge">Signal::INT.trap { ... }</code>. Here is the <a href="https://crystal-lang.org/api/latest/Signal.html">list of known by Crystal-lang signals</a>.</p>
-
-<hr />
-
-<p>References:</p>
-
-<ul>
-  <li><a href="https://docs.docker.com/engine/reference/commandline/kill">docker kill command syntax</a>;</li>
-  <li><a href="https://docs.docker.com/engine/reference/commandline/stop">docker stop command syntax</a>;</li>
-  <li><a href="https://medium.com/@gchudnov/trapping-signals-in-docker-containers-7a57fdda7d86">Trapping signals in Docker containers</a>.</li>
-</ul>
-
-                    ]]>
-                </content:encoded>
-                <guid isPermaLink="false">/2019/11/proxperly-terminate-crystal-lang-service-in-docker.html</guid>
-                <description>
-                    
-                </description>
-                <pubDate>Sun, 03 Nov 2019 00:00:00 -0500</pubDate>
-                <author>Andrius Kairiukstis</author>
-            </item>
-        
-    
-        
-            <item>
                 <title>Create the smallest Crystal-lang docker image based on scratch</title>
                 <link>//andrius.mobi/2019/10/Create-the-smallest-Crystal-lang-docker-image-based-on-scratch.html</link>
                 <content:encoded>
@@ -1337,12 +1254,12 @@ BusinessTimeMember Load (0.3ms)  SELECT "business_time_members".* FROM "business
 
     <span class="k">return</span> <span class="kp">false</span> <span class="k">if</span> <span class="n">tm</span><span class="p">.</span><span class="nf">empty?</span>
     <span class="n">tm</span><span class="p">.</span><span class="nf">each</span> <span class="p">{</span> <span class="o">|</span><span class="n">t</span><span class="o">|</span>
-      <span class="n">tf</span> <span class="o">=</span> <span class="n">t</span><span class="p">[</span><span class="ss">:time_from</span><span class="p">]</span> <span class="p">?</span> <span class="no">Time</span><span class="p">.</span><span class="nf">parse</span><span class="p">(</span><span class="n">t</span><span class="p">[:</span><span class="n">time_from</span><span class="p">].</span><span class="nf">strftime</span><span class="p">(</span><span class="s2">"%H:%M:%S"</span><span class="p">))</span> <span class="p">:</span> <span class="no">Time</span><span class="p">.</span><span class="nf">parse</span><span class="p">(</span><span class="s2">"00:00:00"</span><span class="p">)</span>
-      <span class="n">tt</span> <span class="o">=</span> <span class="n">t</span><span class="p">[</span><span class="ss">:time_to</span><span class="p">]</span> <span class="p">?</span> <span class="no">Time</span><span class="p">.</span><span class="nf">parse</span><span class="p">(</span><span class="n">t</span><span class="p">[:</span><span class="n">time_to</span><span class="p">].</span><span class="nf">strftime</span><span class="p">(</span><span class="s2">"%H:%M:%S"</span><span class="p">))</span> <span class="p">:</span> <span class="no">Time</span><span class="p">.</span><span class="nf">parse</span><span class="p">(</span><span class="s2">"23:59:59"</span><span class="p">)</span>
-      <span class="n">tw</span> <span class="o">=</span> <span class="n">t</span><span class="p">[</span><span class="ss">:weekday</span><span class="p">]</span> <span class="p">?</span> <span class="n">t</span><span class="p">[:</span><span class="n">weekday</span><span class="p">].</span><span class="nf">to_i</span> <span class="p">:</span> <span class="n">d</span><span class="p">.</span><span class="nf">wday</span>
-      <span class="n">td</span> <span class="o">=</span> <span class="n">t</span><span class="p">[</span><span class="ss">:day_of_month</span><span class="p">]</span> <span class="p">?</span> <span class="n">t</span><span class="p">[:</span><span class="n">day_of_month</span><span class="p">].</span><span class="nf">to_i</span> <span class="p">:</span> <span class="n">d</span><span class="p">.</span><span class="nf">day</span>
-      <span class="n">tm</span> <span class="o">=</span> <span class="n">t</span><span class="p">[</span><span class="ss">:month</span><span class="p">]</span> <span class="p">?</span> <span class="n">t</span><span class="p">[:</span><span class="n">month</span><span class="p">].</span><span class="nf">to_i</span> <span class="p">:</span> <span class="n">d</span><span class="p">.</span><span class="nf">month</span>
-      <span class="n">ty</span> <span class="o">=</span> <span class="n">t</span><span class="p">[</span><span class="ss">:year</span><span class="p">]</span> <span class="p">?</span> <span class="n">t</span><span class="p">[:</span><span class="n">year</span><span class="p">].</span><span class="nf">to_i</span> <span class="p">:</span> <span class="n">d</span><span class="p">.</span><span class="nf">year</span>
+      <span class="n">tf</span> <span class="o">=</span> <span class="n">t</span><span class="p">[</span><span class="ss">:time_from</span><span class="p">]</span> <span class="p">?</span> <span class="no">Time</span><span class="p">.</span><span class="nf">parse</span><span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="ss">:time_from</span><span class="p">].</span><span class="nf">strftime</span><span class="p">(</span><span class="s2">"%H:%M:%S"</span><span class="p">))</span> <span class="p">:</span> <span class="no">Time</span><span class="p">.</span><span class="nf">parse</span><span class="p">(</span><span class="s2">"00:00:00"</span><span class="p">)</span>
+      <span class="n">tt</span> <span class="o">=</span> <span class="n">t</span><span class="p">[</span><span class="ss">:time_to</span><span class="p">]</span> <span class="p">?</span> <span class="no">Time</span><span class="p">.</span><span class="nf">parse</span><span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="ss">:time_to</span><span class="p">].</span><span class="nf">strftime</span><span class="p">(</span><span class="s2">"%H:%M:%S"</span><span class="p">))</span> <span class="p">:</span> <span class="no">Time</span><span class="p">.</span><span class="nf">parse</span><span class="p">(</span><span class="s2">"23:59:59"</span><span class="p">)</span>
+      <span class="n">tw</span> <span class="o">=</span> <span class="n">t</span><span class="p">[</span><span class="ss">:weekday</span><span class="p">]</span> <span class="p">?</span> <span class="n">t</span><span class="p">[</span><span class="ss">:weekday</span><span class="p">].</span><span class="nf">to_i</span> <span class="p">:</span> <span class="n">d</span><span class="p">.</span><span class="nf">wday</span>
+      <span class="n">td</span> <span class="o">=</span> <span class="n">t</span><span class="p">[</span><span class="ss">:day_of_month</span><span class="p">]</span> <span class="p">?</span> <span class="n">t</span><span class="p">[</span><span class="ss">:day_of_month</span><span class="p">].</span><span class="nf">to_i</span> <span class="p">:</span> <span class="n">d</span><span class="p">.</span><span class="nf">day</span>
+      <span class="n">tm</span> <span class="o">=</span> <span class="n">t</span><span class="p">[</span><span class="ss">:month</span><span class="p">]</span> <span class="p">?</span> <span class="n">t</span><span class="p">[</span><span class="ss">:month</span><span class="p">].</span><span class="nf">to_i</span> <span class="p">:</span> <span class="n">d</span><span class="p">.</span><span class="nf">month</span>
+      <span class="n">ty</span> <span class="o">=</span> <span class="n">t</span><span class="p">[</span><span class="ss">:year</span><span class="p">]</span> <span class="p">?</span> <span class="n">t</span><span class="p">[</span><span class="ss">:year</span><span class="p">].</span><span class="nf">to_i</span> <span class="p">:</span> <span class="n">d</span><span class="p">.</span><span class="nf">year</span>
 
       <span class="k">if</span> <span class="n">ty</span> <span class="o">==</span> <span class="n">d</span><span class="p">.</span><span class="nf">year</span> <span class="o">&amp;&amp;</span> <span class="n">tm</span> <span class="o">==</span> <span class="n">d</span><span class="p">.</span><span class="nf">month</span> <span class="o">&amp;&amp;</span> <span class="n">td</span> <span class="o">==</span> <span class="n">d</span><span class="p">.</span><span class="nf">day</span> <span class="o">&amp;&amp;</span> <span class="n">tw</span> <span class="o">==</span> <span class="n">d</span><span class="p">.</span><span class="nf">wday</span> <span class="o">&amp;&amp;</span> <span class="n">d</span> <span class="o">&gt;=</span> <span class="n">tf</span> <span class="o">&amp;&amp;</span> <span class="n">d</span> <span class="o">&lt;=</span> <span class="n">tt</span> <span class="k">then</span>
         <span class="k">return</span> <span class="n">t</span><span class="p">.</span><span class="nf">item_id</span>
