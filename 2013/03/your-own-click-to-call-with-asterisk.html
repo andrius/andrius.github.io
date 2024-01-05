@@ -4,30 +4,32 @@
     
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>Click-to-call script &#8211; Voice Applications</title>
+    <title>Click-to-call script for Windows users &#8211; Andrius Kairiukstis's Blog</title>
     <link rel="dns-prefetch" href="//fonts.googleapis.com">
     <link rel="dns-prefetch" href="//fonts.gstatic.com">
     <link rel="dns-prefetch" href="//maxcdn.bootstrapcdn.com">
     <link rel="dns-prefetch" href="//cdnjs.cloudflare.com">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="Realtime voice applications. Notes about Unified Communications, CTI, call-centers; open-source VoIP (Asterisk, Freeswitch, Kamailio); with test automation, and scaled container (docker) apps.">
+    <meta name="description" content="Sharing one of my older projects with Asterisk: a click-to-call library with client and server components. It does work with Windows!">
+    <link rel="manifest" type="application/manifest+json; charset=utf-8" href="/manifest.json" />
     <meta name="robots" content="all">
     <meta name="author" content="Andrius Kairiukstis">
     <meta property="fb:pages" content="ctiapps" />
     <meta name="keywords" content="">
     <link rel="canonical" href="//andrius.mobi/2013/03/your-own-click-to-call-with-asterisk.html">
-    <link rel="alternate" type="application/rss+xml" title="RSS Feed for Voice Applications" href="/feed.xml" />
+    <link rel="alternate" type="application/rss+xml" title="RSS Feed for Andrius Kairiukstis's Blog" href="/feed.xml" />
 
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="/css/pixyll.css?202006200848" type="text/css">
+    <link rel="stylesheet" href="/css/pixyll.css?202401052041" type="text/css">
 
     <!-- Fonts -->
     
-    <link href='//fonts.googleapis.com/css?family=Merriweather:900,900italic,300,300italic&amp;subset=latin-ext,latin' rel='stylesheet' type='text/css'>
-    <link href='//fonts.googleapis.com/css?family=Lato:900,300&amp;subset=latin-ext,latin' rel='stylesheet' type='text/css'>
+    <link href='//fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,300;0,900;1,300;1,900' rel='stylesheet' type='text/css'>
+    <link href='//fonts.googleapis.com/css2?family=Lato:ital,wght@0,300;0,900;1,300;1,900' rel='stylesheet' type='text/css'>
+    <link href='//fonts.googleapis.com/css2?family=Inconsolata:wght@500' rel='stylesheet' type='text/css'>
     
     
-      <link href="//maxcdn.bootstrapcdn.com/font-awesome/latest/css/font-awesome.min.css" rel="stylesheet">
+      <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
     
 
     <!-- MathJax -->
@@ -41,12 +43,12 @@
     <!-- From: https://github.com/mmistakes/hpstr-jekyll-theme/blob/master/_includes/head.html -->
     <meta property="og:locale" content="en_US">
     <meta property="og:type" content="article">
-    <meta property="og:title" content="Click-to-call script">
-    <meta property="og:description" content="Realtime voice applications. Notes about Unified Communications, CTI, call-centers; open-source VoIP (Asterisk, Freeswitch, Kamailio); with test automation, and scaled container (docker) apps.">
+    <meta property="og:title" content="Click-to-call script for Windows users">
+    <meta property="og:description" content="This blog explores the realm of real-time voice applications, covering topics such as Unified Communications, CTI, and call centers. It also discusses open-source VoIP solutions like Asterisk, Freeswitch, and Kamailio, highlighting their features and benefits. Additionally, the blog touches upon automations, integrations, test automation, and the scalability of containerized applications using Docker, along with DevOps practices.">
     <meta property="og:url" content="//andrius.mobi/2013/03/your-own-click-to-call-with-asterisk.html">
-    <meta property="og:site_name" content="Voice Applications">
+    <meta property="og:site_name" content="Andrius Kairiukstis&apos;s Blog">
     
-    <meta property="og:image" content="//andrius.mobi/images/me.jpeg">
+    <meta property="og:image" content="//andrius.mobi/images/me.png">
     
 
     <!-- Twitter Card -->
@@ -55,11 +57,11 @@
         <meta name="twitter:site" content="@andrius_kai" />
         <meta name="twitter:creator" content="@andrius_kai" />
     
-    <meta name="twitter:title" content="Click-to-call script" />
-    <meta name="twitter:description" content="Realtime voice applications. Notes about Unified Communications, CTI, call-centers; open-source VoIP (Asterisk, Freeswitch, Kamailio); with test automation, and scaled container (docker) apps." />
+    <meta name="twitter:title" content="Click-to-call script for Windows users" />
+    <meta name="twitter:description" content="Sharing one of my older projects with Asterisk: a click-to-call library with client and server components. It does work with Windows!" />
     <meta name="twitter:url" content="//andrius.mobi/2013/03/your-own-click-to-call-with-asterisk.html" />
     
-    <meta name="twitter:image" content="//andrius.mobi/images/me.jpeg" />
+    <meta name="twitter:image" content="//andrius.mobi/images/me.png" />
     
 
     <!-- Icons -->
@@ -85,7 +87,7 @@
        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
        })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
-       ga('create', 'UA-38523949-3', 'auto');
+       ga('create', 'G-X2C9W2TP16', 'auto');
        ga('send', 'pageview');
     </script>
     
@@ -99,61 +101,34 @@
     <header class="site-header px2 px-responsive">
   <div class="mt2 wrap">
     <div class="measure">
-      <a href="/" class="site-title">Voice Applications</a>
+      <a href="/" class="site-title">Andrius Kairiukstis's Blog</a>
       <nav class="site-nav">
         
 
 
 
-
+    
+    
+    
+    
+        <a class="nav-link" href="/contact/">Contact me</a>
     
 
     
 
-
-
-
-    
-
-    
-
-
-
+<a class="fa-solid fa-rss" href="/feed.xml"></a>
 
       </nav>
       <div class="clearfix"></div>
       
         <div class="social-icons">
   <div class="social-icons-right">
-    
-      <a class="fa fa-github" href="https://github.com/andrius"></a>
-    
-    
-    
-    
-    
-      <a class="fa fa-twitter" href="https://twitter.com/andrius_kai"></a>
-    
-    
-    
-    
-      <a class="fa fa-linkedin" href="https://www.linkedin.com/in/andrius-kairiukstis"></a>
-    
-    
-    
-    
-      <a class="fa fa-telegram" href="https://t.me/andrius_kai"></a>
-    
-    
-    
-      <a class="fa fa-whatsapp" href="https://wa.me/34652299183"></a>
-    
-    
-  </div>
-  <div class="right">
-    
-    
-    
+    <a class="fa-brands fa-github" href="https://github.com/andrius"></a>
+    <a class="fa-brands fa-square-x-twitter" href="https://x.com/andrius_kai"></a>
+    <!-- a class="fa-brands fa-mastodon" href="//mastodon.social/@andrius_kai"></a -->
+    <a class="fa-brands fa-linkedin" href="https://www.linkedin.com/in/andrius-kairiukstis"></a>
+    <a class="fa-brands fa-telegram" href="https://t.me/andrius_kai"></a>
+    <a class="fa-brands fa-whatsapp" href="https://wa.me/34652299183"></a>
   </div>
 </div>
 <div class="clearfix"></div>
@@ -170,7 +145,7 @@
 
 
 <div class="post-header mb2">
-  <h1>Click-to-call script</h1>
+  <h1>Click-to-call script for Windows users</h1>
   <span class="post-meta">Mar 10, 2013</span><br>
   
   <span class="post-meta small">
@@ -181,22 +156,15 @@
 </div>
 
 <article class="post-content">
-  <p>Sharing one my ancient projects with Asterisk: click-to-call library with client and server part. Windows user could activate <code class="highlighter-rouge">callto.rb</code> script, the customer just integrated it with their CRM application; after user start script, his SIP phone rings. Here it is: <a href="https://github.com/andrius/asterisk-click-to-call-windows">https://github.com/andrius/asterisk-click-to-call-windows</a>.</p>
+  <p>Sharing one of my older projects with Asterisk: a click-to-call library with client and server components. It does work with Windows: Windows users could activate the <code class="language-plaintext highlighter-rouge">callto.rb</code> script, which could then be integrated with their CRM application. Once the script was started, the user’s SIP phone would ring. You can find the project here: https://github.com/andrius/asterisk-click-to-call-windows.</p>
 
 <ul>
-  <li>
-    <p>Client app <code class="highlighter-rouge">callto.rb</code> should be compiled to the Windows .exe file (or can be executed from the command line, if there is ruby installed on Windows). For examlpe <a href="http://www.erikveen.dds.nl/rubyscript2exe">rubyscript2exe</a> would compile ruby script to exe;</p>
-  </li>
-  <li>
-    <p>Credentials to be populated within <code class="highlighter-rouge">users.yml</code>;</p>
-  </li>
-  <li>
-    <p><code class="highlighter-rouge">server.rb</code> should be running on Asterisk;</p>
-  </li>
+  <li>The client app, <code class="language-plaintext highlighter-rouge">callto.rb</code>, needs to be compiled into a Windows .exe file. Alternatively, it can be executed from the command line if Ruby is installed on Windows. For example, <a href="http://www.erikveen.dds.nl/rubyscript2exe">rubyscript2exe</a> can compile the Ruby script into an executable;</li>
+  <li>Credentials should be populated within the <code class="language-plaintext highlighter-rouge">users.yml</code> file;</li>
+  <li>The <code class="language-plaintext highlighter-rouge">server.rb</code> script should be running on Asterisk.</li>
 </ul>
 
-<p>System is very simple, sorry for lack of comments!</p>
-
+<p>The system is very simple, and I apologize for the lack of comments!</p>
 
 </article>
 
@@ -209,7 +177,7 @@
   <script type="text/javascript">
     var disqus_shortname  = 'andrius-mobi';
     var disqus_identifier = '/2013/03/your-own-click-to-call-with-asterisk';
-    var disqus_title      = "Click-to-call script";
+    var disqus_title      = "Click-to-call script for Windows users";
 
     (function() {
       var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
@@ -217,7 +185,7 @@
       (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
     })();
   </script>
-  <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+  <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
 
 
 
@@ -231,8 +199,8 @@
   <footer class="center">
   <div class="measure">
     <small>
-      Content by Andrius Kairiukstis.<br>
-      Jekyll site based on <a href="https://github.com/johno/pixyll">Pixyll theme</a>.
+      Copyright (c) by <a href="/contact/">Andrius Kairiukstis</a>.</br>
+      This Jekyll site is based on the <a href="https://github.com/johno/pixyll">Pixyll theme</a>.
     </small>
   </div>
 </footer>
@@ -241,6 +209,11 @@
 <script>
     anchors.options.visible = 'always';
     anchors.add('article h2, article h3, article h4, article h5, article h6');
+</script>
+<script type="text/javascript">
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("/sw.js")
+    }
 </script>
 
 </body>

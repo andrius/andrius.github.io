@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Register SIP account and receive calls with Twilio &#8211; Andrius Kairiukstis's Blog</title>
+    <link rel="dns-prefetch" href="//fonts.googleapis.com">
+    <link rel="dns-prefetch" href="//fonts.gstatic.com">
+    <link rel="dns-prefetch" href="//maxcdn.bootstrapcdn.com">
+    <link rel="dns-prefetch" href="//cdnjs.cloudflare.com">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="How to register your SIP softphone and receive inbound calls using Twilio">
+    <link rel="manifest" type="application/manifest+json; charset=utf-8" href="/manifest.json" />
+    <meta name="robots" content="all">
+    <meta name="author" content="Andrius Kairiukstis">
+    <meta property="fb:pages" content="ctiapps" />
+    <meta name="keywords" content="Twilio">
+    <link rel="canonical" href="//andrius.mobi/2023/07/register-sip-account-and-receive-calls-with-twilio.html">
+    <link rel="alternate" type="application/rss+xml" title="RSS Feed for Andrius Kairiukstis's Blog" href="/feed.xml" />
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/css/pixyll.css?202401052041" type="text/css">
+
+    <!-- Fonts -->
+    
+    <link href='//fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,300;0,900;1,300;1,900' rel='stylesheet' type='text/css'>
+    <link href='//fonts.googleapis.com/css2?family=Lato:ital,wght@0,300;0,900;1,300;1,900' rel='stylesheet' type='text/css'>
+    <link href='//fonts.googleapis.com/css2?family=Inconsolata:wght@500' rel='stylesheet' type='text/css'>
+    
+    
+      <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+    
+
+    <!-- MathJax -->
+    
+
+    <!-- Verifications -->
+    
+    
+
+    <!-- Open Graph -->
+    <!-- From: https://github.com/mmistakes/hpstr-jekyll-theme/blob/master/_includes/head.html -->
+    <meta property="og:locale" content="en_US">
+    <meta property="og:type" content="article">
+    <meta property="og:title" content="Register SIP account and receive calls with Twilio">
+    <meta property="og:description" content="This blog explores the realm of real-time voice applications, covering topics such as Unified Communications, CTI, and call centers. It also discusses open-source VoIP solutions like Asterisk, Freeswitch, and Kamailio, highlighting their features and benefits. Additionally, the blog touches upon automations, integrations, test automation, and the scalability of containerized applications using Docker, along with DevOps practices.">
+    <meta property="og:url" content="//andrius.mobi/2023/07/register-sip-account-and-receive-calls-with-twilio.html">
+    <meta property="og:site_name" content="Andrius Kairiukstis&apos;s Blog">
+    
+    <meta property="og:image" content="//andrius.mobi/images/me.png">
+    
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary" />
+    
+        <meta name="twitter:site" content="@andrius_kai" />
+        <meta name="twitter:creator" content="@andrius_kai" />
+    
+    <meta name="twitter:title" content="Register SIP account and receive calls with Twilio" />
+    <meta name="twitter:description" content="How to register your SIP softphone and receive inbound calls using Twilio" />
+    <meta name="twitter:url" content="//andrius.mobi/2023/07/register-sip-account-and-receive-calls-with-twilio.html" />
+    
+    <meta name="twitter:image" content="//andrius.mobi/images/me.png" />
+    
+
+    <!-- Icons -->
+    <link rel="apple-touch-icon" sizes="57x57" href="/apple-touch-icon-57x57.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="/apple-touch-icon-114x114.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="/apple-touch-icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="144x144" href="/apple-touch-icon-144x144.png">
+    <link rel="apple-touch-icon" sizes="60x60" href="/apple-touch-icon-60x60.png">
+    <link rel="apple-touch-icon" sizes="120x120" href="/apple-touch-icon-120x120.png">
+    <link rel="apple-touch-icon" sizes="76x76" href="/apple-touch-icon-76x76.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="/apple-touch-icon-152x152.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon-180x180.png">
+    <link rel="icon" type="image/png" href="/favicon-192x192.png" sizes="192x192">
+    <link rel="icon" type="image/png" href="/favicon-160x160.png" sizes="160x160">
+    <link rel="icon" type="image/png" href="/favicon-96x96.png" sizes="96x96">
+    <link rel="icon" type="image/png" href="/favicon-16x16.png" sizes="16x16">
+    <link rel="icon" type="image/png" href="/favicon-32x32.png" sizes="32x32">
+    <link rel="shortcut icon" href="/favicon.ico">
+
+    
+    <script type="text/javascript">
+       (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+       (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+       m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+       })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+       ga('create', 'G-X2C9W2TP16', 'auto');
+       ga('send', 'pageview');
+    </script>
+    
+</head>
+
+<body class="site animated fade-in-down">
+  
+	
+
+  <div class="site-wrap">
+    <header class="site-header px2 px-responsive">
+  <div class="mt2 wrap">
+    <div class="measure">
+      <a href="/" class="site-title">Andrius Kairiukstis's Blog</a>
+      <nav class="site-nav">
+        
+
+
+
+    
+    
+    
+    
+        <a class="nav-link" href="/contact/">Contact me</a>
+    
+
+    
+
+<a class="fa-solid fa-rss" href="/feed.xml"></a>
+
+      </nav>
+      <div class="clearfix"></div>
+      
+        <div class="social-icons">
+  <div class="social-icons-right">
+    <a class="fa-brands fa-github" href="https://github.com/andrius"></a>
+    <a class="fa-brands fa-square-x-twitter" href="https://x.com/andrius_kai"></a>
+    <!-- a class="fa-brands fa-mastodon" href="//mastodon.social/@andrius_kai"></a -->
+    <a class="fa-brands fa-linkedin" href="https://www.linkedin.com/in/andrius-kairiukstis"></a>
+    <a class="fa-brands fa-telegram" href="https://t.me/andrius_kai"></a>
+    <a class="fa-brands fa-whatsapp" href="https://wa.me/34652299183"></a>
+  </div>
+</div>
+<div class="clearfix"></div>
+
+      
+    </div>
+  </div>
+</header>
+
+
+    <div class="post p2 p-responsive wrap" role="main">
+      <div class="measure">
+        
+
+
+<div class="post-header mb2">
+  <h1>Register SIP account and receive calls with Twilio</h1>
+  <span class="post-meta">Jul 8, 2023</span><br>
+  
+  <span class="post-meta small">
+  
+    2 minute read
+  
+  </span>
+</div>
+
+<article class="post-content">
+  <p>I live in three different countries and have friends, family members, and colleagues in each of them. As a result, I need to maintain phone numbers in each country for 2FA, e-signatures, and making and receiving calls. Although I do not use all three SIM cards at the same time, it is still important to receive phone calls.</p>
+
+<p>Years ago, I used to run Asterisk PBX on VPS, but I nuked it a while ago as I did not want to maintain one extra piece of software. The national phone numbers (DID’s) were purchased from various providers, and some time ago, I switched to Twilio.</p>
+
+<p>Twilio offers multiple options to maintain calls, one of which is TwiML. Let’s dive into it!</p>
+
+<p>ISSUES FIRST! At the moment of writing (July 2023), Twilio offers POP’s in the EU (ie1), USA (us1), and Australia (au1). The full support of capabilities is possible with the US pop or I haven’t fount the way to get it working with the European pop. I spent some time attempting to deliver calls to the SIP trunk that is registered in the EU zone with error “32002 Your TwiML tried to Dial a Twilio SIP Domain that can’t be found”. So please be warned, and if you end up getting the EU pop working, please drop me a message.</p>
+
+<p>Here are the steps you need to follow to set up Twilio:</p>
+
+<ol>
+  <li>Go to https://console.twilio.com/us1/develop/voice/manage/cls and create your SIP credentials list. It is a list with a username-password match that you will need in the next step.</li>
+  <li>Create a new SIP domain with a unique name at https://console.twilio.com/us1/develop/voice/manage/sip-domains. Enable SIP registration and select the credentials list you will use with this domain. Configure everything else (encryption, etc.).</li>
+  <li>Create a TwiML bin with the following content at https://console.twilio.com/us1/develop/twiml-bins/twiml-bins:</li>
+</ol>
+
+<div class="language-xml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">&lt;?xml version="1.0" encoding="UTF-8"?&gt;</span>
+<span class="nt">&lt;Response&gt;</span>
+  <span class="c">&lt;!-- Say&gt;Hello from Twilio!&lt;/Say --&gt;</span>
+
+  <span class="nt">&lt;Dial</span> <span class="na">answerOnBridge=</span><span class="s">"true"</span> <span class="na">sequential=</span><span class="s">"true"</span> <span class="na">ringTone=</span><span class="s">"lt"</span> <span class="na">record=</span><span class="s">"record-from-answer-dual"</span> <span class="na">trim=</span><span class="s">"trim-silence"</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;Sip&gt;</span>USERNAME@YOURDOMAIN.sip.twilio.com;region=ie1<span class="nt">&lt;/Sip&gt;</span>
+  <span class="nt">&lt;/Dial&gt;</span>
+
+  <span class="c">&lt;!-- Simultaneous Dialing --&gt;</span>
+  <span class="nt">&lt;Dial</span> <span class="na">answerOnBridge=</span><span class="s">"true"</span> <span class="na">ringTone=</span><span class="s">"es"</span> <span class="na">record=</span><span class="s">"record-from-answer-dual"</span> <span class="na">trim=</span><span class="s">"trim-silence"</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;Sip&gt;</span>USERNAME@YOURDOMAIN.sip.twilio.com;region=ie1<span class="nt">&lt;/Sip&gt;</span>
+    <span class="nt">&lt;Number&gt;</span>+YOURNUMBER<span class="nt">&lt;/Number&gt;</span>
+  <span class="nt">&lt;/Dial&gt;</span>
+
+  <span class="nt">&lt;Say&gt;</span>Hello, YOURNAME cannot answer. Please leave a message at the beep.<span class="nt">&lt;/Say&gt;</span>
+
+  <span class="nt">&lt;Record</span> <span class="na">timeout=</span><span class="s">"30"</span> <span class="na">transcribe=</span><span class="s">"true"</span> <span class="na">playBeep=</span><span class="s">"true"</span><span class="nt">/&gt;</span>
+<span class="nt">&lt;/Response&gt;</span>
+</code></pre></div></div>
+
+<ol>
+  <li>Purchase a DID number at https://console.twilio.com/us1/develop/phone-numbers/manage/incoming and enter the inbound call routing section (A call comes in) to select the TwiML bin.</li>
+  <li>Download a SIP client, such as Groundwire from Acrobits, and register it with Twilio using your username and password from the credentials list and the following registration domain: <a href="http://yourdomain.sip.twilio.com/">YOURDOMAIN.sip.twilio.com</a>.</li>
+  <li>Test inbound calls. If a call does not work, navigate to the logs at https://console.twilio.com/us1/monitor/logs/debugger/errors.</li>
+</ol>
+
+<p>Now that everything is set up, redirect your phone calls to the Twilio DID number by dialing <code class="language-plaintext highlighter-rouge">*21*+YOUR-TWILIO-NUMBER#</code> on your mobile phone.</p>
+
+</article>
+
+
+
+
+
+
+  <div id="disqus_thread"></div>
+  <script type="text/javascript">
+    var disqus_shortname  = 'andrius-mobi';
+    var disqus_identifier = '/2023/07/register-sip-account-and-receive-calls-with-twilio';
+    var disqus_title      = "Register SIP account and receive calls with Twilio";
+
+    (function() {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+  </script>
+  <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+
+
+
+
+
+
+      </div>
+    </div>
+  </div>
+
+  <footer class="center">
+  <div class="measure">
+    <small>
+      Copyright (c) by <a href="/contact/">Andrius Kairiukstis</a>.</br>
+      This Jekyll site is based on the <a href="https://github.com/johno/pixyll">Pixyll theme</a>.
+    </small>
+  </div>
+</footer>
+<!-- AnchorJS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/anchor-js/3.0.0/anchor.min.js"></script>
+<script>
+    anchors.options.visible = 'always';
+    anchors.add('article h2, article h3, article h4, article h5, article h6');
+</script>
+<script type="text/javascript">
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("/sw.js")
+    }
+</script>
+
+</body>
+</html>

@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Roaming PBX with Raspberry Pi, Asterisk and chan_dongle &#8211; Andrius Kairiukstis's Blog</title>
+    <link rel="dns-prefetch" href="//fonts.googleapis.com">
+    <link rel="dns-prefetch" href="//fonts.gstatic.com">
+    <link rel="dns-prefetch" href="//maxcdn.bootstrapcdn.com">
+    <link rel="dns-prefetch" href="//cdnjs.cloudflare.com">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="As a frequent traveler, I understand the telecommunications needs of other travelers and citizens of the world. Recently, I decided to dedicate my free time to building a Roaming PBX solution.">
+    <link rel="manifest" type="application/manifest+json; charset=utf-8" href="/manifest.json" />
+    <meta name="robots" content="all">
+    <meta name="author" content="Andrius Kairiukstis">
+    <meta property="fb:pages" content="ctiapps" />
+    <meta name="keywords" content="">
+    <link rel="canonical" href="//andrius.mobi/2013/03/roaming-solution-based-on-raspberry-pi-asterisk-chan_dongle.html">
+    <link rel="alternate" type="application/rss+xml" title="RSS Feed for Andrius Kairiukstis's Blog" href="/feed.xml" />
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/css/pixyll.css?202401052041" type="text/css">
+
+    <!-- Fonts -->
+    
+    <link href='//fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,300;0,900;1,300;1,900' rel='stylesheet' type='text/css'>
+    <link href='//fonts.googleapis.com/css2?family=Lato:ital,wght@0,300;0,900;1,300;1,900' rel='stylesheet' type='text/css'>
+    <link href='//fonts.googleapis.com/css2?family=Inconsolata:wght@500' rel='stylesheet' type='text/css'>
+    
+    
+      <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+    
+
+    <!-- MathJax -->
+    
+
+    <!-- Verifications -->
+    
+    
+
+    <!-- Open Graph -->
+    <!-- From: https://github.com/mmistakes/hpstr-jekyll-theme/blob/master/_includes/head.html -->
+    <meta property="og:locale" content="en_US">
+    <meta property="og:type" content="article">
+    <meta property="og:title" content="Roaming PBX with Raspberry Pi, Asterisk and chan_dongle">
+    <meta property="og:description" content="This blog explores the realm of real-time voice applications, covering topics such as Unified Communications, CTI, and call centers. It also discusses open-source VoIP solutions like Asterisk, Freeswitch, and Kamailio, highlighting their features and benefits. Additionally, the blog touches upon automations, integrations, test automation, and the scalability of containerized applications using Docker, along with DevOps practices.">
+    <meta property="og:url" content="//andrius.mobi/2013/03/roaming-solution-based-on-raspberry-pi-asterisk-chan_dongle.html">
+    <meta property="og:site_name" content="Andrius Kairiukstis&apos;s Blog">
+    
+    <meta property="og:image" content="//andrius.mobi/images/me.png">
+    
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary" />
+    
+        <meta name="twitter:site" content="@andrius_kai" />
+        <meta name="twitter:creator" content="@andrius_kai" />
+    
+    <meta name="twitter:title" content="Roaming PBX with Raspberry Pi, Asterisk and chan_dongle" />
+    <meta name="twitter:description" content="As a frequent traveler, I understand the telecommunications needs of other travelers and citizens of the world. Recently, I decided to dedicate my free time to building a Roaming PBX solution." />
+    <meta name="twitter:url" content="//andrius.mobi/2013/03/roaming-solution-based-on-raspberry-pi-asterisk-chan_dongle.html" />
+    
+    <meta name="twitter:image" content="//andrius.mobi/images/me.png" />
+    
+
+    <!-- Icons -->
+    <link rel="apple-touch-icon" sizes="57x57" href="/apple-touch-icon-57x57.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="/apple-touch-icon-114x114.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="/apple-touch-icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="144x144" href="/apple-touch-icon-144x144.png">
+    <link rel="apple-touch-icon" sizes="60x60" href="/apple-touch-icon-60x60.png">
+    <link rel="apple-touch-icon" sizes="120x120" href="/apple-touch-icon-120x120.png">
+    <link rel="apple-touch-icon" sizes="76x76" href="/apple-touch-icon-76x76.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="/apple-touch-icon-152x152.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon-180x180.png">
+    <link rel="icon" type="image/png" href="/favicon-192x192.png" sizes="192x192">
+    <link rel="icon" type="image/png" href="/favicon-160x160.png" sizes="160x160">
+    <link rel="icon" type="image/png" href="/favicon-96x96.png" sizes="96x96">
+    <link rel="icon" type="image/png" href="/favicon-16x16.png" sizes="16x16">
+    <link rel="icon" type="image/png" href="/favicon-32x32.png" sizes="32x32">
+    <link rel="shortcut icon" href="/favicon.ico">
+
+    
+    <script type="text/javascript">
+       (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+       (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+       m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+       })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+       ga('create', 'G-X2C9W2TP16', 'auto');
+       ga('send', 'pageview');
+    </script>
+    
+</head>
+
+<body class="site animated fade-in-down">
+  
+	
+
+  <div class="site-wrap">
+    <header class="site-header px2 px-responsive">
+  <div class="mt2 wrap">
+    <div class="measure">
+      <a href="/" class="site-title">Andrius Kairiukstis's Blog</a>
+      <nav class="site-nav">
+        
+
+
+
+    
+    
+    
+    
+        <a class="nav-link" href="/contact/">Contact me</a>
+    
+
+    
+
+<a class="fa-solid fa-rss" href="/feed.xml"></a>
+
+      </nav>
+      <div class="clearfix"></div>
+      
+        <div class="social-icons">
+  <div class="social-icons-right">
+    <a class="fa-brands fa-github" href="https://github.com/andrius"></a>
+    <a class="fa-brands fa-square-x-twitter" href="https://x.com/andrius_kai"></a>
+    <!-- a class="fa-brands fa-mastodon" href="//mastodon.social/@andrius_kai"></a -->
+    <a class="fa-brands fa-linkedin" href="https://www.linkedin.com/in/andrius-kairiukstis"></a>
+    <a class="fa-brands fa-telegram" href="https://t.me/andrius_kai"></a>
+    <a class="fa-brands fa-whatsapp" href="https://wa.me/34652299183"></a>
+  </div>
+</div>
+<div class="clearfix"></div>
+
+      
+    </div>
+  </div>
+</header>
+
+
+    <div class="post p2 p-responsive wrap" role="main">
+      <div class="measure">
+        
+
+
+<div class="post-header mb2">
+  <h1>Roaming PBX with Raspberry Pi, Asterisk and chan_dongle</h1>
+  <span class="post-meta">Mar 12, 2013</span><br>
+  
+  <span class="post-meta small">
+  
+    1 minute read
+  
+  </span>
+</div>
+
+<article class="post-content">
+  <p>As a frequent traveler, I understand the telecommunications needs of other travelers and citizens of the world. Recently, I decided to dedicate my free time to building a Roaming PBX solution.</p>
+
+<p>Here’s my plan:</p>
+
+<ul>
+  <li>Create a Raspberry Pi image, possibly with an OpenWRT solution.</li>
+  <li>Set up Asterisk PBX.</li>
+  <li>Install asterisk chan_dongle, a driver for Huawei USB modems that handles two-way GSM calls.</li>
+  <li>Use a VPN to bypass VoIP blocking in certain locations.</li>
+  <li>Utilize the FreePBX GUI to manage dial plans.</li>
+  <li>Configure Asterisk2billing to control expenses.</li>
+  <li>Implement keep-alive scripts for monitoring.</li>
+</ul>
+
+<p>Anything else?</p>
+
+<h3 id="update-19-march-2013">Update (19 March, 2013)</h3>
+
+<p>I have successfully created an image file based on the standard Raspbian. Currently, I am busy working on a cross-compiler.</p>
+
+<h3 id="update-2-6-may-2013">Update #2 (6 May, 2013)</h3>
+
+<p>For those interested, you can download the latest image from this link: http://j.mp/tinypbx. Follow standard flashing instructions: gunzip the .gz file, insert the SD card, and flash it using the Linux DD command. You can find detailed instructions on how to flash the image on this site: <a href="http://www.andrewmunsell.com/blog/getting-started-raspberry-pi-install-raspbian/">http://www.andrewmunsell.com/blog/getting-started-raspberry-pi-install-raspbian/</a>, that provides a comprehensive description of the flashing procedure.</p>
+
+<p>Additionally, I have created a side project that allows you to cross-compile anything and build your own image. You can find it at: <a href="https://github.com/andrius/build-raspbian-image">https://github.com/andrius/build-raspbian-image</a></p>
+
+</article>
+
+
+
+
+
+
+  <div id="disqus_thread"></div>
+  <script type="text/javascript">
+    var disqus_shortname  = 'andrius-mobi';
+    var disqus_identifier = '/2013/03/roaming-solution-based-on-raspberry-pi-asterisk-chan_dongle';
+    var disqus_title      = "Roaming PBX with Raspberry Pi, Asterisk and chan_dongle";
+
+    (function() {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+  </script>
+  <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+
+
+
+
+
+
+      </div>
+    </div>
+  </div>
+
+  <footer class="center">
+  <div class="measure">
+    <small>
+      Copyright (c) by <a href="/contact/">Andrius Kairiukstis</a>.</br>
+      This Jekyll site is based on the <a href="https://github.com/johno/pixyll">Pixyll theme</a>.
+    </small>
+  </div>
+</footer>
+<!-- AnchorJS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/anchor-js/3.0.0/anchor.min.js"></script>
+<script>
+    anchors.options.visible = 'always';
+    anchors.add('article h2, article h3, article h4, article h5, article h6');
+</script>
+<script type="text/javascript">
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("/sw.js")
+    }
+</script>
+
+</body>
+</html>

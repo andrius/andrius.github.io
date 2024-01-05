@@ -4,30 +4,32 @@
     
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>Roaming PBX – first release &#8211; Voice Applications</title>
+    <title>First release of Roaming PBX &#8211; Andrius Kairiukstis's Blog</title>
     <link rel="dns-prefetch" href="//fonts.googleapis.com">
     <link rel="dns-prefetch" href="//fonts.gstatic.com">
     <link rel="dns-prefetch" href="//maxcdn.bootstrapcdn.com">
     <link rel="dns-prefetch" href="//cdnjs.cloudflare.com">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="Realtime voice applications. Notes about Unified Communications, CTI, call-centers; open-source VoIP (Asterisk, Freeswitch, Kamailio); with test automation, and scaled container (docker) apps.">
+    <meta name="description" content="Today, I created the latest image that includes Ruby, pcapsipdump, Asterisk PBX, and the SILK codec. Although it is still in the alpha stage, it is ready for testing.">
+    <link rel="manifest" type="application/manifest+json; charset=utf-8" href="/manifest.json" />
     <meta name="robots" content="all">
     <meta name="author" content="Andrius Kairiukstis">
     <meta property="fb:pages" content="ctiapps" />
     <meta name="keywords" content="">
     <link rel="canonical" href="//andrius.mobi/2013/05/roaming-pbx-first-release.html">
-    <link rel="alternate" type="application/rss+xml" title="RSS Feed for Voice Applications" href="/feed.xml" />
+    <link rel="alternate" type="application/rss+xml" title="RSS Feed for Andrius Kairiukstis's Blog" href="/feed.xml" />
 
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="/css/pixyll.css?202006200848" type="text/css">
+    <link rel="stylesheet" href="/css/pixyll.css?202401052041" type="text/css">
 
     <!-- Fonts -->
     
-    <link href='//fonts.googleapis.com/css?family=Merriweather:900,900italic,300,300italic&amp;subset=latin-ext,latin' rel='stylesheet' type='text/css'>
-    <link href='//fonts.googleapis.com/css?family=Lato:900,300&amp;subset=latin-ext,latin' rel='stylesheet' type='text/css'>
+    <link href='//fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,300;0,900;1,300;1,900' rel='stylesheet' type='text/css'>
+    <link href='//fonts.googleapis.com/css2?family=Lato:ital,wght@0,300;0,900;1,300;1,900' rel='stylesheet' type='text/css'>
+    <link href='//fonts.googleapis.com/css2?family=Inconsolata:wght@500' rel='stylesheet' type='text/css'>
     
     
-      <link href="//maxcdn.bootstrapcdn.com/font-awesome/latest/css/font-awesome.min.css" rel="stylesheet">
+      <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
     
 
     <!-- MathJax -->
@@ -41,12 +43,12 @@
     <!-- From: https://github.com/mmistakes/hpstr-jekyll-theme/blob/master/_includes/head.html -->
     <meta property="og:locale" content="en_US">
     <meta property="og:type" content="article">
-    <meta property="og:title" content="Roaming PBX – first release">
-    <meta property="og:description" content="Realtime voice applications. Notes about Unified Communications, CTI, call-centers; open-source VoIP (Asterisk, Freeswitch, Kamailio); with test automation, and scaled container (docker) apps.">
+    <meta property="og:title" content="First release of Roaming PBX">
+    <meta property="og:description" content="This blog explores the realm of real-time voice applications, covering topics such as Unified Communications, CTI, and call centers. It also discusses open-source VoIP solutions like Asterisk, Freeswitch, and Kamailio, highlighting their features and benefits. Additionally, the blog touches upon automations, integrations, test automation, and the scalability of containerized applications using Docker, along with DevOps practices.">
     <meta property="og:url" content="//andrius.mobi/2013/05/roaming-pbx-first-release.html">
-    <meta property="og:site_name" content="Voice Applications">
+    <meta property="og:site_name" content="Andrius Kairiukstis&apos;s Blog">
     
-    <meta property="og:image" content="//andrius.mobi/images/me.jpeg">
+    <meta property="og:image" content="//andrius.mobi/images/me.png">
     
 
     <!-- Twitter Card -->
@@ -55,11 +57,11 @@
         <meta name="twitter:site" content="@andrius_kai" />
         <meta name="twitter:creator" content="@andrius_kai" />
     
-    <meta name="twitter:title" content="Roaming PBX – first release" />
-    <meta name="twitter:description" content="Realtime voice applications. Notes about Unified Communications, CTI, call-centers; open-source VoIP (Asterisk, Freeswitch, Kamailio); with test automation, and scaled container (docker) apps." />
+    <meta name="twitter:title" content="First release of Roaming PBX" />
+    <meta name="twitter:description" content="Today, I created the latest image that includes Ruby, pcapsipdump, Asterisk PBX, and the SILK codec. Although it is still in the alpha stage, it is ready for testing." />
     <meta name="twitter:url" content="//andrius.mobi/2013/05/roaming-pbx-first-release.html" />
     
-    <meta name="twitter:image" content="//andrius.mobi/images/me.jpeg" />
+    <meta name="twitter:image" content="//andrius.mobi/images/me.png" />
     
 
     <!-- Icons -->
@@ -85,7 +87,7 @@
        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
        })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
-       ga('create', 'UA-38523949-3', 'auto');
+       ga('create', 'G-X2C9W2TP16', 'auto');
        ga('send', 'pageview');
     </script>
     
@@ -99,61 +101,34 @@
     <header class="site-header px2 px-responsive">
   <div class="mt2 wrap">
     <div class="measure">
-      <a href="/" class="site-title">Voice Applications</a>
+      <a href="/" class="site-title">Andrius Kairiukstis's Blog</a>
       <nav class="site-nav">
         
 
 
 
-
+    
+    
+    
+    
+        <a class="nav-link" href="/contact/">Contact me</a>
     
 
     
 
-
-
-
-    
-
-    
-
-
-
+<a class="fa-solid fa-rss" href="/feed.xml"></a>
 
       </nav>
       <div class="clearfix"></div>
       
         <div class="social-icons">
   <div class="social-icons-right">
-    
-      <a class="fa fa-github" href="https://github.com/andrius"></a>
-    
-    
-    
-    
-    
-      <a class="fa fa-twitter" href="https://twitter.com/andrius_kai"></a>
-    
-    
-    
-    
-      <a class="fa fa-linkedin" href="https://www.linkedin.com/in/andrius-kairiukstis"></a>
-    
-    
-    
-    
-      <a class="fa fa-telegram" href="https://t.me/andrius_kai"></a>
-    
-    
-    
-      <a class="fa fa-whatsapp" href="https://wa.me/34652299183"></a>
-    
-    
-  </div>
-  <div class="right">
-    
-    
-    
+    <a class="fa-brands fa-github" href="https://github.com/andrius"></a>
+    <a class="fa-brands fa-square-x-twitter" href="https://x.com/andrius_kai"></a>
+    <!-- a class="fa-brands fa-mastodon" href="//mastodon.social/@andrius_kai"></a -->
+    <a class="fa-brands fa-linkedin" href="https://www.linkedin.com/in/andrius-kairiukstis"></a>
+    <a class="fa-brands fa-telegram" href="https://t.me/andrius_kai"></a>
+    <a class="fa-brands fa-whatsapp" href="https://wa.me/34652299183"></a>
   </div>
 </div>
 <div class="clearfix"></div>
@@ -170,7 +145,7 @@
 
 
 <div class="post-header mb2">
-  <h1>Roaming PBX – first release</h1>
+  <h1>First release of Roaming PBX</h1>
   <span class="post-meta">May 7, 2013</span><br>
   
   <span class="post-meta small">
@@ -181,12 +156,12 @@
 </div>
 
 <article class="post-content">
-  Today I have baked latest image (containing&nbsp;ruby, pcapsipdump, asterisk, silk codec).
-Because it is still a bit alpha, I was created shorted URL, download link, containing latest image: [j.mp/tinypbx](//j.mp/tinypbx).
+  Today, I created the latest image that includes Ruby, pcapsipdump, Asterisk PBX, and the SILK codec. Although it is still in the alpha stage, it is ready for testing. You can download the latest image from this [link](https://j.mp/tinypbx).
 
-Standard flashing instructions: gunzip .gz file, insert SD card, flash with Linux DD command... [This site](http://www.andrewmunsell.com/blog/getting-started-raspberry-pi-install-raspbian/) for example, describing flashing procedure well.
+To flash the image onto a Raspberry Pi, follow the typical instructions: unzip the .gz file, insert the SD card, and use the Linux DD command to flash it. For a detailed guide on flashing, you can refer to [this site](http://www.andrewmunsell.com/blog/getting-started-raspberry-pi-install-raspbian/).
 
-[GIT repository with script](https://github.com/andrius/build-raspbian-image), which creates RPI images, was updated and I will create&nbsp;separate&nbsp;post describing it. In few words: installer creates minimal raspbian image, at the end, mounts folder "delivery" to the target image and executes bash script "install.sh" (you find sample in GIT repository).</div>
+The [GIT repository with the script](https://github.com/andrius/build-raspbian-image) that creates RPI images has been updated. I will write a separate post with a more detailed description of it. In summary, the installer creates a minimal Raspbian image and, at the end, mounts the "delivery" folder to the target image and executes the bash script "[install.sh](http://install.sh/)" (you can find a sample of it in the GIT repository).
+
 </article>
 
 
@@ -198,7 +173,7 @@ Standard flashing instructions: gunzip .gz file, insert SD card, flash with Linu
   <script type="text/javascript">
     var disqus_shortname  = 'andrius-mobi';
     var disqus_identifier = '/2013/05/roaming-pbx-first-release';
-    var disqus_title      = "Roaming PBX – first release";
+    var disqus_title      = "First release of Roaming PBX";
 
     (function() {
       var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
@@ -206,7 +181,7 @@ Standard flashing instructions: gunzip .gz file, insert SD card, flash with Linu
       (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
     })();
   </script>
-  <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+  <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
 
 
 
@@ -220,8 +195,8 @@ Standard flashing instructions: gunzip .gz file, insert SD card, flash with Linu
   <footer class="center">
   <div class="measure">
     <small>
-      Content by Andrius Kairiukstis.<br>
-      Jekyll site based on <a href="https://github.com/johno/pixyll">Pixyll theme</a>.
+      Copyright (c) by <a href="/contact/">Andrius Kairiukstis</a>.</br>
+      This Jekyll site is based on the <a href="https://github.com/johno/pixyll">Pixyll theme</a>.
     </small>
   </div>
 </footer>
@@ -230,6 +205,11 @@ Standard flashing instructions: gunzip .gz file, insert SD card, flash with Linu
 <script>
     anchors.options.visible = 'always';
     anchors.add('article h2, article h3, article h4, article h5, article h6');
+</script>
+<script type="text/javascript">
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("/sw.js")
+    }
 </script>
 
 </body>

@@ -1,6 +1,6 @@
 # Pixyll
 
-[pixyll.com](http://www.pixyll.com)
+[pixyll.com](https://www.pixyll.com/)
 
 ![Pixyll screenshot](./screenshot.png)
 
@@ -8,17 +8,17 @@ Pixyll is a simple, beautiful theme for Jekyll that emphasizes content rather th
 
 It's pretty minimal, but leverages large type and drastic contrast to make a statement, on all devices.
 
-This Jekyll theme was crafted with <3 by [John Otander](http://johnotander.com)
+This Jekyll theme was crafted with <3 by [John Otander](https://johno.com/)
 ([@4lpine](https://twitter.com/4lpine)).
 
 中文版 <https://github.com/ee0703/pixyll-zh-cn>.
 
 ## Getting Started
 
-If you're completely new to Jekyll, I recommend checking out the documentation at <http://jekyllrb.com> or there's a tutorial by [Smashing Magazine](http://www.smashingmagazine.com/2014/08/01/build-blog-jekyll-github-pages/).
+If you're completely new to Jekyll, I recommend checking out the documentation at <https://jekyllrb.com/> or there's a tutorial by [Smashing Magazine](https://www.smashingmagazine.com/2014/08/build-blog-jekyll-github-pages/).
 
 ```
-$ git clone git@github.com:johnotander/pixyll.git
+$ git clone git@github.com:johno/pixyll.git
 $ cd pixyll
 $ gem install bundler # If you don't have bundler installed
 $ bundle install
@@ -45,7 +45,7 @@ email: your_email@example.com
 author: John Otander
 description: "A simple, beautiful theme for Jekyll that emphasizes content rather than aesthetic fluff."
 baseurl: ""
-url: "http://pixyll.com"
+url: "https://pixyll.com/"
 
 # Build settings
 markdown: kramdown
@@ -80,7 +80,7 @@ email: your_email@example.com
 author: John Otander
 description: "Repo description"
 baseurl: "/repo-name"
-url: "http://github-username.github.io"
+url: "https://github-username.github.io"
 
 # Build settings
 markdown: kramdown
@@ -111,9 +111,9 @@ A relevant Jekyll Github Issue: <https://github.com/jekyll/jekyll/issues/332>
 
 ### Contact Form
 
-The contact form uses <http://formspree.io>. It will require you to fill the form out and submit it once, before going live, to confirm your email.
+The contact form uses <https://formspree.io/>. It will require you to fill the form out and submit it once, before going live, to confirm your email.
 
-More setup instructions and advanced options can be found at [http://formspree.io](http://formspree.io/)
+More setup instructions and advanced options can be found at [https://formspree.io](https://formspree.io/)
 
 
 ### Disqus
@@ -126,7 +126,7 @@ All variables can be found in the `_sass/_variables.scss` file, toggle these as 
 
 ### Page Animation
 
-If you would like to add a [fade-in-down effect](http://daneden.github.io/animate.css/), you can add `animated: true` to your `_config.yml`.
+If you would like to add a [fade-in-down effect](https://animate.style/), you can add `animated: true` to your `_config.yml`.
 
 ### AnchorJS
 
@@ -139,16 +139,16 @@ If you would like to add a [fade-in-down effect](http://daneden.github.io/animat
 </script>
 ```
 
-See [documentation](http://bryanbraun.github.io/anchorjs/#basic-usage) for more options.
+See [documentation](https://www.bryanbraun.com/anchorjs/#basic-usage) for more options.
 
 ### Put in a Pixyll Plug
 
-If you want to give credit to the Pixyll theme with a link to <http://pixyll.com> or my personal website <http://johnotander.com> somewhere, that'd be awesome. No worries if you don't.
+If you want to give credit to the Pixyll theme with a link to <https://pixyll.com/> or my personal website <https://johno.com/> somewhere, that'd be awesome. No worries if you don't.
 
 ### Web analytics and search engines
 
 You can measure visits to your website either by using [Google Analytics](https://www.google.com/analytics/) tracking embed or the more advanced [Google Tag Manager](https://www.google.com/analytics/tag-manager/) container.
-* For Google Analytics set up the value for `google_analytics`, it should be something like `google_analytics: UA-XXXXXXXX-X`.
+* For Google Analytics set up the value for `google_analytics`, it should be something like `google_analytics: UA-XXXXXXXX-X` or `google_analytics: G-XXXXXXX` depending on whether you are using universal analytics or not.
 * For Google Tag Manager set up the value for `google_tag_manager`, it should be something like: `google_tag_manager: GTM-XXXXX`.
 * _Do not_ set both of above methods because this will cause conflicts and skew your reporting data.
 * Remember that you need to properly configure the GTM container in its admin panel if you want it to work. More info is available in [GTM's docs](https://www.google.com/analytics/tag-manager/resources/).
@@ -169,15 +169,30 @@ meta_robots: nofollow
 meta_robots: noindex,follow
 ```
 
-In order to get more information about your website's status in search engines, you can register it in [Google Search Console](https://www.google.com/webmasters/tools/home) and/or [Bing Webmaster Tools](http://www.bing.com/toolbox/webmaster). Both these tools will ask you to authorize your website with them and there are couple of ways to do that. Pixyll supports verification via meta tags - just fill in values for `google_verification` and/or `bing_verification` in `_config.yml`, the verification strings and meta tags will then be added automatically.
+In order to get more information about your website's status in search engines, you can register it in [Google Search Console](https://search.google.com/search-console/about) and/or [Bing Webmaster Tools](https://www.bing.com/webmasters/about). Both these tools will ask you to authorize your website with them and there are couple of ways to do that. Pixyll supports verification via meta tags - just fill in values for `google_verification` and/or `bing_verification` in `_config.yml`, the verification strings and meta tags will then be added automatically.
 
 If search engine optimization is your thing, you can also set up `meta_description` values for each page/post. By default Pixyll uses `summary` to populate the `<meta name="description" content="...">` tag and falls back to `description` from `_config.yml` if `summary` is not present in page/post's front matter. The `summary` is also used for generating Open Graph tags. Why would you want to use a dedicated variable for meta description? Because character limit to properly display this description in search results (as a snippet) is way smaller than in Open Graph. It is recommended to keep it at 155-160 characters, for more in-depth info read [this article](https://moz.com/blog/i-cant-drive-155-meta-descriptions-in-2015).
 
 And lastly - if you happen to write in language other than English be sure to change `og_locale` in `_config.yml` to reflect it.
 
+### Progressive Web App
+
+Pixyll supports features of a progressive web app (PWA).  As a PWA, your site's home page can be installed as a shortcut or an app icon on a mobile device.  Also, certain assets are cached so the site can be accessed should the device be offline from the network.
+
+Pixyll supports these features because it provides a Javascript file that acts as a *service worker* in the browser and has a JSON file with a *web manifest*.  By default, these are configured to the settings of Pixyll, but you should consider cutomizing them to your specific site:
+
+1. Provide a different version of `splash-512x512.png` which is the loading screen for your offline app.
+2. A `favicon-192x192.png` for the app icon (if you haven't already).
+3. In `sw.js`, list any other files or pages you want to add to the list of cached artifacts.
+
+For more information on PWAs:
+
+- https://developer.mozilla.org/en-US/docs/Web/Progressive_web_apps
+- https://web.dev/what-are-pwas/
+
 ### Enjoy
 
-I hope you enjoy using Pixyll. If you encounter any issues, please feel free to let me know by creating an [issue](https://github.com/johnotander/pixyll/issues). I'd love to help.
+I hope you enjoy using Pixyll. If you encounter any issues, please feel free to let me know by creating an [issue](https://github.com/johno/pixyll/issues). I'd love to help.
 
 ## Upgrading Pixyll
 
@@ -188,7 +203,7 @@ Pixyll is always being improved by its users, so sometimes one may need to upgra
 If `git remote -v` doesn't have an upstream listed, you can do the following to add it:
 
 ```
-git remote add upstream https://github.com/johnotander/pixyll.git
+git remote add upstream https://github.com/johno/pixyll.git
 ```
 
 #### Pull in the latest changes
@@ -201,11 +216,11 @@ There may be merge conflicts, so be sure to fix the files that git lists if they
 
 ## Thanks to the following
 
-* [BASSCSS](http://basscss.com)
-* [Jekyll](http://jekyllrb.com)
-* [Refills](http://refills.bourbon.io/)
-* [Solarized](http://ethanschoonover.com/solarized)
-* [Animate.css](http://daneden.github.io/animate.css/)
+* [BASSCSS](https://basscss.com/)
+* [Jekyll](https://jekyllrb.com/)
+* [Refills](https://refills.bourbon.io/)
+* [Solarized](https://ethanschoonover.com/solarized/)
+* [Animate.css](https://animate.style/)
 
 ## Contributing
 
@@ -217,4 +232,4 @@ There may be merge conflicts, so be sure to fix the files that git lists if they
 
 ## Forking
 
-There is a [guide to forking Pixyll](http://pixyll.com/jekyll/pixyll/2019/01/26/guide-to-forking-pixyll/).
+There is a [guide to forking Pixyll](https://pixyll.com/jekyll/pixyll/2019/01/26/guide-to-forking-pixyll/).

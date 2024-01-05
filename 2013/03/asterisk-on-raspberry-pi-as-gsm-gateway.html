@@ -4,30 +4,32 @@
     
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>Asterisk on Raspberry Pi as GSM gateway &#8211; Voice Applications</title>
+    <title>Asterisk on Raspberry Pi as GSM gateway &#8211; Andrius Kairiukstis's Blog</title>
     <link rel="dns-prefetch" href="//fonts.googleapis.com">
     <link rel="dns-prefetch" href="//fonts.gstatic.com">
     <link rel="dns-prefetch" href="//maxcdn.bootstrapcdn.com">
     <link rel="dns-prefetch" href="//cdnjs.cloudflare.com">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="Yesterday I've installed chan\_dongle for Asterisk PBX running at Raspberry Pi. What is chan\_dongle? It is driver for Asterisk PBX, that allow to use some Huawei 3G USB dongles as a voice &quot;board&quot; to handle voice, SMS and USSD. Kind of your own self-made single-channel GSM gateway.">
+    <meta name="description" content="Yesterday, I installed chan_dongle for my Asterisk PBX running on Raspberry Pi. chan_dongle is a driver that enables the use of Huawei 3G USB dongles as a voice &quot;board&quot; for handling voice, SMS, and USSD. I conducted extensive research on various topics and summarized everything in a document. Additionally, I provided useful links related to Asterisk CLI commands, troubleshooting Huawei modems, and additional resources for chan_dongle.">
+    <link rel="manifest" type="application/manifest+json; charset=utf-8" href="/manifest.json" />
     <meta name="robots" content="all">
     <meta name="author" content="Andrius Kairiukstis">
     <meta property="fb:pages" content="ctiapps" />
     <meta name="keywords" content="">
     <link rel="canonical" href="//andrius.mobi/2013/03/asterisk-on-raspberry-pi-as-gsm-gateway.html">
-    <link rel="alternate" type="application/rss+xml" title="RSS Feed for Voice Applications" href="/feed.xml" />
+    <link rel="alternate" type="application/rss+xml" title="RSS Feed for Andrius Kairiukstis's Blog" href="/feed.xml" />
 
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="/css/pixyll.css?202006200848" type="text/css">
+    <link rel="stylesheet" href="/css/pixyll.css?202401052041" type="text/css">
 
     <!-- Fonts -->
     
-    <link href='//fonts.googleapis.com/css?family=Merriweather:900,900italic,300,300italic&amp;subset=latin-ext,latin' rel='stylesheet' type='text/css'>
-    <link href='//fonts.googleapis.com/css?family=Lato:900,300&amp;subset=latin-ext,latin' rel='stylesheet' type='text/css'>
+    <link href='//fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,300;0,900;1,300;1,900' rel='stylesheet' type='text/css'>
+    <link href='//fonts.googleapis.com/css2?family=Lato:ital,wght@0,300;0,900;1,300;1,900' rel='stylesheet' type='text/css'>
+    <link href='//fonts.googleapis.com/css2?family=Inconsolata:wght@500' rel='stylesheet' type='text/css'>
     
     
-      <link href="//maxcdn.bootstrapcdn.com/font-awesome/latest/css/font-awesome.min.css" rel="stylesheet">
+      <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
     
 
     <!-- MathJax -->
@@ -42,11 +44,11 @@
     <meta property="og:locale" content="en_US">
     <meta property="og:type" content="article">
     <meta property="og:title" content="Asterisk on Raspberry Pi as GSM gateway">
-    <meta property="og:description" content="Realtime voice applications. Notes about Unified Communications, CTI, call-centers; open-source VoIP (Asterisk, Freeswitch, Kamailio); with test automation, and scaled container (docker) apps.">
+    <meta property="og:description" content="This blog explores the realm of real-time voice applications, covering topics such as Unified Communications, CTI, and call centers. It also discusses open-source VoIP solutions like Asterisk, Freeswitch, and Kamailio, highlighting their features and benefits. Additionally, the blog touches upon automations, integrations, test automation, and the scalability of containerized applications using Docker, along with DevOps practices.">
     <meta property="og:url" content="//andrius.mobi/2013/03/asterisk-on-raspberry-pi-as-gsm-gateway.html">
-    <meta property="og:site_name" content="Voice Applications">
+    <meta property="og:site_name" content="Andrius Kairiukstis&apos;s Blog">
     
-    <meta property="og:image" content="//andrius.mobi/images/me.jpeg">
+    <meta property="og:image" content="//andrius.mobi/images/me.png">
     
 
     <!-- Twitter Card -->
@@ -56,10 +58,10 @@
         <meta name="twitter:creator" content="@andrius_kai" />
     
     <meta name="twitter:title" content="Asterisk on Raspberry Pi as GSM gateway" />
-    <meta name="twitter:description" content="Yesterday I've installed chan\_dongle for Asterisk PBX running at Raspberry Pi. What is chan\_dongle? It is driver for Asterisk PBX, that allow to use some Huawei 3G USB dongles as a voice "board" to handle voice, SMS and USSD. Kind of your own self-made single-channel GSM gateway." />
+    <meta name="twitter:description" content="Yesterday, I installed chan_dongle for my Asterisk PBX running on Raspberry Pi. chan_dongle is a driver that enables the use of Huawei 3G USB dongles as a voice "board" for handling voice, SMS, and USSD. I conducted extensive research on various topics and summarized everything in a document. Additionally, I provided useful links related to Asterisk CLI commands, troubleshooting Huawei modems, and additional resources for chan_dongle." />
     <meta name="twitter:url" content="//andrius.mobi/2013/03/asterisk-on-raspberry-pi-as-gsm-gateway.html" />
     
-    <meta name="twitter:image" content="//andrius.mobi/images/me.jpeg" />
+    <meta name="twitter:image" content="//andrius.mobi/images/me.png" />
     
 
     <!-- Icons -->
@@ -85,7 +87,7 @@
        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
        })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
-       ga('create', 'UA-38523949-3', 'auto');
+       ga('create', 'G-X2C9W2TP16', 'auto');
        ga('send', 'pageview');
     </script>
     
@@ -99,61 +101,34 @@
     <header class="site-header px2 px-responsive">
   <div class="mt2 wrap">
     <div class="measure">
-      <a href="/" class="site-title">Voice Applications</a>
+      <a href="/" class="site-title">Andrius Kairiukstis's Blog</a>
       <nav class="site-nav">
         
 
 
 
-
+    
+    
+    
+    
+        <a class="nav-link" href="/contact/">Contact me</a>
     
 
     
 
-
-
-
-    
-
-    
-
-
-
+<a class="fa-solid fa-rss" href="/feed.xml"></a>
 
       </nav>
       <div class="clearfix"></div>
       
         <div class="social-icons">
   <div class="social-icons-right">
-    
-      <a class="fa fa-github" href="https://github.com/andrius"></a>
-    
-    
-    
-    
-    
-      <a class="fa fa-twitter" href="https://twitter.com/andrius_kai"></a>
-    
-    
-    
-    
-      <a class="fa fa-linkedin" href="https://www.linkedin.com/in/andrius-kairiukstis"></a>
-    
-    
-    
-    
-      <a class="fa fa-telegram" href="https://t.me/andrius_kai"></a>
-    
-    
-    
-      <a class="fa fa-whatsapp" href="https://wa.me/34652299183"></a>
-    
-    
-  </div>
-  <div class="right">
-    
-    
-    
+    <a class="fa-brands fa-github" href="https://github.com/andrius"></a>
+    <a class="fa-brands fa-square-x-twitter" href="https://x.com/andrius_kai"></a>
+    <!-- a class="fa-brands fa-mastodon" href="//mastodon.social/@andrius_kai"></a -->
+    <a class="fa-brands fa-linkedin" href="https://www.linkedin.com/in/andrius-kairiukstis"></a>
+    <a class="fa-brands fa-telegram" href="https://t.me/andrius_kai"></a>
+    <a class="fa-brands fa-whatsapp" href="https://wa.me/34652299183"></a>
   </div>
 </div>
 <div class="clearfix"></div>
@@ -181,147 +156,138 @@
 </div>
 
 <article class="post-content">
-  <p>Yesterday I’ve installed chan_dongle for <a href="http://www.raspberry-asterisk.org/">Asterisk PBX running at Raspberry Pi</a>. What is <a href="//github.com/jstasiak/asterisk-chan-dongle">chan_dongle</a>? It is driver for Asterisk PBX, that allow to use <a href="http://wiki.e1550.mobi/doku.php">some Huawei 3G USB dongles</a> as a voice “board” to handle voice, SMS and USSD. Kind of your own self-made single-channel GSM gateway.</p>
+  <h2 id="introduction">Introduction</h2>
+
+<p>Yesterday, I installed chan_dongle for my <a href="http://www.raspberry-asterisk.org/">Asterisk PBX running on Raspberry Pi</a>. <a href="https://github.com/jstasiak/asterisk-chan-dongle">chan_dongle</a> is a driver for Asterisk PBX that allows the use of certain Huawei 3G USB dongles as a voice “board” for handling voice, SMS, and USSD. It’s like creating your own single-channel GSM gateway.</p>
 
 <p><img src="/images/raspberry-pi-with-dongle.png" alt="Raspberry PI with Huawei 3G dongle" /></p>
-<h1 id="instructions">Instructions</h1>
-<ul>
+
+<h2 id="instructions">Instructions</h2>
+
+<p>Follow these steps to set up chan_dongle:</p>
+
+<ol>
+  <li>Obtain a <a href="http://wiki.e1550.mobi/doku.php?id=requirements">compatible USB modem</a>.</li>
+  <li>Use <a href="https://www.dc-unlocker.com/">DC-Unlocker software</a> to check if the modem has voice function and is not locked.</li>
+  <li>If needed, unlock the modem by following the <a href="http://wiki.e1550.mobi/doku.php?id=preparation">unlock instructions and resources</a>.</li>
+  <li>(Optional) If the DC-Unlocker indicates that the modem has no voice function or you encounter issues during configuration, try <a href="http://www.dc-files.com/files/huawei/">upgrading the firmware</a>.</li>
   <li>
-    <p>Get <a href="http://wiki.e1550.mobi/doku.php?id=requirements">compatible USB modem</a>;</p>
+    <p>Download <a href="http://www.raspberry-asterisk.org/downloads/">Raspberry-asterisk</a> and flash it onto an SD card (at least 4GB in size). Below are the instructions for flashing on macOS:</p>
+
+    <div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code> <span class="c"># Find your card (in my case, it's disk1)</span>
+ mount /dev/disk1
+ diskutil unmountDisk /dev/disk1
+ <span class="nb">sudo dd </span><span class="k">if</span><span class="o">=</span>raspbian_wheezy_20120608.img <span class="nv">of</span><span class="o">=</span>/dev/rdisk1 <span class="nv">bs</span><span class="o">=</span>1m
+</code></pre></div>    </div>
+  </li>
+</ol>
+
+<h2 id="installation">Installation</h2>
+
+<p>Once you have the flashed SD card, power on the Raspberry Pi and follow these steps:</p>
+
+<ol>
+  <li>
+    <p>Upgrade the system by running the command:</p>
+
+    <div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code> raspbx-upgrade
+</code></pre></div>    </div>
   </li>
   <li>
-    <p>To check is modem have voice function and is not locked, use <a href="//www.dc-unlocker.com/">DC-Unlocker software</a>;</p>
+    <p>Install the necessary software:</p>
+
+    <div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code> apt-get <span class="nb">install </span>usbutils unzip autoconf automake
+
+ <span class="c"># Compile USB-modeswitch</span>
+ <span class="nb">cd</span> /usr/src/
+
+ wget http://www.draisberghof.de/usb_modeswitch/usb-modeswitch-1.2.5.tar.bz2
+ wget http://www.draisberghof.de/usb_modeswitch/usb-modeswitch-data-20121109.tar.bz2
+
+ <span class="nb">tar</span> <span class="nt">-jxvf</span> usb-modeswitch-1.2.5.tar.bz2
+ <span class="nb">tar</span> <span class="nt">-jxvf</span> usb-modeswitch-data-20121109.tar.bz2
+
+ <span class="nb">cd </span>usb-modeswitch-1.2.5
+ make all
+ make <span class="nb">install
+
+ cd</span> ../usb-modeswitch-data-20121109
+ make <span class="nb">install
+
+ cd</span> ..
+</code></pre></div>    </div>
   </li>
   <li>
-    <p>Unlock modem if needed (it’s locked to operator and you have SIM card from other operator). Check <a href="http://wiki.e1550.mobi/doku.php?id=preparation">unlock instructions and resources</a>;</p>
+    <p>Plug in the Huawei USB stick (if already plugged, eject it first) and check the output of the <code class="language-plaintext highlighter-rouge">lsusb</code> command:</p>
+
+    <div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code> lsusb | <span class="nb">grep </span>Huawei
+</code></pre></div>    </div>
+
+    <p>The output should resemble:</p>
+
+    <div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code> Bus 001 Device 005: ID 12d1:140c Huawei Technologies Co., Ltd.
+</code></pre></div>    </div>
   </li>
   <li>
-    <p>(optional step) if according to the DC-Unlocker, modem has no voice function, or you had issues with further configuration steps, try to <a href="http://www.dc-files.com/files/huawei/">upgrade firmware</a>;</p>
+    <p>Switch the USB-stick to modem mode. Use the values obtained from the previous step (<code class="language-plaintext highlighter-rouge">v</code> and <code class="language-plaintext highlighter-rouge">p</code> flags) and perform a Google search for your modem model and brand to find the value for the <code class="language-plaintext highlighter-rouge">M</code> flag.</p>
+
+    <div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code> usb_modeswitch <span class="nt">-v</span> 0x12d1 <span class="nt">-p</span> 0x140c <span class="nt">-H</span> <span class="nt">-s</span> 5 <span class="nt">-M</span> 55534243000000000000000000000011060000000000000000000000000000
+</code></pre></div>    </div>
   </li>
   <li>
-    <p>Download <a href="http://www.raspberry-asterisk.org/downloads/">Raspberry-asterisk</a>, flash it to the SD card (4GB at least; flash instructions on their website, below how I did that on mac OS):</p>
+    <p>Download and install chan_dongle:</p>
+
+    <div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code> wget https://github.com/jstasiak/asterisk-chan-dongle/archive/asterisk11.zip
+
+ unzip asterisk11.zip
+
+ <span class="nb">cd </span>asterisk-chan-dongle-asterisk11/
+ aclocal
+ autoconf
+ automake <span class="nt">-a</span>
+ ./configure
+ make all
+ make <span class="nb">install
+ cp </span>etc/dongle.conf /etc/asterisk/
+ <span class="nb">cp</span> /etc/extensions.conf /etc/asterisk/extensions-dongle.conf
+</code></pre></div>    </div>
   </li>
-</ul>
+  <li>
+    <p>Restart Asterisk PBX and check the modem status:</p>
 
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># find your card (disk1 in my case)</span>
-mount /dev/disk1
-diskutil unmountDisk /dev/disk1
-<span class="nb">sudo dd </span><span class="k">if</span><span class="o">=</span>raspbian_wheezy_20120608.img <span class="nv">of</span><span class="o">=</span>/dev/rdisk1 <span class="nv">bs</span><span class="o">=</span>1m
-</code></pre></div></div>
-<h1 id="installation">Installation</h1>
-<p>Power on Raspberry Pi, find its ip address, ssh and:</p>
+    <div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code> asterisk <span class="nt">-rx</span> <span class="s2">"core restart now"</span>
 
-<ul>
-  <li>Upgrade system</li>
-</ul>
+ <span class="c"># Check devices</span>
+ asterisk <span class="nt">-rx</span> <span class="s2">"dongle show devices"</span>
+</code></pre></div>    </div>
 
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>raspbx-upgrade
-</code></pre></div></div>
+    <p>You should see something like this:</p>
 
-<ul>
-  <li>Install necessary software:</li>
-</ul>
+    <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code> # *CLI&gt; dongle show devices
+ # ID           Group State      RSSI Mode Submode Provider Name  Model      Firmware          IMEI             IMSI             Number
+ # dongle0      0     Free       2    0    0       Yoigo          E1762      11.126.13.00.00   xxxx yyy  Unknown
+ # *CLI&gt;
+</code></pre></div>    </div>
+  </li>
+</ol>
 
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>apt-get <span class="nb">install </span>usbutils unzip autoconf automake
+<p>That’s it! You have successfully installed and configured chan_dongle. The next step is to configure your new GSM gateway.</p>
 
-<span class="c"># compile USB-modeswitch</span>
-
-<span class="nb">cd</span> /usr/src/
-
-wget http://www.draisberghof.de/usb_modeswitch/usb-modeswitch-1.2.5.tar.bz2
-wget http://www.draisberghof.de/usb_modeswitch/usb-modeswitch-data-20121109.tar.bz2
-
-<span class="nb">tar</span> <span class="nt">-jxvf</span> usb-modeswitch-1.2.5.tar.bz2
-<span class="nb">tar</span> <span class="nt">-jxvf</span> usb-modeswitch-data-20121109.tar.bz2
-
-<span class="nb">cd </span>usb-modeswitch-1.2.5
-make all
-make <span class="nb">install
-
-cd</span> ../usb-modeswitch-data-20121109
-make <span class="nb">install
-
-cd</span> ..
-</code></pre></div></div>
-
-<ul>
-  <li>Now plug-in (if plugged, eject it first) an Huawei USB stick and check <code class="highlighter-rouge">lsusb</code> output:</li>
-</ul>
-
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>lsusb | <span class="nb">grep </span>Huawei
-</code></pre></div></div>
-
-<p>It should print something like this:</p>
-
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Bus 001 Device 005: ID 12d1:140c Huawei Technologies Co., Ltd.
-</code></pre></div></div>
-
-<ul>
-  <li>Now switch USB-stick to the modem mode. Values foe <code class="highlighter-rouge">-v</code> and <code class="highlighter-rouge">-p</code> flags I get from previous step and value for <code class="highlighter-rouge">-M</code> flag, I get from google search for my modem model and brand.</li>
-</ul>
-
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>usb_modeswitch <span class="nt">-v</span> 0x12d1 <span class="nt">-p</span> 0x140c <span class="nt">-H</span> <span class="nt">-s</span> 5 <span class="nt">-M</span> 55534243000000000000000000000011060000000000000000000000000000
-</code></pre></div></div>
-
-<ul>
-  <li>Download and install chan_dongle:</li>
-</ul>
-
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>wget https://github.com/jstasiak/asterisk-chan-dongle/archive/asterisk11.zip
-
-unzip asterisk11.zip
-
-<span class="nb">cd </span>asterisk-chan-dongle-asterisk11/
-aclocal
-autoconf
-automake <span class="nt">-a</span>
-./configure
-make all
-make <span class="nb">install
-cp </span>etc/dongle.conf /etc/asterisk/
-<span class="nb">cp</span> /etc/extensions.conf /etc/asterisk/extensions-dongle.conf
-</code></pre></div></div>
-
-<ul>
-  <li>Restart Asterisk PBX and check modem status:</li>
-</ul>
-
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>asterisk <span class="nt">-rx</span> <span class="s2">"core restart now"</span>
-
-<span class="c"># done, checking devices</span>
-asterisk <span class="nt">-rx</span> <span class="s2">"dongle show devices"</span>
-</code></pre></div></div>
-
-<p>You should see something like this:</p>
-
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># *CLI&gt; dongle show devices</span>
-<span class="c"># ID           Group State      RSSI Mode Submode Provider Name  Model      Firmware          IMEI             IMSI             Number</span>
-<span class="c"># dongle0      0     Free       2    0    0       Yoigo          E1762      11.126.13.00.00   xxxx yyy  Unknown</span>
-<span class="c"># *CLI&gt;</span>
-</code></pre></div></div>
-
-<p>Done! Next step would be configuration of your new GSM gateway.</p>
-
-<p>Still playing with device. Quality is good, better than I get with Portech GSM gateway, price per port also way better, and it also can send and receive SMS and USSD.</p>
+<p>I am still experimenting with this device, but so far, the quality has been good and better than what I experienced with the Portech GSM gateway. The price per port is also more favorable, and it can send and receive SMS and USSD.</p>
 
 <p>Good luck!</p>
 
-<p>If you would like to try my system, download latest image here: <a href="//j.mp/tinypbx">j.mp/tinypbx</a>. Flashing instructions are same as for any Raspberry Pi image: gunzip .gz file, insert SD card, flash with Linux DD command… <a href="https://www.andrewmunsell.com/blog/getting-started-raspberry-pi-install-raspbian">This resource</a> for example, describes flashing procedure quite well.</p>
-<h1 id="some-useful-links">Some useful links</h1>
+<p>If you want to try my system, you can download the latest image <a href="https://j.mp/tinypbx">here</a>. The flashing instructions are the same as for any Raspberry Pi image: gunzip the .gz file, insert the SD card, and flash it using the Linux DD command. For example, you can refer to <a href="https://www.andrewmunsell.com/blog/getting-started-raspberry-pi-install-raspbian">this resource</a> for detailed flashing procedures.</p>
+
+<h2 id="useful-links">Useful Links</h2>
+
 <ul>
-  <li>
-    <p><a href="http://wiki.e1550.mobi/doku.php?id=usage">Asterisk CLI commands to control dongle, some instructions</a>;</p>
-  </li>
-  <li>
-    <p><a href="http://gix.net.pl/raspberry-pi/">Another resource regarding dongle with Raspberry Pi</a>;</p>
-  </li>
-  <li>
-    <p><a href="http://habrahabr.ru/post/160299/">Useful resource about chan_dongle (in Russian language, use google translate)</a>;</p>
-  </li>
-  <li>
-    <p><a href="http://wiki.e1550.mobi/doku.php?id=troubleshooting">How to troubleshoot your Huawei modem</a>.</p>
-  </li>
+  <li><a href="http://wiki.e1550.mobi/doku.php?id=usage">Asterisk CLI commands to control dongle and additional instructions</a>;</li>
+  <li><a href="http://gix.net.pl/raspberry-pi/">Another resource regarding dongle with Raspberry Pi</a>;</li>
+  <li><a href="http://habrahabr.ru/post/160299/">Useful resource about chan_dongle (in Russian language, use google translate)</a>;</li>
+  <li><a href="http://wiki.e1550.mobi/doku.php?id=troubleshooting">How to troubleshoot your Huawei modem</a>.</li>
 </ul>
+
 
 </article>
 
@@ -342,7 +308,7 @@ asterisk <span class="nt">-rx</span> <span class="s2">"dongle show devices"</spa
       (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
     })();
   </script>
-  <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+  <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
 
 
 
@@ -356,8 +322,8 @@ asterisk <span class="nt">-rx</span> <span class="s2">"dongle show devices"</spa
   <footer class="center">
   <div class="measure">
     <small>
-      Content by Andrius Kairiukstis.<br>
-      Jekyll site based on <a href="https://github.com/johno/pixyll">Pixyll theme</a>.
+      Copyright (c) by <a href="/contact/">Andrius Kairiukstis</a>.</br>
+      This Jekyll site is based on the <a href="https://github.com/johno/pixyll">Pixyll theme</a>.
     </small>
   </div>
 </footer>
@@ -366,6 +332,11 @@ asterisk <span class="nt">-rx</span> <span class="s2">"dongle show devices"</spa
 <script>
     anchors.options.visible = 'always';
     anchors.add('article h2, article h3, article h4, article h5, article h6');
+</script>
+<script type="text/javascript">
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("/sw.js")
+    }
 </script>
 
 </body>

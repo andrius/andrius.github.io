@@ -4,30 +4,32 @@
     
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>Perfect results (SIP TCP vs UDP) &#8211; Voice Applications</title>
+    <title>SIP TCP vs UDP with mobile client: awesome results &#8211; Andrius Kairiukstis's Blog</title>
     <link rel="dns-prefetch" href="//fonts.googleapis.com">
     <link rel="dns-prefetch" href="//fonts.gstatic.com">
     <link rel="dns-prefetch" href="//maxcdn.bootstrapcdn.com">
     <link rel="dns-prefetch" href="//cdnjs.cloudflare.com">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="Realtime voice applications. Notes about Unified Communications, CTI, call-centers; open-source VoIP (Asterisk, Freeswitch, Kamailio); with test automation, and scaled container (docker) apps.">
+    <meta name="description" content="This blog explores the realm of real-time voice applications, covering topics such as Unified Communications, CTI, and call centers. It also discusses open-source VoIP solutions like Asterisk, Freeswitch, and Kamailio, highlighting their features and benefits. Additionally, the blog touches upon automations, integrations, test automation, and the scalability of containerized applications using Docker, along with DevOps practices.">
+    <link rel="manifest" type="application/manifest+json; charset=utf-8" href="/manifest.json" />
     <meta name="robots" content="all">
     <meta name="author" content="Andrius Kairiukstis">
     <meta property="fb:pages" content="ctiapps" />
     <meta name="keywords" content="">
     <link rel="canonical" href="//andrius.mobi/2013/04/perfect-results-sip-tcp-vs-udp.html">
-    <link rel="alternate" type="application/rss+xml" title="RSS Feed for Voice Applications" href="/feed.xml" />
+    <link rel="alternate" type="application/rss+xml" title="RSS Feed for Andrius Kairiukstis's Blog" href="/feed.xml" />
 
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="/css/pixyll.css?202006200848" type="text/css">
+    <link rel="stylesheet" href="/css/pixyll.css?202401052041" type="text/css">
 
     <!-- Fonts -->
     
-    <link href='//fonts.googleapis.com/css?family=Merriweather:900,900italic,300,300italic&amp;subset=latin-ext,latin' rel='stylesheet' type='text/css'>
-    <link href='//fonts.googleapis.com/css?family=Lato:900,300&amp;subset=latin-ext,latin' rel='stylesheet' type='text/css'>
+    <link href='//fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,300;0,900;1,300;1,900' rel='stylesheet' type='text/css'>
+    <link href='//fonts.googleapis.com/css2?family=Lato:ital,wght@0,300;0,900;1,300;1,900' rel='stylesheet' type='text/css'>
+    <link href='//fonts.googleapis.com/css2?family=Inconsolata:wght@500' rel='stylesheet' type='text/css'>
     
     
-      <link href="//maxcdn.bootstrapcdn.com/font-awesome/latest/css/font-awesome.min.css" rel="stylesheet">
+      <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
     
 
     <!-- MathJax -->
@@ -41,12 +43,12 @@
     <!-- From: https://github.com/mmistakes/hpstr-jekyll-theme/blob/master/_includes/head.html -->
     <meta property="og:locale" content="en_US">
     <meta property="og:type" content="article">
-    <meta property="og:title" content="Perfect results (SIP TCP vs UDP)">
-    <meta property="og:description" content="Realtime voice applications. Notes about Unified Communications, CTI, call-centers; open-source VoIP (Asterisk, Freeswitch, Kamailio); with test automation, and scaled container (docker) apps.">
+    <meta property="og:title" content="SIP TCP vs UDP with mobile client: awesome results">
+    <meta property="og:description" content="This blog explores the realm of real-time voice applications, covering topics such as Unified Communications, CTI, and call centers. It also discusses open-source VoIP solutions like Asterisk, Freeswitch, and Kamailio, highlighting their features and benefits. Additionally, the blog touches upon automations, integrations, test automation, and the scalability of containerized applications using Docker, along with DevOps practices.">
     <meta property="og:url" content="//andrius.mobi/2013/04/perfect-results-sip-tcp-vs-udp.html">
-    <meta property="og:site_name" content="Voice Applications">
+    <meta property="og:site_name" content="Andrius Kairiukstis&apos;s Blog">
     
-    <meta property="og:image" content="//andrius.mobi/images/me.jpeg">
+    <meta property="og:image" content="//andrius.mobi/images/me.png">
     
 
     <!-- Twitter Card -->
@@ -55,11 +57,11 @@
         <meta name="twitter:site" content="@andrius_kai" />
         <meta name="twitter:creator" content="@andrius_kai" />
     
-    <meta name="twitter:title" content="Perfect results (SIP TCP vs UDP)" />
-    <meta name="twitter:description" content="Realtime voice applications. Notes about Unified Communications, CTI, call-centers; open-source VoIP (Asterisk, Freeswitch, Kamailio); with test automation, and scaled container (docker) apps." />
+    <meta name="twitter:title" content="SIP TCP vs UDP with mobile client: awesome results" />
+    <meta name="twitter:description" content="This blog explores the realm of real-time voice applications, covering topics such as Unified Communications, CTI, and call centers. It also discusses open-source VoIP solutions like Asterisk, Freeswitch, and Kamailio, highlighting their features and benefits. Additionally, the blog touches upon automations, integrations, test automation, and the scalability of containerized applications using Docker, along with DevOps practices." />
     <meta name="twitter:url" content="//andrius.mobi/2013/04/perfect-results-sip-tcp-vs-udp.html" />
     
-    <meta name="twitter:image" content="//andrius.mobi/images/me.jpeg" />
+    <meta name="twitter:image" content="//andrius.mobi/images/me.png" />
     
 
     <!-- Icons -->
@@ -85,7 +87,7 @@
        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
        })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
-       ga('create', 'UA-38523949-3', 'auto');
+       ga('create', 'G-X2C9W2TP16', 'auto');
        ga('send', 'pageview');
     </script>
     
@@ -99,61 +101,34 @@
     <header class="site-header px2 px-responsive">
   <div class="mt2 wrap">
     <div class="measure">
-      <a href="/" class="site-title">Voice Applications</a>
+      <a href="/" class="site-title">Andrius Kairiukstis's Blog</a>
       <nav class="site-nav">
         
 
 
 
-
+    
+    
+    
+    
+        <a class="nav-link" href="/contact/">Contact me</a>
     
 
     
 
-
-
-
-    
-
-    
-
-
-
+<a class="fa-solid fa-rss" href="/feed.xml"></a>
 
       </nav>
       <div class="clearfix"></div>
       
         <div class="social-icons">
   <div class="social-icons-right">
-    
-      <a class="fa fa-github" href="https://github.com/andrius"></a>
-    
-    
-    
-    
-    
-      <a class="fa fa-twitter" href="https://twitter.com/andrius_kai"></a>
-    
-    
-    
-    
-      <a class="fa fa-linkedin" href="https://www.linkedin.com/in/andrius-kairiukstis"></a>
-    
-    
-    
-    
-      <a class="fa fa-telegram" href="https://t.me/andrius_kai"></a>
-    
-    
-    
-      <a class="fa fa-whatsapp" href="https://wa.me/34652299183"></a>
-    
-    
-  </div>
-  <div class="right">
-    
-    
-    
+    <a class="fa-brands fa-github" href="https://github.com/andrius"></a>
+    <a class="fa-brands fa-square-x-twitter" href="https://x.com/andrius_kai"></a>
+    <!-- a class="fa-brands fa-mastodon" href="//mastodon.social/@andrius_kai"></a -->
+    <a class="fa-brands fa-linkedin" href="https://www.linkedin.com/in/andrius-kairiukstis"></a>
+    <a class="fa-brands fa-telegram" href="https://t.me/andrius_kai"></a>
+    <a class="fa-brands fa-whatsapp" href="https://wa.me/34652299183"></a>
   </div>
 </div>
 <div class="clearfix"></div>
@@ -170,7 +145,7 @@
 
 
 <div class="post-header mb2">
-  <h1>Perfect results (SIP TCP vs UDP)</h1>
+  <h1>SIP TCP vs UDP with mobile client: awesome results</h1>
   <span class="post-meta">Apr 2, 2013</span><br>
   
   <span class="post-meta small">
@@ -181,7 +156,10 @@
 </div>
 
 <article class="post-content">
-  <div dir="ltr" style="text-align: left;" trbidi="on">Yes, I knew that TCP is better for mobile VoIP, battery consumption is better, but I did not knew HOW BETTER!<br />Yesterday I have replaced UDP to TCP at my Android softphone (Bria) and... Usually by&nbsp;this&nbsp;time (2:20 PM), my cellphone battery has 50% charge and now it is 88 percent.<br /><br />Voice quality... I do not feel any difference.</div>
+  <p>Yes, I knew that TCP is better for mobile VoIP in terms of battery consumption, but I didn’t know how much better it would be! Yesterday, I replaced UDP with TCP on my Android softphone (Bria) and… Usually by this time (2:20 PM), my cellphone battery would be at 50% charge, but now it’s at 88 percent.</p>
+
+<p>As for voice quality, I don’t notice any difference.</p>
+
 </article>
 
 
@@ -193,7 +171,7 @@
   <script type="text/javascript">
     var disqus_shortname  = 'andrius-mobi';
     var disqus_identifier = '/2013/04/perfect-results-sip-tcp-vs-udp';
-    var disqus_title      = "Perfect results (SIP TCP vs UDP)";
+    var disqus_title      = "SIP TCP vs UDP with mobile client: awesome results";
 
     (function() {
       var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
@@ -201,7 +179,7 @@
       (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
     })();
   </script>
-  <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+  <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
 
 
 
@@ -215,8 +193,8 @@
   <footer class="center">
   <div class="measure">
     <small>
-      Content by Andrius Kairiukstis.<br>
-      Jekyll site based on <a href="https://github.com/johno/pixyll">Pixyll theme</a>.
+      Copyright (c) by <a href="/contact/">Andrius Kairiukstis</a>.</br>
+      This Jekyll site is based on the <a href="https://github.com/johno/pixyll">Pixyll theme</a>.
     </small>
   </div>
 </footer>
@@ -225,6 +203,11 @@
 <script>
     anchors.options.visible = 'always';
     anchors.add('article h2, article h3, article h4, article h5, article h6');
+</script>
+<script type="text/javascript">
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("/sw.js")
+    }
 </script>
 
 </body>

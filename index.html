@@ -4,30 +4,32 @@
     
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>Voice Applications</title>
+    <title>Andrius Kairiukstis's Blog</title>
     <link rel="dns-prefetch" href="//fonts.googleapis.com">
     <link rel="dns-prefetch" href="//fonts.gstatic.com">
     <link rel="dns-prefetch" href="//maxcdn.bootstrapcdn.com">
     <link rel="dns-prefetch" href="//cdnjs.cloudflare.com">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="Realtime voice applications. Notes about Unified Communications, CTI, call-centers; open-source VoIP (Asterisk, Freeswitch, Kamailio); with test automation, and scaled container (docker) apps.">
+    <meta name="description" content="This blog explores the realm of real-time voice applications, covering topics such as Unified Communications, CTI, and call centers. It also discusses open-source VoIP solutions like Asterisk, Freeswitch, and Kamailio, highlighting their features and benefits. Additionally, the blog touches upon automations, integrations, test automation, and the scalability of containerized applications using Docker, along with DevOps practices.">
+    <link rel="manifest" type="application/manifest+json; charset=utf-8" href="/manifest.json" />
     <meta name="robots" content="all">
     <meta name="author" content="Andrius Kairiukstis">
     <meta property="fb:pages" content="ctiapps" />
     
     <link rel="canonical" href="//andrius.mobi/">
-    <link rel="alternate" type="application/rss+xml" title="RSS Feed for Voice Applications" href="/feed.xml" />
+    <link rel="alternate" type="application/rss+xml" title="RSS Feed for Andrius Kairiukstis's Blog" href="/feed.xml" />
 
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="/css/pixyll.css?202006200848" type="text/css">
+    <link rel="stylesheet" href="/css/pixyll.css?202401052041" type="text/css">
 
     <!-- Fonts -->
     
-    <link href='//fonts.googleapis.com/css?family=Merriweather:900,900italic,300,300italic&amp;subset=latin-ext,latin' rel='stylesheet' type='text/css'>
-    <link href='//fonts.googleapis.com/css?family=Lato:900,300&amp;subset=latin-ext,latin' rel='stylesheet' type='text/css'>
+    <link href='//fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,300;0,900;1,300;1,900' rel='stylesheet' type='text/css'>
+    <link href='//fonts.googleapis.com/css2?family=Lato:ital,wght@0,300;0,900;1,300;1,900' rel='stylesheet' type='text/css'>
+    <link href='//fonts.googleapis.com/css2?family=Inconsolata:wght@500' rel='stylesheet' type='text/css'>
     
     
-      <link href="//maxcdn.bootstrapcdn.com/font-awesome/latest/css/font-awesome.min.css" rel="stylesheet">
+      <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
     
 
     <!-- MathJax -->
@@ -41,12 +43,12 @@
     <!-- From: https://github.com/mmistakes/hpstr-jekyll-theme/blob/master/_includes/head.html -->
     <meta property="og:locale" content="en_US">
     <meta property="og:type" content="article">
-    <meta property="og:title" content="Voice Applications">
-    <meta property="og:description" content="Realtime voice applications. Notes about Unified Communications, CTI, call-centers; open-source VoIP (Asterisk, Freeswitch, Kamailio); with test automation, and scaled container (docker) apps.">
+    <meta property="og:title" content="Andrius Kairiukstis&apos;s Blog">
+    <meta property="og:description" content="This blog explores the realm of real-time voice applications, covering topics such as Unified Communications, CTI, and call centers. It also discusses open-source VoIP solutions like Asterisk, Freeswitch, and Kamailio, highlighting their features and benefits. Additionally, the blog touches upon automations, integrations, test automation, and the scalability of containerized applications using Docker, along with DevOps practices.">
     <meta property="og:url" content="//andrius.mobi/">
-    <meta property="og:site_name" content="Voice Applications">
+    <meta property="og:site_name" content="Andrius Kairiukstis&apos;s Blog">
     
-    <meta property="og:image" content="//andrius.mobi/images/me.jpeg">
+    <meta property="og:image" content="//andrius.mobi/images/me.png">
     
 
     <!-- Twitter Card -->
@@ -55,11 +57,11 @@
         <meta name="twitter:site" content="@andrius_kai" />
         <meta name="twitter:creator" content="@andrius_kai" />
     
-    <meta name="twitter:title" content="Voice Applications" />
-    <meta name="twitter:description" content="Realtime voice applications. Notes about Unified Communications, CTI, call-centers; open-source VoIP (Asterisk, Freeswitch, Kamailio); with test automation, and scaled container (docker) apps." />
+    <meta name="twitter:title" content="Andrius Kairiukstis's Blog" />
+    <meta name="twitter:description" content="This blog explores the realm of real-time voice applications, covering topics such as Unified Communications, CTI, and call centers. It also discusses open-source VoIP solutions like Asterisk, Freeswitch, and Kamailio, highlighting their features and benefits. Additionally, the blog touches upon automations, integrations, test automation, and the scalability of containerized applications using Docker, along with DevOps practices." />
     <meta name="twitter:url" content="//andrius.mobi/" />
     
-    <meta name="twitter:image" content="//andrius.mobi/images/me.jpeg" />
+    <meta name="twitter:image" content="//andrius.mobi/images/me.png" />
     
 
     <!-- Icons -->
@@ -85,7 +87,7 @@
        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
        })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
-       ga('create', 'UA-38523949-3', 'auto');
+       ga('create', 'G-X2C9W2TP16', 'auto');
        ga('send', 'pageview');
     </script>
     
@@ -99,61 +101,34 @@
     <header class="site-header px2 px-responsive">
   <div class="mt2 wrap">
     <div class="measure">
-      <a href="/" class="site-title">Voice Applications</a>
+      <a href="/" class="site-title">Andrius Kairiukstis's Blog</a>
       <nav class="site-nav">
         
 
 
 
-
+    
+    
+    
+    
+        <a class="nav-link" href="/contact/">Contact me</a>
     
 
     
 
-
-
-
-    
-
-    
-
-
-
+<a class="fa-solid fa-rss" href="/feed.xml"></a>
 
       </nav>
       <div class="clearfix"></div>
       
         <div class="social-icons">
   <div class="social-icons-right">
-    
-      <a class="fa fa-github" href="https://github.com/andrius"></a>
-    
-    
-    
-    
-    
-      <a class="fa fa-twitter" href="https://twitter.com/andrius_kai"></a>
-    
-    
-    
-    
-      <a class="fa fa-linkedin" href="https://www.linkedin.com/in/andrius-kairiukstis"></a>
-    
-    
-    
-    
-      <a class="fa fa-telegram" href="https://t.me/andrius_kai"></a>
-    
-    
-    
-      <a class="fa fa-whatsapp" href="https://wa.me/34652299183"></a>
-    
-    
-  </div>
-  <div class="right">
-    
-    
-    
+    <a class="fa-brands fa-github" href="https://github.com/andrius"></a>
+    <a class="fa-brands fa-square-x-twitter" href="https://x.com/andrius_kai"></a>
+    <!-- a class="fa-brands fa-mastodon" href="//mastodon.social/@andrius_kai"></a -->
+    <a class="fa-brands fa-linkedin" href="https://www.linkedin.com/in/andrius-kairiukstis"></a>
+    <a class="fa-brands fa-telegram" href="https://t.me/andrius_kai"></a>
+    <a class="fa-brands fa-whatsapp" href="https://wa.me/34652299183"></a>
   </div>
 </div>
 <div class="clearfix"></div>
@@ -175,15 +150,41 @@
         <div class="post py3">
           <p class="post-meta">
 	    
+	      Jul 8, 2023
+	    
+	  </p>
+          <a href="/2023/07/register-sip-account-and-receive-calls-with-twilio.html" class="post-link"><h3 class="h1 post-title">Register SIP account and receive calls with Twilio</h3></a>
+          <span class="post-summary">
+            
+              How to register your SIP softphone and receive inbound calls using Twilio
+            
+          </span>
+        </div>
+      
+        <div class="post py3">
+          <p class="post-meta">
+	    
+	      Nov 3, 2019
+	    
+	  </p>
+          <a href="/2019/11/properly-terminate-crystal-lang-service-in-docker.html" class="post-link"><h3 class="h1 post-title">Properly terminate crystal-lang service in docker</h3></a>
+          <span class="post-summary">
+            
+              How to handle signals and properly terminate docker service written with the Crystal-lang.
+            
+          </span>
+        </div>
+      
+        <div class="post py3">
+          <p class="post-meta">
+	    
 	      Oct 25, 2019
 	    
 	  </p>
           <a href="/2019/10/Create-the-smallest-Crystal-lang-docker-image-based-on-scratch.html" class="post-link"><h3 class="h1 post-title">Create the smallest Crystal-lang docker image based on scratch</h3></a>
           <span class="post-summary">
             
-              <p>Official <a href="https://hub.docker.com/r/crystallang/crystal/tags">Crystal-lang docker image</a> is Ubuntu-based and relatively big, but production-ready image could be tiny, if we will use docker multi-stage builds. The smallest image could be created using <a href="https://hub.docker.com/_/scratch">scratch</a> image, but if it’s needed to do some processing before actual code starts, <a href="https://hub.docker.com/_/busybox">busybox</a> or <a href="https://hub.docker.com/_/alpine">alpine</a> is recommended.</p>
-
-
+              How to use docker multi-stage builds to create a smallest by size Crystal-lang docker image.
             
           </span>
         </div>
@@ -197,9 +198,7 @@
           <a href="/2019/10/all-in-one-asterisk-with-crysyal.html" class="post-link"><h3 class="h1 post-title">All-in-one (Crystal-lang library that handle all the Asterisk PBX interfaces)</h3></a>
           <span class="post-summary">
             
-              <p>I’ve created and open-sourced a Crystal-lang shard (library) that handle all the Asterisk PBX interfaces (ARI, AMI and all types of AGI). Get it here: <a href="https://github.com/ctiapps/asterisk">https://github.com/ctiapps/asterisk</a>.</p>
-
-
+              I've created and open-sourced a Crystal-lang shard (library) that handle all the Asterisk PBX interfaces (ARI, AMI and all types of AGI).
             
           </span>
         </div>
@@ -213,9 +212,7 @@
           <a href="/2018/12/how-to-install-software-on-firewalled-server.html" class="post-link"><h3 class="h1 post-title">How to install software on firewalled server</h3></a>
           <span class="post-summary">
             
-              <p>Quick answer: Reverse SSH proxy. Create dynamic tunnel: <code class="highlighter-rouge">ssh -D 51010 localhost</code>, ssh to the remote machine: <code class="highlighter-rouge">ssh -R 51010:127.0.0.1:51010 firewalled-server</code> and install the software using proxychains command.</p>
-
-
+              How to use a reverse SSH proxy to install software on a server with outbound firewalls (gray zone ;) )
             
           </span>
         </div>
@@ -229,9 +226,7 @@
           <a href="/2018/12/digital-ocean-floating-ip-and-voip.html" class="post-link"><h3 class="h1 post-title">Digital Ocean, Floating IP and VoIP</h3></a>
           <span class="post-summary">
             
-              <p>Digital Ocean (<a href="https://m.do.co/c/492078597684">here is an referral link, claim your $100 credit</a>) were introduced <a href="https://www.digitalocean.com/docs/networking/floating-ips/overview/">floating IP</a> in the 2015, but I never use it with VoIP. Time to fix it.</p>
-
-
+              How to configure Digital Ocean's floating IP with VoIP, specifically with Asterisk, with Docker!
             
           </span>
         </div>
@@ -256,10 +251,10 @@
 	      Aug 8, 2014
 	    
 	  </p>
-          <a href="/2014/08/asterisk-opus-patch-for-11110.html" class="post-link"><h3 class="h1 post-title">Asterisk OPUS patch for 11.11.0</h3></a>
+          <a href="/2014/08/asterisk-opus-patch-for-11110.html" class="post-link"><h3 class="h1 post-title">Updated OPUS codec patch that supports Asterisk 11.11.0 and 12.2.5</h3></a>
           <span class="post-summary">
             
-              <p>Released updated patch, now it supports Asterisk 11.11.0 and 12.2.5. With VP8 in pass-through mode, tested — it works well. <a href="https://github.com/andrius/asterisk-opus">Get it here!</a></p>
+              <p>I have updated the OPUS codec patch that now supports Asterisk 11.11.0 and 12.2.5. I have tested it with VP8 in pass-through mode, and it works well. You can <a href="https://github.com/andrius/asterisk-opus">download it here</a>!</p>
 
             
           </span>
@@ -274,25 +269,7 @@
           <a href="/2013/07/webrtc-with-asterisk-11.html" class="post-link"><h3 class="h1 post-title">WebRTC with Asterisk 11?</h3></a>
           <span class="post-summary">
             
-              <p>Tonight I have tried two WebRTC clients (<a href="http://jssip.net/">JsSIP</a> and <a href="http://sipml5.org/">sipML5</a>) with Asterisk 11 and get both of them working — echo test calls with ulaw (g711u) codec works, but with one-way audio if I call from WebRTC to the SIP softphone.</p>
-
-
-            
-          </span>
-        </div>
-      
-        <div class="post py3">
-          <p class="post-meta">
-	    
-	      May 27, 2013
-	    
-	  </p>
-          <a href="/2013/05/opus-and-vp8-in-asterisk-11.html" class="post-link"><h3 class="h1 post-title">Opus and VP8 in Asterisk 11 (Experimental support)</h3></a>
-          <span class="post-summary">
-            
-              <p>Great news! Meetecho just introduced experimental OPUS support in Asterisk 11. <a href="https://github.com/meetecho/asterisk-opus">https://github.com/meetecho/asterisk-opus</a>  Time to test it with WebRTC!</p>
-
-
+              Tonight, I tried two WebRTC clients (JsSIP and sipML5) with Asterisk 11. I was able to get both of them working for echo test calls with the ulaw (g711u) codec. However, when I called from WebRTC to the SIP softphone, there was only one-way audio.
             
           </span>
         </div>
@@ -306,7 +283,7 @@
           <a href="/2013/05/roaming-pbx-update.html" class="post-link"><h3 class="h1 post-title">Roaming PBX update</h3></a>
           <span class="post-summary">
             
-              What's new: Asterisk 11.4 / SILK codec / Watchdog, so Raspberry Pi board works better.
+              What's new: Asterisk 11.4,  SILK codec,  watchdog to improve Raspberry Pi board performance and prevent deadlocks.
             
           </span>
         </div>
@@ -317,42 +294,10 @@
 	      May 7, 2013
 	    
 	  </p>
-          <a href="/2013/05/roaming-pbx-first-release.html" class="post-link"><h3 class="h1 post-title">Roaming PBX – first release</h3></a>
+          <a href="/2013/05/roaming-pbx-first-release.html" class="post-link"><h3 class="h1 post-title">First release of Roaming PBX</h3></a>
           <span class="post-summary">
             
-              Today I have baked latest image (containing&nbsp;ruby, pcapsipdump, asterisk, silk codec).
-Because it is still a bit alpha, I was created shorted URL, download link, containing latest image: [j.mp/tinypbx](//j.mp/tinypbx).
-
-
-            
-          </span>
-        </div>
-      
-        <div class="post py3">
-          <p class="post-meta">
-	    
-	      May 6, 2013
-	    
-	  </p>
-          <a href="/2013/05/roaming-pbx-first-edition.html" class="post-link"><h3 class="h1 post-title">Roaming PBX, first edition</h3></a>
-          <span class="post-summary">
-            
-              <div dir="ltr" style="text-align: left;" trbidi="on">Today I spent all day compiling various images of Roaming PBX. I am minimalist and perfectionist at same time – not always, but often, what slowing my work progress sometimes. Do not like to keep unfinished stuff.<br /><br />Currently image was compiled, I removed GUI from it (just for now). Some tests... And it will be ready... hope in few hours! Instructions will follow.<br /><br />Download link, containing latest image:&nbsp;<a href="http://j.mp/tinypbx">http://j.mp/tinypbx</a>). Standard flashing instructions: gunzip .gz file, insert SD card, flash with Linux DD command... <a href="http://www.andrewmunsell.com/blog/getting-started-raspberry-pi-install-raspbian/" target="_blank">This site</a> for example, describing flashing procedure well.<br /><br /></div>
-
-            
-          </span>
-        </div>
-      
-        <div class="post py3">
-          <p class="post-meta">
-	    
-	      May 4, 2013
-	    
-	  </p>
-          <a href="/2013/05/silk-notes-on-arm-devices.html" class="post-link"><h3 class="h1 post-title">SILK notes on ARM devices</h3></a>
-          <span class="post-summary">
-            
-              <div dir="ltr" style="text-align: left;" trbidi="on">... worth to read:<br /><a href="https://github.com/mordak/codec_silk/issues/2">https://github.com/mordak/codec_silk/issues/2</a><br /><br /></div>
+              Today, I created the latest image that includes Ruby, pcapsipdump, Asterisk PBX, and the SILK codec. Although it is still in the alpha stage, it is ready for testing.
             
           </span>
         </div>
@@ -366,9 +311,7 @@ Because it is still a bit alpha, I was created shorted URL, download link, conta
           <a href="/2013/04/creating-own-image-for-raspberry-pi.html" class="post-link"><h3 class="h1 post-title">Creating your own custom image for Raspberry Pi</h3></a>
           <span class="post-summary">
             
-              <p>I wanted to create image builder for cross-compile environment, so say hello to it: <a href="//github.com/andrius/build-raspbian-image">https://github.com/andrius/build-raspbian-image</a>.</p>
-
-
+              How to cross-compile a custom Raspberry Pi image and to build custom Asterisk PBX installation.
             
           </span>
         </div>
@@ -379,10 +322,12 @@ Because it is still a bit alpha, I was created shorted URL, download link, conta
 	      Apr 2, 2013
 	    
 	  </p>
-          <a href="/2013/04/perfect-results-sip-tcp-vs-udp.html" class="post-link"><h3 class="h1 post-title">Perfect results (SIP TCP vs UDP)</h3></a>
+          <a href="/2013/04/perfect-results-sip-tcp-vs-udp.html" class="post-link"><h3 class="h1 post-title">SIP TCP vs UDP with mobile client: awesome results</h3></a>
           <span class="post-summary">
             
-              <div dir="ltr" style="text-align: left;" trbidi="on">Yes, I knew that TCP is better for mobile VoIP, battery consumption is better, but I did not knew HOW BETTER!<br />Yesterday I have replaced UDP to TCP at my Android softphone (Bria) and... Usually by&nbsp;this&nbsp;time (2:20 PM), my cellphone battery has 50% charge and now it is 88 percent.<br /><br />Voice quality... I do not feel any difference.</div>
+              <p>Yes, I knew that TCP is better for mobile VoIP in terms of battery consumption, but I didn’t know how much better it would be! Yesterday, I replaced UDP with TCP on my Android softphone (Bria) and… Usually by this time (2:20 PM), my cellphone battery would be at 50% charge, but now it’s at 88 percent.</p>
+
+
             
           </span>
         </div>
@@ -393,12 +338,10 @@ Because it is still a bit alpha, I was created shorted URL, download link, conta
 	      Mar 22, 2013
 	    
 	  </p>
-          <a href="/2013/03/raspberry-pi-how-to-create-own-image.html" class="post-link"><h3 class="h1 post-title">Raspberry Pi - how to create your own image</h3></a>
+          <a href="/2013/03/raspberry-pi-how-to-create-own-image.html" class="post-link"><h3 class="h1 post-title">Raspberry Pi: how to create your own image</h3></a>
           <span class="post-summary">
             
-              <p>Currently I do developing my own Roaming VoIP PBX as a Rasbbrry Pi image, and have to rebuild project packages often. It is not best idea to compile packages right on Raspberry Pi. That would take hours. I was searching for a tool that can create image base — on my laptop or VPS.</p>
-
-
+              Currently I do developing my own Roaming VoIP PBX as a Raspberry Pi image, and have to rebuild project packages often. It is not best idea to compile packages right on Raspberry Pi. That would take hours. I was searching for a tool that can create image base - on my laptop or VPS.
             
           </span>
         </div>
@@ -412,11 +355,7 @@ Because it is still a bit alpha, I was created shorted URL, download link, conta
           <a href="/2013/03/asterisk-with-silk8-and-amr-nb-codecs.html" class="post-link"><h3 class="h1 post-title">Asterisk with silk8 and amr-nb codecs</h3></a>
           <span class="post-summary">
             
-              <p>As part of lab-project (roaming PBX), I’ve compiled SILK and AMR codecs for Asterisk. AMR by googling and researching and SILK following instructions <a href="https://github.com/mordak/codec_silk">in this repository: https://github.com/mordak/codec_silk</a>.</p>
-<h2 id="update-20-march-2013">Update (20 March, 2013)</h2>
-<p>Tested SILK8 (SILK-NB) on Android (with CSIPSimple and Bria) – it does not work well, quality is not fantastic definitaly. Have tried both versions: compiled by myself and official Digium SILK codec.</p>
-
-
+              How to get Asterisk PBX working with SILK and AMR-NB codecs.
             
           </span>
         </div>
@@ -427,10 +366,10 @@ Because it is still a bit alpha, I was created shorted URL, download link, conta
 	      Mar 14, 2013
 	    
 	  </p>
-          <a href="/2013/03/debian-installer-asterisk-and-agi.html" class="post-link"><h3 class="h1 post-title">Debian installer (Asterisk and AGI library)</h3></a>
+          <a href="/2013/03/debian-installer-asterisk-and-agi.html" class="post-link"><h3 class="h1 post-title">Debian installer (Asterisk and Adhearsion AGI framework)</h3></a>
           <span class="post-summary">
             
-              <div dir="ltr" style="text-align: left;" trbidi="on">Sharing a script, which installs Asterisk PBX with fax support, MySQL, Ruby, Adhearsion AGI. Run it as root. Remove ImageMagick part (download and install) in case, if you don't need it.  <script src="https://gist.github.com/andrius/5166099.js"></script></div>
+              Here is a script that installs Asterisk PBX 11.x: with fax support, MySQL, Ruby, and Adhearsion AGI.
             
           </span>
         </div>
@@ -441,12 +380,10 @@ Because it is still a bit alpha, I was created shorted URL, download link, conta
 	      Mar 12, 2013
 	    
 	  </p>
-          <a href="/2013/03/roaming-solution-based-on-raspberry-pi-asterisk-chandongle-as.html" class="post-link"><h3 class="h1 post-title">Roaming PBX with Raspberry Pi, Asterisk and chan_dongle</h3></a>
+          <a href="/2013/03/roaming-solution-based-on-raspberry-pi-asterisk-chan_dongle.html" class="post-link"><h3 class="h1 post-title">Roaming PBX with Raspberry Pi, Asterisk and chan_dongle</h3></a>
           <span class="post-summary">
             
-              <p>As an frequent tralveller, I well understand the needs of another travelers and citizens of the world in telecommunications ;) While ago I’ve decided to spent my free time building Roaming PBX solution.</p>
-
-
+              As a frequent traveler, I understand the telecommunications needs of other travelers and citizens of the world. Recently, I decided to dedicate my free time to building a Roaming PBX solution.
             
           </span>
         </div>
@@ -457,10 +394,10 @@ Because it is still a bit alpha, I was created shorted URL, download link, conta
 	      Mar 12, 2013
 	    
 	  </p>
-          <a href="/2013/03/why-create-agi.html" class="post-link"><h3 class="h1 post-title">Why create AGI?</h3></a>
+          <a href="/2013/03/why-create-agi.html" class="post-link"><h3 class="h1 post-title">Why you should create AGI?</h3></a>
           <span class="post-summary">
             
-              <div dir="ltr" style="text-align: left;" trbidi="on">Asterisk dial-plan is powerful, and possible to create a number of custom voice applications only with its functions... AEL looks like high-level language, of course, it is just a view of standard expressions, same as in extensions.conf, but.<br />You can manipulate database data through func_odbc, you can call a Linux system script and process result, in case if you want to send a notice about event to a web application, you can use a curl function.<br />No problem to send out email or jabber/google talk notification...<br /><br />So, why and when you should use AGI? I believe, correct answers are:<br /><ul style="text-align: left;"><li>Dial-plan is complex, you have a growing amount of huge&nbsp;macros&nbsp;and contexts;</li><li>System are hosted or cluster with various customers with different needs and functions;</li><li>You do integration with another application or web app and have to process inbound events (and send outbound);</li><li>Want to create an API to support 3rd apps;</li><li>Application API of another application;</li><li>And most important – database is a core part of application and should access data permanently.</li></ul><div>There are many reasons too, but basically it is good to always keep in mind a <a href="http://en.wikipedia.org/wiki/KISS_principle" target="_blank">KISS principle</a>. If task can be resolved without using AGI, do that and use dial-plan. If dial-plan call a lot of external shell scripts – create AGI app.</div></div>
+              In the world of Asterisk, the dial-plan is a powerful tool for creating custom voice applications. However, there are situations where using AGI (Asterisk Gateway Interface) is preferred. This article explores the reasons why AGI can be a valuable addition to your Asterisk system.
             
           </span>
         </div>
@@ -471,12 +408,108 @@ Because it is still a bit alpha, I was created shorted URL, download link, conta
 	      Mar 10, 2013
 	    
 	  </p>
-          <a href="/2013/03/your-own-click-to-call-with-asterisk.html" class="post-link"><h3 class="h1 post-title">Click-to-call script</h3></a>
+          <a href="/2013/03/your-own-click-to-call-with-asterisk.html" class="post-link"><h3 class="h1 post-title">Click-to-call script for Windows users</h3></a>
           <span class="post-summary">
             
-              <p>Sharing one my ancient projects with Asterisk: click-to-call library with client and server part. Windows user could activate <code class="highlighter-rouge">callto.rb</code> script, the customer just integrated it with their CRM application; after user start script, his SIP phone rings. Here it is: <a href="https://github.com/andrius/asterisk-click-to-call-windows">https://github.com/andrius/asterisk-click-to-call-windows</a>.</p>
-
-
+              Sharing one of my older projects with Asterisk: a click-to-call library with client and server components. It does work with Windows!
+            
+          </span>
+        </div>
+      
+        <div class="post py3">
+          <p class="post-meta">
+	    
+	      Mar 9, 2013
+	    
+	  </p>
+          <a href="/2013/03/how-to-unlock-huawei-modem.html" class="post-link"><h3 class="h1 post-title">How to unlock Huawei modem</h3></a>
+          <span class="post-summary">
+            
+              After my last post about the GSM gateway based on Raspberry Pi and Huawei modem, I received a few questions asking how to unlock it. Below is a YouTube video that describes the process.
+            
+          </span>
+        </div>
+      
+        <div class="post py3">
+          <p class="post-meta">
+	    
+	      Mar 5, 2013
+	    
+	  </p>
+          <a href="/2013/03/asterisk-on-raspberry-pi-as-gsm-gateway.html" class="post-link"><h3 class="h1 post-title">Asterisk on Raspberry Pi as GSM gateway</h3></a>
+          <span class="post-summary">
+            
+              Yesterday, I installed chan_dongle for my Asterisk PBX running on Raspberry Pi. chan_dongle is a driver that enables the use of Huawei 3G USB dongles as a voice "board" for handling voice, SMS, and USSD. I conducted extensive research on various topics and summarized everything in a document. Additionally, I provided useful links related to Asterisk CLI commands, troubleshooting Huawei modems, and additional resources for chan_dongle.
+            
+          </span>
+        </div>
+      
+        <div class="post py3">
+          <p class="post-meta">
+	    
+	      Feb 22, 2013
+	    
+	  </p>
+          <a href="/2013/02/time-based-conditions-in-agi-application.html" class="post-link"><h3 class="h1 post-title">Time based conditions in voice application</h3></a>
+          <span class="post-summary">
+            
+              The typical telephony system processes incoming call flows based on different times. Customers want to have control over this and handle time ranges. The platform can also be a multi-tenant server with different virtual PBXes. In my implementation, I use Ruby, ActiveRecord, and polymorphic associations to create routing blocks. By reusing polymorphic database associations, I can create flexible call flow building blocks. These blocks can be linked to any voice-related entity in a PBX, such as an extension, voicemail, conference, etc. This enables customizable and dynamic call handling based on time conditions.
+            
+          </span>
+        </div>
+      
+        <div class="post py3">
+          <p class="post-meta">
+	    
+	      Feb 22, 2013
+	    
+	  </p>
+          <a href="/2013/02/delete-voice-recordings-older-than-n-days.html" class="post-link"><h3 class="h1 post-title">Delete voice recordings older than N-days</h3></a>
+          <span class="post-summary">
+            
+              Disk space running out fast in loaded telephony systems with instant call recording  or either with heavy usage of voicemail. It's good to purge them on regular basis.
+            
+          </span>
+        </div>
+      
+        <div class="post py3">
+          <p class="post-meta">
+	    
+	      Feb 12, 2013
+	    
+	  </p>
+          <a href="/2013/02/questionnaire-with-asterisk-pbx-agi-ruby.html" class="post-link"><h3 class="h1 post-title">Questionnaire application with Asterisk PBX AGI + Ruby</h3></a>
+          <span class="post-summary">
+            
+              The Questionnaire application, based on the AsteriskRuby gem, is a production-ready system that was developed a while ago for a small project. Now, I want to share it with the VoIP community. The application provides caller authentication, prompts for a PIN code, and continues from the last unanswered question for returning callers, storing answers and call records in the database.
+            
+          </span>
+        </div>
+      
+        <div class="post py3">
+          <p class="post-meta">
+	    
+	      Feb 5, 2013
+	    
+	  </p>
+          <a href="/2013/02/telephony-system-for-remote-locations.html" class="post-link"><h3 class="h1 post-title">Telephony system for remote locations</h3></a>
+          <span class="post-summary">
+            
+              How to build a telecommunication system to keep you connected globally while maintaining a good price/quality/flexibility balance. The components include a VoIP server, prepaid SIM card, and DID phone number for low-cost or zero-cost calls.
+            
+          </span>
+        </div>
+      
+        <div class="post py3">
+          <p class="post-meta">
+	    
+	      Feb 2, 2013
+	    
+	  </p>
+          <a href="/2013/02/asterisk-agi-sample-in-bash.html" class="post-link"><h3 class="h1 post-title">Asterisk AGI sample in bash</h3></a>
+          <span class="post-summary">
+            
+              The Asterisk PBX AGI sample in Bash is a great option for creating small yet flexible dial plans for embedded devices and more.
             
           </span>
         </div>
@@ -484,20 +517,6 @@ Because it is still a bit alpha, I was created shorted URL, download link, conta
     </div>
 
     
-<div class="pagination clearfix mb1 mt4">
-  <div class="left">
-    
-      <span class="pagination-item disabled">Newer</span>
-    
-  </div>
-  <div class="right">
-    
-      <a class="pagination-item" href="/page2">Older</a>
-    
-  </div>
-  <div class="pagination-meta">Page 1 of 2</div>
-</div>
-
 
   
 </div>
@@ -509,8 +528,8 @@ Because it is still a bit alpha, I was created shorted URL, download link, conta
   <footer class="center">
   <div class="measure">
     <small>
-      Content by Andrius Kairiukstis.<br>
-      Jekyll site based on <a href="https://github.com/johno/pixyll">Pixyll theme</a>.
+      Copyright (c) by <a href="/contact/">Andrius Kairiukstis</a>.</br>
+      This Jekyll site is based on the <a href="https://github.com/johno/pixyll">Pixyll theme</a>.
     </small>
   </div>
 </footer>
@@ -519,6 +538,11 @@ Because it is still a bit alpha, I was created shorted URL, download link, conta
 <script>
     anchors.options.visible = 'always';
     anchors.add('article h2, article h3, article h4, article h5, article h6');
+</script>
+<script type="text/javascript">
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("/sw.js")
+    }
 </script>
 
 </body>

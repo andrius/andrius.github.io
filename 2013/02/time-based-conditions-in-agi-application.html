@@ -4,30 +4,32 @@
     
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>Time based conditions in voice (AGI) application &#8211; Voice Applications</title>
+    <title>Time based conditions in voice application &#8211; Andrius Kairiukstis's Blog</title>
     <link rel="dns-prefetch" href="//fonts.googleapis.com">
     <link rel="dns-prefetch" href="//fonts.gstatic.com">
     <link rel="dns-prefetch" href="//maxcdn.bootstrapcdn.com">
     <link rel="dns-prefetch" href="//cdnjs.cloudflare.com">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="Typical telephony system process incoming call-flow based on different times (and of course customer do want to have control on that, handle time-ranges; also whole platform could be an multi-tenant server with different virtual PBX'es).">
+    <meta name="description" content="The typical telephony system processes incoming call flows based on different times. Customers want to have control over this and handle time ranges. The platform can also be a multi-tenant server with different virtual PBXes. In my implementation, I use Ruby, ActiveRecord, and polymorphic associations to create routing blocks. By reusing polymorphic database associations, I can create flexible call flow building blocks. These blocks can be linked to any voice-related entity in a PBX, such as an extension, voicemail, conference, etc. This enables customizable and dynamic call handling based on time conditions.">
+    <link rel="manifest" type="application/manifest+json; charset=utf-8" href="/manifest.json" />
     <meta name="robots" content="all">
     <meta name="author" content="Andrius Kairiukstis">
     <meta property="fb:pages" content="ctiapps" />
     <meta name="keywords" content="">
     <link rel="canonical" href="//andrius.mobi/2013/02/time-based-conditions-in-agi-application.html">
-    <link rel="alternate" type="application/rss+xml" title="RSS Feed for Voice Applications" href="/feed.xml" />
+    <link rel="alternate" type="application/rss+xml" title="RSS Feed for Andrius Kairiukstis's Blog" href="/feed.xml" />
 
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="/css/pixyll.css?202006200848" type="text/css">
+    <link rel="stylesheet" href="/css/pixyll.css?202401052041" type="text/css">
 
     <!-- Fonts -->
     
-    <link href='//fonts.googleapis.com/css?family=Merriweather:900,900italic,300,300italic&amp;subset=latin-ext,latin' rel='stylesheet' type='text/css'>
-    <link href='//fonts.googleapis.com/css?family=Lato:900,300&amp;subset=latin-ext,latin' rel='stylesheet' type='text/css'>
+    <link href='//fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,300;0,900;1,300;1,900' rel='stylesheet' type='text/css'>
+    <link href='//fonts.googleapis.com/css2?family=Lato:ital,wght@0,300;0,900;1,300;1,900' rel='stylesheet' type='text/css'>
+    <link href='//fonts.googleapis.com/css2?family=Inconsolata:wght@500' rel='stylesheet' type='text/css'>
     
     
-      <link href="//maxcdn.bootstrapcdn.com/font-awesome/latest/css/font-awesome.min.css" rel="stylesheet">
+      <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
     
 
     <!-- MathJax -->
@@ -41,12 +43,12 @@
     <!-- From: https://github.com/mmistakes/hpstr-jekyll-theme/blob/master/_includes/head.html -->
     <meta property="og:locale" content="en_US">
     <meta property="og:type" content="article">
-    <meta property="og:title" content="Time based conditions in voice (AGI) application">
-    <meta property="og:description" content="Realtime voice applications. Notes about Unified Communications, CTI, call-centers; open-source VoIP (Asterisk, Freeswitch, Kamailio); with test automation, and scaled container (docker) apps.">
+    <meta property="og:title" content="Time based conditions in voice application">
+    <meta property="og:description" content="This blog explores the realm of real-time voice applications, covering topics such as Unified Communications, CTI, and call centers. It also discusses open-source VoIP solutions like Asterisk, Freeswitch, and Kamailio, highlighting their features and benefits. Additionally, the blog touches upon automations, integrations, test automation, and the scalability of containerized applications using Docker, along with DevOps practices.">
     <meta property="og:url" content="//andrius.mobi/2013/02/time-based-conditions-in-agi-application.html">
-    <meta property="og:site_name" content="Voice Applications">
+    <meta property="og:site_name" content="Andrius Kairiukstis&apos;s Blog">
     
-    <meta property="og:image" content="//andrius.mobi/images/me.jpeg">
+    <meta property="og:image" content="//andrius.mobi/images/me.png">
     
 
     <!-- Twitter Card -->
@@ -55,11 +57,11 @@
         <meta name="twitter:site" content="@andrius_kai" />
         <meta name="twitter:creator" content="@andrius_kai" />
     
-    <meta name="twitter:title" content="Time based conditions in voice (AGI) application" />
-    <meta name="twitter:description" content="Typical telephony system process incoming call-flow based on different times (and of course customer do want to have control on that, handle time-ranges; also whole platform could be an multi-tenant server with different virtual PBX'es)." />
+    <meta name="twitter:title" content="Time based conditions in voice application" />
+    <meta name="twitter:description" content="The typical telephony system processes incoming call flows based on different times. Customers want to have control over this and handle time ranges. The platform can also be a multi-tenant server with different virtual PBXes. In my implementation, I use Ruby, ActiveRecord, and polymorphic associations to create routing blocks. By reusing polymorphic database associations, I can create flexible call flow building blocks. These blocks can be linked to any voice-related entity in a PBX, such as an extension, voicemail, conference, etc. This enables customizable and dynamic call handling based on time conditions." />
     <meta name="twitter:url" content="//andrius.mobi/2013/02/time-based-conditions-in-agi-application.html" />
     
-    <meta name="twitter:image" content="//andrius.mobi/images/me.jpeg" />
+    <meta name="twitter:image" content="//andrius.mobi/images/me.png" />
     
 
     <!-- Icons -->
@@ -85,7 +87,7 @@
        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
        })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
-       ga('create', 'UA-38523949-3', 'auto');
+       ga('create', 'G-X2C9W2TP16', 'auto');
        ga('send', 'pageview');
     </script>
     
@@ -99,61 +101,34 @@
     <header class="site-header px2 px-responsive">
   <div class="mt2 wrap">
     <div class="measure">
-      <a href="/" class="site-title">Voice Applications</a>
+      <a href="/" class="site-title">Andrius Kairiukstis's Blog</a>
       <nav class="site-nav">
         
 
 
 
-
+    
+    
+    
+    
+        <a class="nav-link" href="/contact/">Contact me</a>
     
 
     
 
-
-
-
-    
-
-    
-
-
-
+<a class="fa-solid fa-rss" href="/feed.xml"></a>
 
       </nav>
       <div class="clearfix"></div>
       
         <div class="social-icons">
   <div class="social-icons-right">
-    
-      <a class="fa fa-github" href="https://github.com/andrius"></a>
-    
-    
-    
-    
-    
-      <a class="fa fa-twitter" href="https://twitter.com/andrius_kai"></a>
-    
-    
-    
-    
-      <a class="fa fa-linkedin" href="https://www.linkedin.com/in/andrius-kairiukstis"></a>
-    
-    
-    
-    
-      <a class="fa fa-telegram" href="https://t.me/andrius_kai"></a>
-    
-    
-    
-      <a class="fa fa-whatsapp" href="https://wa.me/34652299183"></a>
-    
-    
-  </div>
-  <div class="right">
-    
-    
-    
+    <a class="fa-brands fa-github" href="https://github.com/andrius"></a>
+    <a class="fa-brands fa-square-x-twitter" href="https://x.com/andrius_kai"></a>
+    <!-- a class="fa-brands fa-mastodon" href="//mastodon.social/@andrius_kai"></a -->
+    <a class="fa-brands fa-linkedin" href="https://www.linkedin.com/in/andrius-kairiukstis"></a>
+    <a class="fa-brands fa-telegram" href="https://t.me/andrius_kai"></a>
+    <a class="fa-brands fa-whatsapp" href="https://wa.me/34652299183"></a>
   </div>
 </div>
 <div class="clearfix"></div>
@@ -170,50 +145,40 @@
 
 
 <div class="post-header mb2">
-  <h1>Time based conditions in voice (AGI) application</h1>
+  <h1>Time based conditions in voice application</h1>
   <span class="post-meta">Feb 22, 2013</span><br>
   
   <span class="post-meta small">
   
-    3 minute read
+    4 minute read
   
   </span>
 </div>
 
 <article class="post-content">
-  <p>Typical telephony system process incoming call-flow based on different times (and of course customer do want to have control on that, handle time-ranges; also whole platform could be an multi-tenant server with different virtual PBX’es):</p>
+  <p>The typical telephony system processes incoming call-flow based on different times, and customers want to have control over this and handle time-ranges. The whole platform can be a multi-tenant server with different virtual PBXes.</p>
+
+<p>Here are the different call-handling scenarios based on time:</p>
 
 <ul>
-  <li>
-    <p>During night call should be delivered to the voicemail;</p>
-  </li>
-  <li>
-    <p>In the morning, lunch time and evening should be forwarded to the cell phone;</p>
-  </li>
-  <li>
-    <p>During business hours, call should be processed following standard call-flow logic;</p>
-  </li>
-  <li>
-    <p>Friday’s time is shorter;</p>
-  </li>
-  <li>
-    <p>at Saturday company works only until lunch time;</p>
-  </li>
-  <li>
-    <p>and it’s closed at Sunday (calls should be routed to the voicemail);</p>
-  </li>
-  <li>
-    <p>Calls on public holidays should be forwarded to the voicemail too.</p>
-  </li>
+  <li>During the night, calls should be delivered to the voicemail.</li>
+  <li>In the morning, lunchtime, and evening, calls should be forwarded to the cell phone.</li>
+  <li>During business hours, calls should be processed following standard call-flow logic.</li>
+  <li>On Fridays, the working hours are shorter.</li>
+  <li>On Saturdays, the company works only until lunchtime.</li>
+  <li>On Sundays, the company is closed, and calls should be routed to the voicemail.</li>
+  <li>Calls on public holidays should also be forwarded to the voicemail.</li>
 </ul>
 
-<p>Long time ago I’ve created an following Ruby classes and ActiveRecord migrations for flexible business times management.  And now sharing this, it could be useful for anyone who deal with time conditions in the backend apps (and that’s not only telephony-related).</p>
+<p>A long time ago, I created the following Ruby classes and ActiveRecord migrations for flexible business time management. I am now sharing this, as it could be useful for anyone dealing with time conditions in backend applications, not just telephony-related ones.</p>
 
-<p><code class="highlighter-rouge">Item</code> is and kind polymorphic association that points to any voice-related “thing” in a PBX. I.e. to the extension, or voicemail, conference, whatever…</p>
+<p>The “Item” class is a polymorphic association that points to any voice-related entity in a PBX. By reusing polymorphic database associations, it is possible to create very flexible call flow building blocks. These blocks can point to any voice-related entity in a PBX, such as an extension, voicemail, conference, etc. This allows for customizable and dynamic call handling based on time conditions.</p>
 
-<p>If we would trigger method <code class="highlighter-rouge">operational?</code> for given business-time collection, it should return “item_id” or nil if time conditions did not met (office closed?).</p>
+<p>If we trigger the “operational?” method for a given business-time collection, it should return the “item_id” or nil if the time conditions are not met (i.e., the office is closed).</p>
+
 <h3 id="tests">Tests</h3>
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>1.9.3-p327 :001 &gt; Campaign.last.business_time.operational?
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>1.9.3-p327 :001 &gt; Campaign.last.business_time.operational?
 
 Campaign Load (0.1ms)  SELECT "campaigns".* FROM "campaigns" ORDER BY "campaigns"."id" DESC LIMIT 1
 BusinessTime Load (0.2ms)  SELECT "business_times".* FROM "business_times" WHERE "business_times"."id" = 1 LIMIT 1
@@ -229,6 +194,7 @@ BusinessTimeMember Load (0.3ms)  SELECT "business_time_members".* FROM "business
 =&gt; 0
 </code></pre></div></div>
 <h3 id="migrations">Migrations</h3>
+
 <div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">create_table</span> <span class="ss">:business_time_members</span> <span class="k">do</span> <span class="o">|</span><span class="n">t</span><span class="o">|</span>
 	<span class="n">t</span><span class="p">.</span><span class="nf">string</span>   <span class="ss">:name</span><span class="p">,</span> <span class="ss">:limit</span> <span class="o">=&gt;</span> <span class="mi">100</span>
 	<span class="n">t</span><span class="p">.</span><span class="nf">integer</span>  <span class="ss">:business_time_id</span>
@@ -275,7 +241,9 @@ BusinessTimeMember Load (0.3ms)  SELECT "business_time_members".* FROM "business
 		VALUES (?, 1, </span><span class="si">#{</span><span class="n">day</span><span class="si">}</span><span class="s2">, '</span><span class="si">#{</span><span class="n">time_from</span><span class="si">}</span><span class="s2">', '</span><span class="si">#{</span><span class="n">time_to</span><span class="si">}</span><span class="s2">', 0)"</span>
 <span class="k">end</span>
 </code></pre></div></div>
+
 <h3 id="models">Models</h3>
+
 <div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">class</span> <span class="nc">BusinessTimeMember</span> <span class="o">&lt;</span> <span class="no">ActiveRecord</span><span class="o">::</span><span class="no">Base</span>
   <span class="c1">#validations</span>
   <span class="n">validates_presence_of</span> <span class="ss">:business_time_id</span>
@@ -300,7 +268,7 @@ BusinessTimeMember Load (0.3ms)  SELECT "business_time_members".* FROM "business
   <span class="k">def</span> <span class="nf">operational?</span><span class="p">(</span><span class="n">details</span> <span class="o">=</span> <span class="p">{</span> <span class="ss">:datetime</span> <span class="o">=&gt;</span> <span class="no">Time</span><span class="p">.</span><span class="nf">now</span><span class="p">.</span><span class="nf">utc</span> <span class="p">})</span>
     <span class="n">d</span> <span class="o">=</span> <span class="n">details</span><span class="p">[</span><span class="ss">:datetime</span><span class="p">]</span>
 
-    <span class="o">=</span><span class="k">begin</span>
+    <span class="k">begin</span>
       <span class="k">if</span> <span class="nb">self</span><span class="p">.</span><span class="nf">timezone</span>
         <span class="k">begin</span>
           <span class="n">tz</span> <span class="o">=</span> <span class="no">TZInfo</span><span class="o">::</span><span class="no">Timezone</span><span class="p">.</span><span class="nf">get</span><span class="p">(</span><span class="nb">self</span><span class="p">.</span><span class="nf">timezone</span><span class="p">)</span>
@@ -311,7 +279,7 @@ BusinessTimeMember Load (0.3ms)  SELECT "business_time_members".* FROM "business
           <span class="nb">puts</span> <span class="s2">"got exception for timezone </span><span class="si">#{</span><span class="nb">self</span><span class="p">.</span><span class="nf">timezone</span><span class="si">}</span><span class="s2">"</span>
         <span class="k">end</span>
       <span class="k">end</span>
-    <span class="o">=</span><span class="k">end</span>
+    <span class="k">end</span>
 
     <span class="n">tm</span> <span class="o">=</span> <span class="no">BusinessTimeMember</span><span class="p">.</span><span class="nf">find</span><span class="p">(</span>
       <span class="ss">:all</span><span class="p">,</span>
@@ -345,6 +313,7 @@ BusinessTimeMember Load (0.3ms)  SELECT "business_time_members".* FROM "business
 <span class="k">end</span>
 </code></pre></div></div>
 
+
 </article>
 
 
@@ -356,7 +325,7 @@ BusinessTimeMember Load (0.3ms)  SELECT "business_time_members".* FROM "business
   <script type="text/javascript">
     var disqus_shortname  = 'andrius-mobi';
     var disqus_identifier = '/2013/02/time-based-conditions-in-agi-application';
-    var disqus_title      = "Time based conditions in voice (AGI) application";
+    var disqus_title      = "Time based conditions in voice application";
 
     (function() {
       var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
@@ -364,7 +333,7 @@ BusinessTimeMember Load (0.3ms)  SELECT "business_time_members".* FROM "business
       (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
     })();
   </script>
-  <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+  <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
 
 
 
@@ -378,8 +347,8 @@ BusinessTimeMember Load (0.3ms)  SELECT "business_time_members".* FROM "business
   <footer class="center">
   <div class="measure">
     <small>
-      Content by Andrius Kairiukstis.<br>
-      Jekyll site based on <a href="https://github.com/johno/pixyll">Pixyll theme</a>.
+      Copyright (c) by <a href="/contact/">Andrius Kairiukstis</a>.</br>
+      This Jekyll site is based on the <a href="https://github.com/johno/pixyll">Pixyll theme</a>.
     </small>
   </div>
 </footer>
@@ -388,6 +357,11 @@ BusinessTimeMember Load (0.3ms)  SELECT "business_time_members".* FROM "business
 <script>
     anchors.options.visible = 'always';
     anchors.add('article h2, article h3, article h4, article h5, article h6');
+</script>
+<script type="text/javascript">
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("/sw.js")
+    }
 </script>
 
 </body>

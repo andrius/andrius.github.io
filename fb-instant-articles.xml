@@ -4,8 +4,156 @@
     <title></title>
     <link>//andrius.mobi</link>
     <description>
-      Realtime voice applications. Notes about Unified Communications, CTI, call-centers; open-source VoIP (Asterisk, Freeswitch, Kamailio); with test automation, and scaled container (docker) apps.
+      This blog explores the realm of real-time voice applications, covering topics such as Unified Communications, CTI, and call centers. It also discusses open-source VoIP solutions like Asterisk, Freeswitch, and Kamailio, highlighting their features and benefits. Additionally, the blog touches upon automations, integrations, test automation, and the scalability of containerized applications using Docker, along with DevOps practices.
     </description>
+    
+        
+            <item>
+                <title>Register SIP account and receive calls with Twilio</title>
+                <link>//andrius.mobi/2023/07/register-sip-account-and-receive-calls-with-twilio.html</link>
+                <content:encoded>
+                    <![CDATA[
+                    <p>I live in three different countries and have friends, family members, and colleagues in each of them. As a result, I need to maintain phone numbers in each country for 2FA, e-signatures, and making and receiving calls. Although I do not use all three SIM cards at the same time, it is still important to receive phone calls.</p>
+
+<p>Years ago, I used to run Asterisk PBX on VPS, but I nuked it a while ago as I did not want to maintain one extra piece of software. The national phone numbers (DID’s) were purchased from various providers, and some time ago, I switched to Twilio.</p>
+
+<p>Twilio offers multiple options to maintain calls, one of which is TwiML. Let’s dive into it!</p>
+
+<p>ISSUES FIRST! At the moment of writing (July 2023), Twilio offers POP’s in the EU (ie1), USA (us1), and Australia (au1). The full support of capabilities is possible with the US pop or I haven’t fount the way to get it working with the European pop. I spent some time attempting to deliver calls to the SIP trunk that is registered in the EU zone with error “32002 Your TwiML tried to Dial a Twilio SIP Domain that can’t be found”. So please be warned, and if you end up getting the EU pop working, please drop me a message.</p>
+
+<p>Here are the steps you need to follow to set up Twilio:</p>
+
+<ol>
+  <li>Go to https://console.twilio.com/us1/develop/voice/manage/cls and create your SIP credentials list. It is a list with a username-password match that you will need in the next step.</li>
+  <li>Create a new SIP domain with a unique name at https://console.twilio.com/us1/develop/voice/manage/sip-domains. Enable SIP registration and select the credentials list you will use with this domain. Configure everything else (encryption, etc.).</li>
+  <li>Create a TwiML bin with the following content at https://console.twilio.com/us1/develop/twiml-bins/twiml-bins:</li>
+</ol>
+
+<div class="language-xml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">&lt;?xml version="1.0" encoding="UTF-8"?&gt;</span>
+<span class="nt">&lt;Response&gt;</span>
+  <span class="c">&lt;!-- Say&gt;Hello from Twilio!&lt;/Say --&gt;</span>
+
+  <span class="nt">&lt;Dial</span> <span class="na">answerOnBridge=</span><span class="s">"true"</span> <span class="na">sequential=</span><span class="s">"true"</span> <span class="na">ringTone=</span><span class="s">"lt"</span> <span class="na">record=</span><span class="s">"record-from-answer-dual"</span> <span class="na">trim=</span><span class="s">"trim-silence"</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;Sip&gt;</span>USERNAME@YOURDOMAIN.sip.twilio.com;region=ie1<span class="nt">&lt;/Sip&gt;</span>
+  <span class="nt">&lt;/Dial&gt;</span>
+
+  <span class="c">&lt;!-- Simultaneous Dialing --&gt;</span>
+  <span class="nt">&lt;Dial</span> <span class="na">answerOnBridge=</span><span class="s">"true"</span> <span class="na">ringTone=</span><span class="s">"es"</span> <span class="na">record=</span><span class="s">"record-from-answer-dual"</span> <span class="na">trim=</span><span class="s">"trim-silence"</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;Sip&gt;</span>USERNAME@YOURDOMAIN.sip.twilio.com;region=ie1<span class="nt">&lt;/Sip&gt;</span>
+    <span class="nt">&lt;Number&gt;</span>+YOURNUMBER<span class="nt">&lt;/Number&gt;</span>
+  <span class="nt">&lt;/Dial&gt;</span>
+
+  <span class="nt">&lt;Say&gt;</span>Hello, YOURNAME cannot answer. Please leave a message at the beep.<span class="nt">&lt;/Say&gt;</span>
+
+  <span class="nt">&lt;Record</span> <span class="na">timeout=</span><span class="s">"30"</span> <span class="na">transcribe=</span><span class="s">"true"</span> <span class="na">playBeep=</span><span class="s">"true"</span><span class="nt">/&gt;</span>
+<span class="nt">&lt;/Response&gt;</span>
+</code></pre></div></div>
+
+<ol>
+  <li>Purchase a DID number at https://console.twilio.com/us1/develop/phone-numbers/manage/incoming and enter the inbound call routing section (A call comes in) to select the TwiML bin.</li>
+  <li>Download a SIP client, such as Groundwire from Acrobits, and register it with Twilio using your username and password from the credentials list and the following registration domain: <a href="http://yourdomain.sip.twilio.com/">YOURDOMAIN.sip.twilio.com</a>.</li>
+  <li>Test inbound calls. If a call does not work, navigate to the logs at https://console.twilio.com/us1/monitor/logs/debugger/errors.</li>
+</ol>
+
+<p>Now that everything is set up, redirect your phone calls to the Twilio DID number by dialing <code class="language-plaintext highlighter-rouge">*21*+YOUR-TWILIO-NUMBER#</code> on your mobile phone.</p>
+
+                    ]]>
+                </content:encoded>
+                <guid isPermaLink="false">/2023/07/register-sip-account-and-receive-calls-with-twilio.html</guid>
+                <description>
+                    
+                    How to register your SIP softphone and receive inbound calls using Twilio
+                    
+                </description>
+                <pubDate>Sat, 08 Jul 2023 13:35:00 +0000</pubDate>
+                <author>Andrius Kairiukstis</author>
+            </item>
+        
+    
+        
+            <item>
+                <title>Properly terminate crystal-lang service in docker</title>
+                <link>//andrius.mobi/2019/11/properly-terminate-crystal-lang-service-in-docker.html</link>
+                <content:encoded>
+                    <![CDATA[
+                    <p>Production-ready crystal application in docker must process correctly several
+signals to shutdown properly. There is two commands in docker can be used to stop running container: <code class="language-plaintext highlighter-rouge">docker stop</code> and <code class="language-plaintext highlighter-rouge">docker kill</code>. First one, <code class="language-plaintext highlighter-rouge">docker stop</code> stops a running container by sending it SIGTERM signal, let the main process process it, and after a grace period uses SIGKILL to terminate the application.</p>
+
+<p>In this article I’ll show how to process SIGING (Ctrl-C), SIGTERM and SIGKILL with Crystal-lang.</p>
+
+<h2 id="download">Download</h2>
+
+<p>It’s a part of my sandbox repository, <a href="https://github.com/andrius/sandbox/tree/develop/crystal/signal_trap">download it here</a>.</p>
+
+<p>Not familiar with crystal-lang? <a href="https://github.com/andrius/sandbox/blob/develop/crystal-signal-trap/src/signal_trap.cr">This is the main file with business logic</a>.</p>
+
+<h2 id="installation">Installation</h2>
+
+<p>Everything is dockerised, just get docker installed and download git repository.</p>
+
+<h2 id="usage">Usage</h2>
+
+<p>For development-mode application run this:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>docker build <span class="nt">--pull</span> <span class="nt">--force-rm</span> <span class="se">\</span>
+  <span class="nt">-t</span> crystal-signal-trap <span class="se">\</span>
+  <span class="nt">--file</span> ./Dockerfile <span class="nb">.</span> <span class="se">\</span>
+<span class="o">&amp;&amp;</span> docker run <span class="nt">-ti</span> <span class="nt">--rm</span> <span class="nt">--name</span><span class="o">=</span><span class="nb">trap </span>crystal-signal-trap
+</code></pre></div></div>
+
+<p>But most important is to get signals trap working in production-ready docker,
+which is scratch, busybox or alpine-based. To test it, run following snippet:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>docker build <span class="nt">--pull</span> <span class="nt">--force-rm</span> <span class="se">\</span>
+  <span class="nt">-t</span> crystal-signal-trap <span class="se">\</span>
+  <span class="nt">--file</span> ./Dockerfile-production <span class="nb">.</span> <span class="se">\</span>
+<span class="o">&amp;&amp;</span> docker run <span class="nt">-ti</span> <span class="nt">--rm</span> <span class="nt">--name</span><span class="o">=</span><span class="nb">trap </span>crystal-signal-trap
+</code></pre></div></div>
+
+<h2 id="demo">Demo</h2>
+
+<p><a href="https://asciinema.org/a/eIFSoH00QsLKpsfyypsL0i6cr"><img src="https://asciinema.org/a/eIFSoH00QsLKpsfyypsL0i6cr.svg" alt="asciicast" /></a></p>
+
+<h2 id="i-want-to-process-signals-separately">I want to process signals separately!</h2>
+
+<p>Instead of grouping signals trap as it’s <a href="https://github.com/andrius/sandbox/blob/develop/crystal/signal_trap/src/signal_trap.cr#L9-L16">made in the demo app</a>, it is possible just to process any of them:</p>
+
+<div class="language-crystal highlighter-rouge"><div class="highlight"><pre class="highlight"><code> <span class="no">Signal</span><span class="o">::</span><span class="no">INT</span><span class="p">.</span><span class="nf">trap</span> <span class="k">do</span>
+   <span class="c1"># Processing SIGING</span>
+ <span class="k">end</span>
+</code></pre></div></div>
+
+<h2 id="more-signals">More signals?</h2>
+
+<p>It is possible to send other signals with docker:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>docker <span class="nb">kill</span> <span class="nt">--signal</span><span class="o">=</span>SIGHUP  my_container
+</code></pre></div></div>
+
+<p>In this case, Crystal-lang app shall catch that signal: <code class="language-plaintext highlighter-rouge">Signal::INT.trap { ... }</code>. Here is the <a href="https://crystal-lang.org/api/latest/Signal.html">list of known by Crystal-lang signals</a>.</p>
+
+<hr />
+
+<p>References:</p>
+
+<ul>
+  <li><a href="https://docs.docker.com/engine/reference/commandline/kill">docker kill command syntax</a>;</li>
+  <li><a href="https://docs.docker.com/engine/reference/commandline/stop">docker stop command syntax</a>;</li>
+  <li><a href="https://medium.com/@gchudnov/trapping-signals-in-docker-containers-7a57fdda7d86">Trapping signals in Docker containers</a>.</li>
+</ul>
+
+                    ]]>
+                </content:encoded>
+                <guid isPermaLink="false">/2019/11/properly-terminate-crystal-lang-service-in-docker.html</guid>
+                <description>
+                    
+                    How to handle signals and properly terminate docker service written with the Crystal-lang.
+                    
+                </description>
+                <pubDate>Sun, 03 Nov 2019 00:00:00 +0000</pubDate>
+                <author>Andrius Kairiukstis</author>
+            </item>
+        
     
         
             <item>
@@ -52,13 +200,13 @@
 
 <p>There is issues with DNS – see this <a href="https://github.com/crystal-lang/crystal/issues/2426">https://github.com/crystal-lang/crystal/issues/2426</a> and <a href="https://github.com/crystal-lang/crystal/issues/6099">https://github.com/crystal-lang/crystal/issues/6099</a>. The best way to resolve I’ve found is to <a href="https://gist.github.com/bcardiff/85ae47e66ff0df35a78697508fcb49af#gistcomment-2578255">copy libnss and libresolv files</a>.</p>
 
-<p>I’ve also tried to compile with <code class="highlighter-rouge">--static</code> option, copying (and not) the DNS libraries (<code class="highlighter-rouge">libnss_dns.so</code> and <code class="highlighter-rouge">libresolv.so</code>), but did not get DNS working – that image is good only for listening services.</p>
+<p>I’ve also tried to compile with <code class="language-plaintext highlighter-rouge">--static</code> option, copying (and not) the DNS libraries (<code class="language-plaintext highlighter-rouge">libnss_dns.so</code> and <code class="language-plaintext highlighter-rouge">libresolv.so</code>), but did not get DNS working – that image is good only for listening services.</p>
 
 <h2 id="result">Result</h2>
 
 <p>Resulting image is tiny, only 10MB (and the smallest one is 6.25MB only, but DNS won’t working)</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ docker image list dial_demo
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ docker image list dial_demo
 
 # REPOSITORY             TAG                    IMAGE ID      CREATED         SIZE
 # smallest-docker-image  scratch-ldd            d819bf2a43f3  21 minutes ago  10MB
@@ -76,8 +224,10 @@
                 <guid isPermaLink="false">/2019/10/Create-the-smallest-Crystal-lang-docker-image-based-on-scratch.html</guid>
                 <description>
                     
+                    How to use docker multi-stage builds to create a smallest by size Crystal-lang docker image.
+                    
                 </description>
-                <pubDate>Fri, 25 Oct 2019 00:00:00 -0500</pubDate>
+                <pubDate>Fri, 25 Oct 2019 00:00:00 +0000</pubDate>
                 <author>Andrius Kairiukstis</author>
             </item>
         
@@ -103,16 +253,8 @@
 <ul>
   <li>All the interfaces ARI, AMI, AGI, FastAGI and AsyncAGI;</li>
   <li><a href="https://github.com/ctiapps/asterisk/tree/develop/spec">Test specs using live Asterisk PBX (in a Docker)</a>. Specs also demonstrate how to use library, but more documentation is coming;</li>
-  <li><a href="https://asterisk.ctiapps.pro">Documentation</a>.</li>
+  <li><a href="https://ctiapps.github.io/asterisk">Documentation</a>.</li>
 </ul>
-
-<h2 id="further-plans">Further plans</h2>
-
-<p>First of all, the library will be continuously supported. I hope, community members will join to help me;</p>
-
-<p>Documentation site with examples;</p>
-
-<p>Considering to add Freeswitch support too;</p>
 
 <hr />
 
@@ -121,8 +263,10 @@
                 <guid isPermaLink="false">/2019/10/all-in-one-asterisk-with-crysyal.html</guid>
                 <description>
                     
+                    I&apos;ve created and open-sourced a Crystal-lang shard (library) that handle all the Asterisk PBX interfaces (ARI, AMI and all types of AGI).
+                    
                 </description>
-                <pubDate>Wed, 23 Oct 2019 00:00:00 -0500</pubDate>
+                <pubDate>Wed, 23 Oct 2019 00:00:00 +0000</pubDate>
                 <author>Andrius Kairiukstis</author>
             </item>
         
@@ -133,31 +277,40 @@
                 <link>//andrius.mobi/2018/12/how-to-install-software-on-firewalled-server.html</link>
                 <content:encoded>
                     <![CDATA[
-                    <p>Quick answer: Reverse SSH proxy. Create dynamic tunnel: <code class="highlighter-rouge">ssh -D 51010 localhost</code>, ssh to the remote machine: <code class="highlighter-rouge">ssh -R 51010:127.0.0.1:51010 firewalled-server</code> and install the software using proxychains command.</p>
+                    <p>Quick answer: Create a reverse SSH proxy:</p>
+
+<p>Create a dynamic tunnel with command  <code class="language-plaintext highlighter-rouge">ssh -D 51010 localhost</code> — this command create a dynamic SSH proxy from your local machine;</p>
+
+<p>Then SSH to the remote machine with command like this: <code class="language-plaintext highlighter-rouge">ssh -R 51010:127.0.0.1:51010 firewalled-server</code>. 
+It will forward your dynamic SSH proxy to the remote machine, so you’ll get kind of a “poor man VPN” on it;</p>
+
+<p>Finally install the software using the proxychains command (or update the apt.conf), see below.</p>
 
 <h2 id="preparation">Preparation</h2>
 
 <ul>
-  <li>At host machine open terminal and SSH to self, in order to create dynamic tunnel:
-    <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ssh <span class="nt">-D</span> 51010 localhost
+  <li>
+    <p>At host machine open terminal and SSH to self, in order to create dynamic tunnel:</p>
+
+    <div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ssh <span class="nt">-D</span> 51010 localhost
 </code></pre></div>    </div>
   </li>
   <li>
-    <p>Now in new termial tab, SSH to the remote machine <sup id="fnref:1"><a href="#fn:1" class="footnote">1</a></sup>:</p>
+    <p>Now in new termial tab, SSH to the remote machine <sup id="fnref:1" role="doc-noteref"><a href="#fn:1" class="footnote" rel="footnote">1</a></sup>:</p>
 
-    <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ssh <span class="nt">-R</span> 51010:127.0.0.1:51010 firewalled-server
+    <div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ssh <span class="nt">-R</span> 51010:127.0.0.1:51010 firewalled-server
 </code></pre></div>    </div>
   </li>
   <li>
     <p>Check that everything works fine (I assume that curl is already installed):</p>
 
-    <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">ALL_PROXY</span><span class="o">=</span><span class="s2">"socks5://127.0.0.1:51010"</span> curl ifconfig.co
+    <div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">ALL_PROXY</span><span class="o">=</span><span class="s2">"socks5://127.0.0.1:51010"</span> curl ifconfig.co
 <span class="nv">ALL_PROXY</span><span class="o">=</span><span class="s2">"socks5h://127.0.0.1:51010"</span> curl ifconfig.co
 </code></pre></div>    </div>
   </li>
 </ul>
 
-<p>If both commands was failed, check sshd settings on the firewalled server (does port forwarding enabled etc.), and if only the first command failed <sup id="fnref:2"><a href="#fn:2" class="footnote">2</a></sup>, then it looks that DNS resolution also firewalled</p>
+<p>If both commands was failed, check sshd settings on the firewalled server (does port forwarding enabled etc.), and if only the first command failed <sup id="fnref:2" role="doc-noteref"><a href="#fn:2" class="footnote" rel="footnote">2</a></sup>, then it looks that DNS resolution also firewalled</p>
 
 <p>Almost ready!</p>
 
@@ -167,24 +320,24 @@
 
 <ul>
   <li>
-    <p>“socksify” apt-get through proxychains <sup id="fnref:3"><a href="#fn:3" class="footnote">3</a></sup>:</p>
+    <p>“socksify” apt-get through proxychains <sup id="fnref:3" role="doc-noteref"><a href="#fn:3" class="footnote" rel="footnote">3</a></sup>:</p>
 
-    <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>proxychains4 <span class="nt">-q</span> <span class="nt">-f</span> /home/user/.proxychains/proxychains.conf <span class="se">\</span>
+    <div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code>proxychains4 <span class="nt">-q</span> <span class="nt">-f</span> /home/user/.proxychains/proxychains.conf
 apt-get <span class="nt">-yqq</span> <span class="nb">install </span>ngrep sngrep
 </code></pre></div>    </div>
   </li>
   <li>
-    <p>Or by creating entry in apt.conf file <sup id="fnref:4"><a href="#fn:4" class="footnote">4</a></sup>:</p>
+    <p>Or by creating entry in apt.conf file <sup id="fnref:4" role="doc-noteref"><a href="#fn:4" class="footnote" rel="footnote">4</a></sup>:</p>
 
-    <p>Describe proxy in <code class="highlighter-rouge">apt.conf</code></p>
+    <p>Setup proxy in <code class="language-plaintext highlighter-rouge">apt.conf</code></p>
 
-    <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">echo</span> <span class="s1">'Acquire::socks::Proxy "socks5h://127.0.0.1:51010/";'</span> <span class="se">\</span>
-<span class="o">&gt;&gt;</span> /etc/apt/apt.conf
+    <div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">echo</span> <span class="s1">'Acquire::socks::Proxy "socks5h://127.0.0.1:51010/";'</span> <span class="se">\</span>
+  <span class="o">&gt;&gt;</span> /etc/apt/apt.conf
 </code></pre></div>    </div>
 
     <p>and then install packages with apt-get:</p>
 
-    <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>apt-get <span class="nt">-yqq</span> <span class="nb">install </span>ngrep sngrep
+    <div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code>apt-get <span class="nt">-yqq</span> <span class="nb">install </span>ngrep sngrep
 </code></pre></div>    </div>
 
     <p>(Don’t forget to comment out or remove proxy directive in apt.conf after installation)</p>
@@ -193,19 +346,19 @@ apt-get <span class="nt">-yqq</span> <span class="nb">install </span>ngrep sngre
 
 <hr />
 
-<div class="footnotes">
+<div class="footnotes" role="doc-endnotes">
   <ol>
-    <li id="fn:1">
-      <p>Possible issues with <code class="highlighter-rouge">ssh -R</code>: <a href="https://serverfault.com/questions/595323/ssh-remote-port-forwarding-failed">https://serverfault.com/questions/595323/ssh-remote-port-forwarding-failed</a>; <a href="#fnref:1" class="reversefootnote">&#8617;</a></p>
+    <li id="fn:1" role="doc-endnote">
+      <p>Possible issues with <code class="language-plaintext highlighter-rouge">ssh -R</code>: <a href="https://serverfault.com/questions/595323/ssh-remote-port-forwarding-failed">https://serverfault.com/questions/595323/ssh-remote-port-forwarding-failed</a>; <a href="#fnref:1" class="reversefootnote" role="doc-backlink">&#8617;</a></p>
     </li>
-    <li id="fn:2">
-      <p>Check <a href="https://unix.stackexchange.com/questions/175888/curl-7-27-any-proxy-set-curl-does-not-resolve-the-hostname-via-proxy">https://unix.stackexchange.com/questions/175888/curl-7-27-any-proxy-set-curl-does-not-resolve-the-hostname-via-proxy</a>; <a href="#fnref:2" class="reversefootnote">&#8617;</a></p>
+    <li id="fn:2" role="doc-endnote">
+      <p>Check <a href="https://unix.stackexchange.com/questions/175888/curl-7-27-any-proxy-set-curl-does-not-resolve-the-hostname-via-proxy">https://unix.stackexchange.com/questions/175888/curl-7-27-any-proxy-set-curl-does-not-resolve-the-hostname-via-proxy</a>; <a href="#fnref:2" class="reversefootnote" role="doc-backlink">&#8617;</a></p>
     </li>
-    <li id="fn:3">
-      <p>How to get proxychains on remote host: there is few dependencies for proxychains4: <a href="https://packages.debian.org/buster/proxychains4">https://packages.debian.org/buster/proxychains4</a>, if command is not installed, there is always an option just to <code class="highlighter-rouge">scp</code> necessary files and install them manually. <a href="#fnref:3" class="reversefootnote">&#8617;</a></p>
+    <li id="fn:3" role="doc-endnote">
+      <p>How to get proxychains on remote host: there is few dependencies for proxychains4: <a href="https://packages.debian.org/buster/proxychains4">https://packages.debian.org/buster/proxychains4</a>, if command is not installed, there is always an option just to <code class="language-plaintext highlighter-rouge">scp</code> necessary files and install them manually. <a href="#fnref:3" class="reversefootnote" role="doc-backlink">&#8617;</a></p>
     </li>
-    <li id="fn:4">
-      <p>More options: <a href="https://askubuntu.com/questions/35223/syntax-for-socks-proxy-in-apt-conf">https://askubuntu.com/questions/35223/syntax-for-socks-proxy-in-apt-conf</a>. <a href="#fnref:4" class="reversefootnote">&#8617;</a></p>
+    <li id="fn:4" role="doc-endnote">
+      <p>More options: <a href="https://askubuntu.com/questions/35223/syntax-for-socks-proxy-in-apt-conf">https://askubuntu.com/questions/35223/syntax-for-socks-proxy-in-apt-conf</a>. <a href="#fnref:4" class="reversefootnote" role="doc-backlink">&#8617;</a></p>
     </li>
   </ol>
 </div>
@@ -215,8 +368,10 @@ apt-get <span class="nt">-yqq</span> <span class="nb">install </span>ngrep sngre
                 <guid isPermaLink="false">/2018/12/how-to-install-software-on-firewalled-server.html</guid>
                 <description>
                     
+                    How to use a reverse SSH proxy to install software on a server with outbound firewalls (gray zone ;) )
+                    
                 </description>
-                <pubDate>Thu, 27 Dec 2018 00:00:00 -0600</pubDate>
+                <pubDate>Thu, 27 Dec 2018 00:00:00 +0000</pubDate>
                 <author>Andrius Kairiukstis</author>
             </item>
         
@@ -242,13 +397,13 @@ eth0:1: <span class="nv">flags</span><span class="o">=</span>4163&lt;UP,BROADCAS
         inet 10.16.0.5  netmask 255.255.0.0  broadcast 10.16.255.255
 </code></pre></div></div>
 <h2 id="sip-configuration">SIP configuration</h2>
-<p>For test purpose I’ve installed Asterisk from the OS repository (<code class="highlighter-rouge">apt-get install -yqq asterisk</code>) and configured  SIP client to register on 206.189.246.114. No luck as expected, SIP packets does not flowing properly:</p>
+<p>For test purpose I’ve installed Asterisk from the OS repository (<code class="language-plaintext highlighter-rouge">apt-get install -yqq asterisk</code>) and configured  SIP client to register on 206.189.246.114. No luck as expected, SIP packets does not flowing properly:</p>
 
 <p><img src="/images/floating-ip/1-failure.png" alt="/images/floating-ip/1-failure.png" /></p>
 
 <p>Okay, lets try to update sip.conf with following. It’s typical setup for asterisk behind NAT (there is description notes in default sip.conf about externip, externhost and externaddr)</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>externip=206.189.246.114
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>externip=206.189.246.114
 nat=force_rport,comedia
 </code></pre></div></div>
 
@@ -258,7 +413,7 @@ nat=force_rport,comedia
 
 <p>After quick investigation (why there is 3rd IP in the SIP dump), I decided to change SIP bind address to the private IP:</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>udpbindaddr=10.16.0.5
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>udpbindaddr=10.16.0.5
 tcpenable=yes
 tcpbindaddr=10.16.0.5
 ; ...
@@ -276,7 +431,7 @@ nat=force_rport,comedia
 <h2 id="docker-setup">Docker setup</h2>
 <p>Let’s try to get the same result with docker.</p>
 
-<p>It works if asterisk can bind to the same private IP address where floating IP points, but requires to run container with <code class="highlighter-rouge">--net=host</code> option:</p>
+<p>It works if asterisk can bind to the same private IP address where floating IP points, but requires to run container with <code class="language-plaintext highlighter-rouge">--net=host</code> option:</p>
 
 <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>docker run <span class="nt">-ti</span> <span class="nt">--rm</span> <span class="se">\</span>
   <span class="nt">--net</span><span class="o">=</span>host <span class="se">\</span>
@@ -293,8 +448,10 @@ nat=force_rport,comedia
                 <guid isPermaLink="false">/2018/12/digital-ocean-floating-ip-and-voip.html</guid>
                 <description>
                     
+                    How to configure Digital Ocean&apos;s floating IP with VoIP, specifically with Asterisk, with Docker!
+                    
                 </description>
-                <pubDate>Tue, 18 Dec 2018 00:00:00 -0600</pubDate>
+                <pubDate>Tue, 18 Dec 2018 00:00:00 +0000</pubDate>
                 <author>Andrius Kairiukstis</author>
             </item>
         
@@ -309,7 +466,7 @@ nat=force_rport,comedia
 
 <p>Links at <a href="https://hub.docker.com/r/wernight/ngrok">Docker hub</a> and <a href="https://hub.docker.com/r/wernight/ngrok">Github</a>.</p>
 
-<p>Some handy snippets. Note, it’s possible to use docker-compose commands, i.e. to check tunnels <code class="highlighter-rouge">curl $(docker-compose port ngrok 4040)/api/tunnels</code>, but I’m using <code class="highlighter-rouge">$(docker ps -l -q --filter "name=blog_ngrok")</code> statement to identify container ID, as it works with both docker-compose “up” and “run” modes and with docker without using docker-compose.</p>
+<p>Some handy snippets. Note, it’s possible to use docker-compose commands, i.e. to check tunnels <code class="language-plaintext highlighter-rouge">curl $(docker-compose port ngrok 4040)/api/tunnels</code>, but I’m using <code class="language-plaintext highlighter-rouge">$(docker ps -l -q --filter "name=blog_ngrok")</code> statement to identify container ID, as it works with both docker-compose “up” and “run” modes and with docker without using docker-compose.</p>
 
 <ul>
   <li>Logs</li>
@@ -337,7 +494,7 @@ open http://<span class="si">$(</span>docker port <span class="nv">$BLOG</span> 
 
 <p>It is how docker-compose file looks like for this Jekyll site:</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>version: '3'
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>version: '3'
 
 volumes:
   ruby-cache:
@@ -381,21 +538,21 @@ services:
                 <guid isPermaLink="false">/2018/12/tiny-docker-image-with-ngrok.html</guid>
                 <description>
                     
-                    I've found an excellent tiny Docker image for ngrok (wernight/ngrok). From now just using it to handle this blog.
+                    I&apos;ve found an excellent tiny Docker image for ngrok (wernight/ngrok). From now just using it to handle this blog.
                     
                 </description>
-                <pubDate>Mon, 17 Dec 2018 00:00:00 -0600</pubDate>
+                <pubDate>Mon, 17 Dec 2018 00:00:00 +0000</pubDate>
                 <author>Andrius Kairiukstis</author>
             </item>
         
     
         
             <item>
-                <title>Asterisk OPUS patch for 11.11.0</title>
+                <title>Updated OPUS codec patch that supports Asterisk 11.11.0 and 12.2.5</title>
                 <link>//andrius.mobi/2014/08/asterisk-opus-patch-for-11110.html</link>
                 <content:encoded>
                     <![CDATA[
-                    <p>Released updated patch, now it supports Asterisk 11.11.0 and 12.2.5. With VP8 in pass-through mode, tested — it works well. <a href="https://github.com/andrius/asterisk-opus">Get it here!</a></p>
+                    <p>I have updated the OPUS codec patch that now supports Asterisk 11.11.0 and 12.2.5. I have tested it with VP8 in pass-through mode, and it works well. You can <a href="https://github.com/andrius/asterisk-opus">download it here</a>!</p>
 
                     ]]>
                 </content:encoded>
@@ -403,7 +560,7 @@ services:
                 <description>
                     
                 </description>
-                <pubDate>Fri, 08 Aug 2014 05:07:00 -0500</pubDate>
+                <pubDate>Fri, 08 Aug 2014 10:07:00 +0000</pubDate>
                 <author>Andrius Kairiukstis</author>
             </item>
         
@@ -414,40 +571,21 @@ services:
                 <link>//andrius.mobi/2013/07/webrtc-with-asterisk-11.html</link>
                 <content:encoded>
                     <![CDATA[
-                    <p>Tonight I have tried two WebRTC clients (<a href="http://jssip.net/">JsSIP</a> and <a href="http://sipml5.org/">sipML5</a>) with Asterisk 11 and get both of them working — echo test calls with ulaw (g711u) codec works, but with one-way audio if I call from WebRTC to the SIP softphone.</p>
+                    <p>Tonight, I tried two WebRTC clients (<a href="http://jssip.net/">JsSIP</a> and <a href="http://sipml5.org/">sipML5</a>) with Asterisk 11. I was able to get both of them working for echo test calls with the ulaw (g711u) codec. However, when I called from WebRTC to the SIP softphone, there was only one-way audio.</p>
 
-<p>I’ve followed Asterisk wiki articles: <a href="https://wiki.asterisk.org/wiki/display/AST/Asterisk+WebRTC+Support">Asterisk WebRTC Support</a> and <a href="https://wiki.asterisk.org/wiki/display/AST/WebRTC+tutorial+using+SIPML5">WebRTC tutorial using SIPML5</a> to configure WebRTC.</p>
+<p>To configure WebRTC, I followed the Asterisk wiki articles: <a href="https://wiki.asterisk.org/wiki/display/AST/Asterisk+WebRTC+Support">Asterisk WebRTC Support</a> and <a href="https://wiki.asterisk.org/wiki/display/AST/WebRTC+tutorial+using+SIPML5">WebRTC tutorial using SIPML5</a>.</p>
 
-<p>Good news!</p>
+<p>Excited!</p>
 
                     ]]>
                 </content:encoded>
                 <guid isPermaLink="false">/2013/07/webrtc-with-asterisk-11.html</guid>
                 <description>
                     
-                </description>
-                <pubDate>Thu, 11 Jul 2013 06:38:00 -0500</pubDate>
-                <author>Andrius Kairiukstis</author>
-            </item>
-        
-    
-        
-            <item>
-                <title>Opus and VP8 in Asterisk 11 (Experimental support)</title>
-                <link>//andrius.mobi/2013/05/opus-and-vp8-in-asterisk-11.html</link>
-                <content:encoded>
-                    <![CDATA[
-                    <p>Great news! Meetecho just introduced experimental OPUS support in Asterisk 11. <a href="https://github.com/meetecho/asterisk-opus">https://github.com/meetecho/asterisk-opus</a>  Time to test it with WebRTC!</p>
-
-<p>Why OPUS is great? <a href="http://www.circleid.com/posts/200130727_why_the_opus_codec_matters_even_if_you_dont_care_about_audio/">Read this article!</a></p>
-
-                    ]]>
-                </content:encoded>
-                <guid isPermaLink="false">/2013/05/opus-and-vp8-in-asterisk-11.html</guid>
-                <description>
+                    Tonight, I tried two WebRTC clients (JsSIP and sipML5) with Asterisk 11. I was able to get both of them working for echo test calls with the ulaw (g711u) codec. However, when I called from WebRTC to the SIP softphone, there was only one-way audio.
                     
                 </description>
-                <pubDate>Mon, 27 May 2013 12:37:00 -0500</pubDate>
+                <pubDate>Thu, 11 Jul 2013 11:38:00 +0000</pubDate>
                 <author>Andrius Kairiukstis</author>
             </item>
         
@@ -461,84 +599,50 @@ services:
                     <p>What’s new:</p>
 
 <ul>
-  <li>Asterisk 11.4;</li>
-  <li>SILK codec.</li>
-  <li>Watchdog, so Raspberry Pi board works better, without deadlocks;</li>
+  <li>Asterisk 11.4</li>
+  <li>SILK codec</li>
+  <li>Watchdog to improve Raspberry Pi board performance and prevent deadlocks</li>
 </ul>
 
-<p>Download link: <a href="//j.mp/tinypbx">j.mp/tinypbx</a>, image name for given release: <code class="highlighter-rouge">raspbian_basic_wheezy_20130523.img.gz</code></p>
+<p>Download link: <a href="https://j.mp/tinypbx">j.mp/tinypbx</a>
+Image name for this release: <code class="language-plaintext highlighter-rouge">raspbian_basic_wheezy_20130523.img.gz</code></p>
 
-<p>Credentials: ssh (port 22), username: <code class="highlighter-rouge">root</code>, password: <code class="highlighter-rouge">raspberry</code>. Don’t forget to update passwords after flashing and first boot!</p>
+<p>Credentials: SSH (port 22), username: <code class="language-plaintext highlighter-rouge">root</code>, password: <code class="language-plaintext highlighter-rouge">raspberry</code>. Remember to update passwords after flashing and first boot!</p>
 
                     ]]>
                 </content:encoded>
                 <guid isPermaLink="false">/2013/05/roaming-pbx-update.html</guid>
                 <description>
                     
-                    What's new: Asterisk 11.4 / SILK codec / Watchdog, so Raspberry Pi board works better.
+                    What&apos;s new: Asterisk 11.4,  SILK codec,  watchdog to improve Raspberry Pi board performance and prevent deadlocks.
                     
                 </description>
-                <pubDate>Thu, 23 May 2013 18:30:00 -0500</pubDate>
+                <pubDate>Thu, 23 May 2013 23:30:00 +0000</pubDate>
                 <author>Andrius Kairiukstis</author>
             </item>
         
     
         
             <item>
-                <title>Roaming PBX – first release</title>
+                <title>First release of Roaming PBX</title>
                 <link>//andrius.mobi/2013/05/roaming-pbx-first-release.html</link>
                 <content:encoded>
                     <![CDATA[
-                    Today I have baked latest image (containing&nbsp;ruby, pcapsipdump, asterisk, silk codec).
-Because it is still a bit alpha, I was created shorted URL, download link, containing latest image: [j.mp/tinypbx](//j.mp/tinypbx).
+                    Today, I created the latest image that includes Ruby, pcapsipdump, Asterisk PBX, and the SILK codec. Although it is still in the alpha stage, it is ready for testing. You can download the latest image from this [link](https://j.mp/tinypbx).
 
-Standard flashing instructions: gunzip .gz file, insert SD card, flash with Linux DD command... [This site](http://www.andrewmunsell.com/blog/getting-started-raspberry-pi-install-raspbian/) for example, describing flashing procedure well.
+To flash the image onto a Raspberry Pi, follow the typical instructions: unzip the .gz file, insert the SD card, and use the Linux DD command to flash it. For a detailed guide on flashing, you can refer to [this site](http://www.andrewmunsell.com/blog/getting-started-raspberry-pi-install-raspbian/).
 
-[GIT repository with script](https://github.com/andrius/build-raspbian-image), which creates RPI images, was updated and I will create&nbsp;separate&nbsp;post describing it. In few words: installer creates minimal raspbian image, at the end, mounts folder "delivery" to the target image and executes bash script "install.sh" (you find sample in GIT repository).</div>
+The [GIT repository with the script](https://github.com/andrius/build-raspbian-image) that creates RPI images has been updated. I will write a separate post with a more detailed description of it. In summary, the installer creates a minimal Raspbian image and, at the end, mounts the "delivery" folder to the target image and executes the bash script "[install.sh](http://install.sh/)" (you can find a sample of it in the GIT repository).
+
                     ]]>
                 </content:encoded>
                 <guid isPermaLink="false">/2013/05/roaming-pbx-first-release.html</guid>
                 <description>
                     
-                </description>
-                <pubDate>Tue, 07 May 2013 16:32:00 -0500</pubDate>
-                <author>Andrius Kairiukstis</author>
-            </item>
-        
-    
-        
-            <item>
-                <title>Roaming PBX, first edition</title>
-                <link>//andrius.mobi/2013/05/roaming-pbx-first-edition.html</link>
-                <content:encoded>
-                    <![CDATA[
-                    <div dir="ltr" style="text-align: left;" trbidi="on">Today I spent all day compiling various images of Roaming PBX. I am minimalist and perfectionist at same time – not always, but often, what slowing my work progress sometimes. Do not like to keep unfinished stuff.<br /><br />Currently image was compiled, I removed GUI from it (just for now). Some tests... And it will be ready... hope in few hours! Instructions will follow.<br /><br />Download link, containing latest image:&nbsp;<a href="http://j.mp/tinypbx">http://j.mp/tinypbx</a>). Standard flashing instructions: gunzip .gz file, insert SD card, flash with Linux DD command... <a href="http://www.andrewmunsell.com/blog/getting-started-raspberry-pi-install-raspbian/" target="_blank">This site</a> for example, describing flashing procedure well.<br /><br /></div>
-
-                    ]]>
-                </content:encoded>
-                <guid isPermaLink="false">/2013/05/roaming-pbx-first-edition.html</guid>
-                <description>
+                    Today, I created the latest image that includes Ruby, pcapsipdump, Asterisk PBX, and the SILK codec. Although it is still in the alpha stage, it is ready for testing.
                     
                 </description>
-                <pubDate>Mon, 06 May 2013 15:29:00 -0500</pubDate>
-                <author>Andrius Kairiukstis</author>
-            </item>
-        
-    
-        
-            <item>
-                <title>SILK notes on ARM devices</title>
-                <link>//andrius.mobi/2013/05/silk-notes-on-arm-devices.html</link>
-                <content:encoded>
-                    <![CDATA[
-                    <div dir="ltr" style="text-align: left;" trbidi="on">... worth to read:<br /><a href="https://github.com/mordak/codec_silk/issues/2">https://github.com/mordak/codec_silk/issues/2</a><br /><br /></div>
-                    ]]>
-                </content:encoded>
-                <guid isPermaLink="false">/2013/05/silk-notes-on-arm-devices.html</guid>
-                <description>
-                    
-                </description>
-                <pubDate>Sat, 04 May 2013 15:42:00 -0500</pubDate>
+                <pubDate>Tue, 07 May 2013 21:32:00 +0000</pubDate>
                 <author>Andrius Kairiukstis</author>
             </item>
         
@@ -562,10 +666,10 @@ Standard flashing instructions: gunzip .gz file, insert SD card, flash with Linu
     <p>git clone :)</p>
   </li>
   <li>
-    <p>Check content and install packages or execute <code class="highlighter-rouge">./install.sh</code> script;</p>
+    <p>Check content and install packages or execute <code class="language-plaintext highlighter-rouge">./install.sh</code> script;</p>
   </li>
   <li>
-    <p>execute <code class="highlighter-rouge">./raspbian/build_raspbian_sd_card.sh</code>, and soon you’ll get your IMG fine in the /tmp/rpi folder.</p>
+    <p>execute <code class="language-plaintext highlighter-rouge">./raspbian/build_raspbian_sd_card.sh</code>, and soon you’ll get your IMG fine in the /tmp/rpi folder.</p>
   </li>
 </ul>
 
@@ -576,7 +680,7 @@ Standard flashing instructions: gunzip .gz file, insert SD card, flash with Linu
 bash
 </code></pre></div></div>
 <h2 id="update">Update</h2>
-<p>Github repository updated, now installation script mount delivery folder to target RPI image and execute <code class="highlighter-rouge">install.sh</code> script located in mounted folder. Now you could create your own build script or just type in <code class="highlighter-rouge">bash</code> in order to access command-line prompt during RPI image creation.</p>
+<p>Github repository updated, now installation script mount delivery folder to target RPI image and execute <code class="language-plaintext highlighter-rouge">install.sh</code> script located in mounted folder. Now you could create your own build script or just type in <code class="language-plaintext highlighter-rouge">bash</code> in order to access command-line prompt during RPI image creation.</p>
 
 <p>Below is image with Ruby 2.0 and Asterisk PBX:</p>
 
@@ -595,37 +699,42 @@ bash
                 <guid isPermaLink="false">/2013/04/creating-own-image-for-raspberry-pi.html</guid>
                 <description>
                     
+                    How to cross-compile a custom Raspberry Pi image and to build custom Asterisk PBX installation.
+                    
                 </description>
-                <pubDate>Thu, 25 Apr 2013 16:59:00 -0500</pubDate>
+                <pubDate>Thu, 25 Apr 2013 21:59:00 +0000</pubDate>
                 <author>Andrius Kairiukstis</author>
             </item>
         
     
         
             <item>
-                <title>Perfect results (SIP TCP vs UDP)</title>
+                <title>SIP TCP vs UDP with mobile client: awesome results</title>
                 <link>//andrius.mobi/2013/04/perfect-results-sip-tcp-vs-udp.html</link>
                 <content:encoded>
                     <![CDATA[
-                    <div dir="ltr" style="text-align: left;" trbidi="on">Yes, I knew that TCP is better for mobile VoIP, battery consumption is better, but I did not knew HOW BETTER!<br />Yesterday I have replaced UDP to TCP at my Android softphone (Bria) and... Usually by&nbsp;this&nbsp;time (2:20 PM), my cellphone battery has 50% charge and now it is 88 percent.<br /><br />Voice quality... I do not feel any difference.</div>
+                    <p>Yes, I knew that TCP is better for mobile VoIP in terms of battery consumption, but I didn’t know how much better it would be! Yesterday, I replaced UDP with TCP on my Android softphone (Bria) and… Usually by this time (2:20 PM), my cellphone battery would be at 50% charge, but now it’s at 88 percent.</p>
+
+<p>As for voice quality, I don’t notice any difference.</p>
+
                     ]]>
                 </content:encoded>
                 <guid isPermaLink="false">/2013/04/perfect-results-sip-tcp-vs-udp.html</guid>
                 <description>
                     
                 </description>
-                <pubDate>Tue, 02 Apr 2013 07:24:00 -0500</pubDate>
+                <pubDate>Tue, 02 Apr 2013 12:24:00 +0000</pubDate>
                 <author>Andrius Kairiukstis</author>
             </item>
         
     
         
             <item>
-                <title>Raspberry Pi - how to create your own image</title>
+                <title>Raspberry Pi: how to create your own image</title>
                 <link>//andrius.mobi/2013/03/raspberry-pi-how-to-create-own-image.html</link>
                 <content:encoded>
                     <![CDATA[
-                    <p>Currently I do developing my own Roaming VoIP PBX as a Rasbbrry Pi image, and have to rebuild project packages often. It is not best idea to compile packages right on Raspberry Pi. That would take hours. I was searching for a tool that can create image base — on my laptop or VPS.</p>
+                    <p>Currently I do developing my own Roaming VoIP PBX as a Raspberry Pi image, and have to rebuild project packages often. It is not best idea to compile packages right on Raspberry Pi. That would take hours. I was searching for a tool that can create image base — on my laptop or VPS.</p>
 
 <p>Here is good starting point: <a href="http://blog.kmp.or.at/2012/05/build-your-own-raspberry-pi-image/">http://blog.kmp.or.at/2012/05/build-your-own-raspberry-pi-image/</a>, there is an <a href="http://www.kmp.or.at/~klaus/raspberry/build_rpi_sd_card.sh">shell script that will build image (right-click and select ‘download as’)</a>.</p>
 
@@ -657,13 +766,19 @@ bash
   </li>
 </ul>
 
+<h2 id="update-may-2013">Update (May 2013)</h2>
+
+<p>While ago I’ve created a repository with a helpers: <a href="https://github.com/andrius/build-raspbian-image/">https://github.com/andrius/build-raspbian-image/</a>, check it out!</p>
+
                     ]]>
                 </content:encoded>
                 <guid isPermaLink="false">/2013/03/raspberry-pi-how-to-create-own-image.html</guid>
                 <description>
                     
+                    Currently I do developing my own Roaming VoIP PBX as a Raspberry Pi image, and have to rebuild project packages often. It is not best idea to compile packages right on Raspberry Pi. That would take hours. I was searching for a tool that can create image base - on my laptop or VPS.
+                    
                 </description>
-                <pubDate>Fri, 22 Mar 2013 03:24:00 -0500</pubDate>
+                <pubDate>Fri, 22 Mar 2013 08:24:00 +0000</pubDate>
                 <author>Andrius Kairiukstis</author>
             </item>
         
@@ -702,26 +817,121 @@ dtx=false        ; Encode using discontinuous transmission mode or not. Turning 
                 <guid isPermaLink="false">/2013/03/asterisk-with-silk8-and-amr-nb-codecs.html</guid>
                 <description>
                     
+                    How to get Asterisk PBX working with SILK and AMR-NB codecs.
+                    
                 </description>
-                <pubDate>Mon, 18 Mar 2013 18:11:00 -0500</pubDate>
+                <pubDate>Mon, 18 Mar 2013 23:11:00 +0000</pubDate>
                 <author>Andrius Kairiukstis</author>
             </item>
         
     
         
             <item>
-                <title>Debian installer (Asterisk and AGI library)</title>
+                <title>Debian installer (Asterisk and Adhearsion AGI framework)</title>
                 <link>//andrius.mobi/2013/03/debian-installer-asterisk-and-agi.html</link>
                 <content:encoded>
                     <![CDATA[
-                    <div dir="ltr" style="text-align: left;" trbidi="on">Sharing a script, which installs Asterisk PBX with fax support, MySQL, Ruby, Adhearsion AGI. Run it as root. Remove ImageMagick part (download and install) in case, if you don't need it.  <script src="https://gist.github.com/andrius/5166099.js"></script></div>
+                    <p>Here is a script that installs Asterisk PBX 11.x: with fax support, MySQL, Ruby, and Adhearsion AGI. Please run it as root. If you don’t need ImageMagick, you can remove the part that downloads and installs it.</p>
+
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">#!/bin/bash</span>
+
+<span class="c"># function to generate random password, on input requires an argument - lenght of password </span>
+genpasswd<span class="o">()</span> <span class="o">{</span>
+  <span class="nb">local </span><span class="nv">l</span><span class="o">=</span><span class="nv">$1</span>
+  <span class="o">[</span> <span class="s2">"</span><span class="nv">$l</span><span class="s2">"</span> <span class="o">==</span> <span class="s2">""</span> <span class="o">]</span> <span class="o">&amp;&amp;</span> <span class="nv">l</span><span class="o">=</span>20
+  <span class="nb">tr</span> <span class="nt">-dc</span> A-Za-z0-9_ &lt; /dev/urandom | <span class="nb">head</span> <span class="nt">-c</span> <span class="k">${</span><span class="nv">l</span><span class="k">}</span> | xargs
+<span class="o">}</span>
+
+<span class="c"># MySQL default root password</span>
+<span class="nv">MYSQL_ROOT_PASSWORD</span><span class="o">=</span><span class="sb">`</span>genpasswd 16<span class="sb">`</span> <span class="c"># can be replaced by static text password</span>
+
+<span class="c"># Remove MySQL with following commands (copy-paste to shell)</span>
+<span class="c"># M=`dpkg -l|grep mysql|awk '{print $2}'|xargs`;apt-get -y purge ${M};rm -rf /etc/mysql;rm -rf /var/lib/mysql</span>
+
+<span class="nv">MYSQL_SERVER_VERSION</span><span class="o">=</span><span class="sb">`</span>apt-cache showpkg mysql-server|grep <span class="s2">"Versions:"</span> <span class="nt">-A</span> 1|tail <span class="nt">--lines</span> 1|awk <span class="s1">'{print $1}'</span><span class="sb">`</span>
+<span class="c"># tell installer about pre-set MySQL server password</span>
+<span class="nb">echo</span> <span class="s2">"mysql-server-</span><span class="k">${</span><span class="nv">MYSQL_SERVER_VERSION</span><span class="k">}</span><span class="s2"> mysql-server/root_password password </span><span class="k">${</span><span class="nv">MYSQL_ROOT_PASSWORD</span><span class="k">}</span><span class="s2">"</span> <span class="se">\</span>
+  | debconf-set-selections 
+<span class="nb">echo</span> <span class="s2">"mysql-server-</span><span class="k">${</span><span class="nv">MYSQL_SERVER_VERSION</span><span class="k">}</span><span class="s2"> mysql-server/root_password_again password </span><span class="k">${</span><span class="nv">MYSQL_ROOT_PASSWORD</span><span class="k">}</span><span class="s2">"</span> <span class="se">\</span>
+  | debconf-set-selections
+
+<span class="c"># install necessary packages</span>
+apt-get update
+apt-get upgrade
+apt-get <span class="nt">-y</span> <span class="nb">install </span>build-essential linux-headers-<span class="sb">`</span><span class="nb">uname</span> <span class="nt">-r</span><span class="sb">`</span> libxml2-dev libncurses-dev libnewt-dev <span class="se">\</span>
+  openssl libreadline6 libreadline-dev curl git-core zlib1g zlib1g-dev libssl-dev libyaml-dev <span class="se">\</span>
+  libxml2-dev libxslt-dev autoconf libc6-dev ncurses-dev automake libtool bison libtiff-dev <span class="se">\</span>
+  libjpeg-progs libjpeg-dev libpng-dev mysql-server libmysqlclient-dev sqlite3 libsqlite3-dev <span class="se">\</span>
+  wget rsync subversion
+
+<span class="c"># create /usr/src if not exists</span>
+<span class="nb">mkdir</span> <span class="nt">-p</span> /usr/src
+<span class="nb">cd</span> /usr/src
+
+<span class="c"># download SpanDSP (need to support faxing)</span>
+wget <span class="nt">--continue</span> http://soft-switch.org/downloads/spandsp/spandsp-0.0.6pre21.tgz
+
+<span class="c"># download imagemagick (need to convert faxes)</span>
+wget <span class="nt">--continue</span> http://www.imagemagick.org/download/ImageMagick-6.8.3-9.tar.gz
+
+<span class="c"># download asterisk PBX</span>
+wget <span class="nt">--continue</span> http://downloads.asterisk.org/pub/telephony/asterisk/asterisk-11.2.1.tar.gz
+
+<span class="c"># unpack downloaded packages</span>
+<span class="nb">tar</span> <span class="nt">-zxf</span> spandsp-0.0.6pre21.tgz
+<span class="nb">tar</span> <span class="nt">-zxf</span> ImageMagick-6.8.3-9.tar.gz
+<span class="nb">tar</span> <span class="nt">-zxf</span> asterisk-11.2.1.tar.gz
+
+<span class="c"># dowlnoad asterisk add-ons</span>
+<span class="nb">cd </span>asterisk-11.2.1
+./contrib/scripts/get_ilbc_source.sh
+./contrib/scripts/get_mp3_source.sh
+
+<span class="c"># install imagemagick</span>
+<span class="nb">cd</span> ../ImageMagick-6.8.3-9
+./configure <span class="o">&amp;&amp;</span> make all <span class="o">&amp;&amp;</span> make <span class="nb">install</span>
+
+<span class="c"># install spandsp</span>
+<span class="nb">cd</span> ../spandsp-0.0.6
+./configure <span class="o">&amp;&amp;</span> make all <span class="o">&amp;&amp;</span> make <span class="nb">install</span>
+
+<span class="c"># install asterisk PBX</span>
+<span class="nb">cd</span> ../asterisk-11.2.1
+./configure <span class="o">&amp;&amp;</span> make all <span class="o">&amp;&amp;</span> make <span class="nb">install</span> <span class="o">&amp;&amp;</span> make samples <span class="o">&amp;&amp;</span> make config <span class="o">&amp;&amp;</span> make install-logrotate
+
+<span class="c"># install asterisk utilities</span>
+<span class="nb">cp</span> ./contrib/scripts/astcli /usr/local/bin/
+
+<span class="c"># Automate asterisk service to run on startup.</span>
+update-rc.d asterisk defaults
+
+<span class="c"># install rvm and ruby</span>
+curl <span class="nt">-L</span> get.rvm.io | bash <span class="nt">-s</span> stable
+<span class="c"># to remove rvm do:</span>
+<span class="c"># rvm implode</span>
+<span class="nb">source</span> /etc/profile.d/rvm.sh
+ldconfig 
+rvm <span class="nb">install </span>1.9.3
+gem <span class="nb">install</span> <span class="nt">--no-rdoc</span> <span class="nt">--no-ri</span> bundler sqlite3 mysql <span class="se">\</span>
+  adhearsion adhearsion-activerecord adhearsion-asterisk adhearsion-drb adhearsion-rails adhearsion-xmpp
+
+<span class="nb">echo</span> <span class="nt">-e</span> <span class="s2">"</span><span class="se">\n\n\n\n</span><span class="s2">"</span>
+<span class="nb">echo</span> <span class="s2">"**************************************************************************************"</span>
+<span class="nb">echo</span> <span class="s2">"  INSTALLATION DONE"</span>
+<span class="nb">echo</span> <span class="s2">"  YOUR ROOT MYSQL PASSWORD IS </span><span class="k">${</span><span class="nv">MYSQL_ROOT_PASSWORD</span><span class="k">}</span><span class="s2">"</span>
+<span class="nb">echo</span> <span class="s2">"  SAVE IT IN SAFE PLACE :)"</span>
+<span class="nb">echo</span> <span class="s2">"**************************************************************************************"</span>
+</code></pre></div></div>
+
                     ]]>
                 </content:encoded>
                 <guid isPermaLink="false">/2013/03/debian-installer-asterisk-and-agi.html</guid>
                 <description>
                     
+                    Here is a script that installs Asterisk PBX 11.x: with fax support, MySQL, Ruby, and Adhearsion AGI.
+                    
                 </description>
-                <pubDate>Thu, 14 Mar 2013 18:23:00 -0500</pubDate>
+                <pubDate>Thu, 14 Mar 2013 23:23:00 +0000</pubDate>
                 <author>Andrius Kairiukstis</author>
             </item>
         
@@ -729,92 +939,106 @@ dtx=false        ; Encode using discontinuous transmission mode or not. Turning 
         
             <item>
                 <title>Roaming PBX with Raspberry Pi, Asterisk and chan_dongle</title>
-                <link>//andrius.mobi/2013/03/roaming-solution-based-on-raspberry-pi-asterisk-chandongle-as.html</link>
+                <link>//andrius.mobi/2013/03/roaming-solution-based-on-raspberry-pi-asterisk-chan_dongle.html</link>
                 <content:encoded>
                     <![CDATA[
-                    <p>As an frequent tralveller, I well understand the needs of another travelers and citizens of the world in telecommunications ;) While ago I’ve decided to spent my free time building Roaming PBX solution.</p>
+                    <p>As a frequent traveler, I understand the telecommunications needs of other travelers and citizens of the world. Recently, I decided to dedicate my free time to building a Roaming PBX solution.</p>
 
-<p>What I am planning first:</p>
+<p>Here’s my plan:</p>
 
 <ul>
-  <li>Raspberry Pi image (with possible OpenWRT solution too);</li>
-  <li>Asterisk PBX;</li>
-  <li>asterisk chan_dongle — an driver for Huawei USB modems, that handle two-way GSM calls;</li>
-  <li>VPN to get it working in locations where VoIP is blocked;</li>
-  <li>FreePBX GUI to manage dialplans;</li>
-  <li>Asterisk2billing, preconfigured — to control expenses;</li>
-  <li>Keep-alive scripts, monitoring</li>
+  <li>Create a Raspberry Pi image, possibly with an OpenWRT solution.</li>
+  <li>Set up Asterisk PBX.</li>
+  <li>Install asterisk chan_dongle, a driver for Huawei USB modems that handles two-way GSM calls.</li>
+  <li>Use a VPN to bypass VoIP blocking in certain locations.</li>
+  <li>Utilize the FreePBX GUI to manage dial plans.</li>
+  <li>Configure Asterisk2billing to control expenses.</li>
+  <li>Implement keep-alive scripts for monitoring.</li>
 </ul>
 
-<p>Anything extra?</p>
+<p>Anything else?</p>
 
 <h3 id="update-19-march-2013">Update (19 March, 2013)</h3>
 
-<p>I have successfully created an image file based on standard raspbian. Currently busy working on cross-compiler.</p>
+<p>I have successfully created an image file based on the standard Raspbian. Currently, I am busy working on a cross-compiler.</p>
 
 <h3 id="update-2-6-may-2013">Update #2 (6 May, 2013)</h3>
 
-<p>Download link, containing latest image: <a href="http://j.mp/tinypbx">http://j.mp/tinypbx</a>. Standard flashing instructions: gunzip .gz file, insert SD card, flash with Linux DD command… <a href="http://www.andrewmunsell.com/blog/getting-started-raspberry-pi-install-raspbian/" target="_blank">This site</a> for example, describing flashing procedure well.</p>
+<p>For those interested, you can download the latest image from this link: http://j.mp/tinypbx. Follow standard flashing instructions: gunzip the .gz file, insert the SD card, and flash it using the Linux DD command. You can find detailed instructions on how to flash the image on this site: <a href="http://www.andrewmunsell.com/blog/getting-started-raspberry-pi-install-raspbian/">http://www.andrewmunsell.com/blog/getting-started-raspberry-pi-install-raspbian/</a>, that provides a comprehensive description of the flashing procedure.</p>
+
+<p>Additionally, I have created a side project that allows you to cross-compile anything and build your own image. You can find it at: <a href="https://github.com/andrius/build-raspbian-image">https://github.com/andrius/build-raspbian-image</a></p>
 
                     ]]>
                 </content:encoded>
-                <guid isPermaLink="false">/2013/03/roaming-solution-based-on-raspberry-pi-asterisk-chandongle-as.html</guid>
+                <guid isPermaLink="false">/2013/03/roaming-solution-based-on-raspberry-pi-asterisk-chan_dongle.html</guid>
                 <description>
                     
+                    As a frequent traveler, I understand the telecommunications needs of other travelers and citizens of the world. Recently, I decided to dedicate my free time to building a Roaming PBX solution.
+                    
                 </description>
-                <pubDate>Tue, 12 Mar 2013 16:28:00 -0500</pubDate>
+                <pubDate>Tue, 12 Mar 2013 21:28:00 +0000</pubDate>
                 <author>Andrius Kairiukstis</author>
             </item>
         
     
         
             <item>
-                <title>Why create AGI?</title>
+                <title>Why you should create AGI?</title>
                 <link>//andrius.mobi/2013/03/why-create-agi.html</link>
                 <content:encoded>
                     <![CDATA[
-                    <div dir="ltr" style="text-align: left;" trbidi="on">Asterisk dial-plan is powerful, and possible to create a number of custom voice applications only with its functions... AEL looks like high-level language, of course, it is just a view of standard expressions, same as in extensions.conf, but.<br />You can manipulate database data through func_odbc, you can call a Linux system script and process result, in case if you want to send a notice about event to a web application, you can use a curl function.<br />No problem to send out email or jabber/google talk notification...<br /><br />So, why and when you should use AGI? I believe, correct answers are:<br /><ul style="text-align: left;"><li>Dial-plan is complex, you have a growing amount of huge&nbsp;macros&nbsp;and contexts;</li><li>System are hosted or cluster with various customers with different needs and functions;</li><li>You do integration with another application or web app and have to process inbound events (and send outbound);</li><li>Want to create an API to support 3rd apps;</li><li>Application API of another application;</li><li>And most important – database is a core part of application and should access data permanently.</li></ul><div>There are many reasons too, but basically it is good to always keep in mind a <a href="http://en.wikipedia.org/wiki/KISS_principle" target="_blank">KISS principle</a>. If task can be resolved without using AGI, do that and use dial-plan. If dial-plan call a lot of external shell scripts – create AGI app.</div></div>
+                    <p>The Asterisk dial-plan is a powerful tool for creating custom voice applications using its functions. The AEL (Asterisk Extension Language) provides a high-level view of standard expressions, similar to extensions.conf. With the dial-plan, you can manipulate database data through func_odbc, call Linux system scripts and process the results, send notifications to web applications using the curl function, and even send emails or jabber/google talk notifications.</p>
+
+<p>However, there are situations where using AGI (Asterisk Gateway Interface) is preferred. Here are some reasons to consider using AGI:</p>
+
+<ol>
+  <li>Complex dial-plan: If your dial-plan is becoming complex with a growing number of macros and contexts, using AGI can help simplify and manage the code.</li>
+  <li>Hosting multiple customers: If your system is hosted or clustered with various customers, each with different needs and functions, AGI can provide a more flexible and customizable solution.</li>
+  <li>Integration with other applications: If you need to integrate with another application or web app, and process inbound events and send outbound events, AGI can facilitate the communication and data processing.</li>
+  <li>Creating an API: AGI can be used to create an API that supports third-party applications, allowing them to interact with your Asterisk system.</li>
+  <li>Accessing a database: If your application heavily relies on a database and requires permanent access to data, AGI can provide the necessary functionality.</li>
+</ol>
+
+<p>It’s important to keep in mind the “KISS principle” (Keep It Simple, Stupid). If a task can be resolved without using AGI, it’s recommended to use the dial-plan. However, if the dial-plan involves calling a lot of external shell scripts or requires more complex functionality, creating an AGI application may be a better approach.</p>
+
                     ]]>
                 </content:encoded>
                 <guid isPermaLink="false">/2013/03/why-create-agi.html</guid>
                 <description>
                     
+                    In the world of Asterisk, the dial-plan is a powerful tool for creating custom voice applications. However, there are situations where using AGI (Asterisk Gateway Interface) is preferred. This article explores the reasons why AGI can be a valuable addition to your Asterisk system.
+                    
                 </description>
-                <pubDate>Tue, 12 Mar 2013 16:07:00 -0500</pubDate>
+                <pubDate>Tue, 12 Mar 2013 21:07:00 +0000</pubDate>
                 <author>Andrius Kairiukstis</author>
             </item>
         
     
         
             <item>
-                <title>Click-to-call script</title>
+                <title>Click-to-call script for Windows users</title>
                 <link>//andrius.mobi/2013/03/your-own-click-to-call-with-asterisk.html</link>
                 <content:encoded>
                     <![CDATA[
-                    <p>Sharing one my ancient projects with Asterisk: click-to-call library with client and server part. Windows user could activate <code class="highlighter-rouge">callto.rb</code> script, the customer just integrated it with their CRM application; after user start script, his SIP phone rings. Here it is: <a href="https://github.com/andrius/asterisk-click-to-call-windows">https://github.com/andrius/asterisk-click-to-call-windows</a>.</p>
+                    <p>Sharing one of my older projects with Asterisk: a click-to-call library with client and server components. It does work with Windows: Windows users could activate the <code class="language-plaintext highlighter-rouge">callto.rb</code> script, which could then be integrated with their CRM application. Once the script was started, the user’s SIP phone would ring. You can find the project here: https://github.com/andrius/asterisk-click-to-call-windows.</p>
 
 <ul>
-  <li>
-    <p>Client app <code class="highlighter-rouge">callto.rb</code> should be compiled to the Windows .exe file (or can be executed from the command line, if there is ruby installed on Windows). For examlpe <a href="http://www.erikveen.dds.nl/rubyscript2exe">rubyscript2exe</a> would compile ruby script to exe;</p>
-  </li>
-  <li>
-    <p>Credentials to be populated within <code class="highlighter-rouge">users.yml</code>;</p>
-  </li>
-  <li>
-    <p><code class="highlighter-rouge">server.rb</code> should be running on Asterisk;</p>
-  </li>
+  <li>The client app, <code class="language-plaintext highlighter-rouge">callto.rb</code>, needs to be compiled into a Windows .exe file. Alternatively, it can be executed from the command line if Ruby is installed on Windows. For example, <a href="http://www.erikveen.dds.nl/rubyscript2exe">rubyscript2exe</a> can compile the Ruby script into an executable;</li>
+  <li>Credentials should be populated within the <code class="language-plaintext highlighter-rouge">users.yml</code> file;</li>
+  <li>The <code class="language-plaintext highlighter-rouge">server.rb</code> script should be running on Asterisk.</li>
 </ul>
 
-<p>System is very simple, sorry for lack of comments!</p>
-
+<p>The system is very simple, and I apologize for the lack of comments!</p>
 
                     ]]>
                 </content:encoded>
                 <guid isPermaLink="false">/2013/03/your-own-click-to-call-with-asterisk.html</guid>
                 <description>
                     
+                    Sharing one of my older projects with Asterisk: a click-to-call library with client and server components. It does work with Windows!
+                    
                 </description>
-                <pubDate>Sun, 10 Mar 2013 07:23:00 -0500</pubDate>
+                <pubDate>Sun, 10 Mar 2013 12:23:00 +0000</pubDate>
                 <author>Andrius Kairiukstis</author>
             </item>
         
@@ -825,9 +1049,9 @@ dtx=false        ; Encode using discontinuous transmission mode or not. Turning 
                 <link>//andrius.mobi/2013/03/how-to-unlock-huawei-modem.html</link>
                 <content:encoded>
                     <![CDATA[
-                    <p>After last post about GSM gateway based on Raspberry Pi and Huawei modem, I have received few questions like “how to unlock it?”</p>
+                    <p>After my last post about the GSM gateway based on Raspberry Pi and Huawei modem, I received a few questions asking how to unlock it.</p>
 
-<p>Below is YouTube video describing process:</p>
+<p>Below is a YouTube video that describes the process:</p>
 
 <p>https://youtu.be/uL-drV_ZniM</p>
 <style>
@@ -931,10 +1155,10 @@ mp3_embed();
                 <guid isPermaLink="false">/2013/03/how-to-unlock-huawei-modem.html</guid>
                 <description>
                     
-                    After last post about GSM gateway based on Raspberry Pi and Huawei modem, I have received few questions like &quot;how to unlock it?&quot; Below is YouTube video describing process.
+                    After my last post about the GSM gateway based on Raspberry Pi and Huawei modem, I received a few questions asking how to unlock it. Below is a YouTube video that describes the process.
                     
                 </description>
-                <pubDate>Sat, 09 Mar 2013 15:12:00 -0600</pubDate>
+                <pubDate>Sat, 09 Mar 2013 21:12:00 +0000</pubDate>
                 <author>Andrius Kairiukstis</author>
             </item>
         
@@ -945,200 +1169,181 @@ mp3_embed();
                 <link>//andrius.mobi/2013/03/asterisk-on-raspberry-pi-as-gsm-gateway.html</link>
                 <content:encoded>
                     <![CDATA[
-                    <p>Yesterday I’ve installed chan_dongle for <a href="http://www.raspberry-asterisk.org/">Asterisk PBX running at Raspberry Pi</a>. What is <a href="//github.com/jstasiak/asterisk-chan-dongle">chan_dongle</a>? It is driver for Asterisk PBX, that allow to use <a href="http://wiki.e1550.mobi/doku.php">some Huawei 3G USB dongles</a> as a voice “board” to handle voice, SMS and USSD. Kind of your own self-made single-channel GSM gateway.</p>
+                    <h2 id="introduction">Introduction</h2>
+
+<p>Yesterday, I installed chan_dongle for my <a href="http://www.raspberry-asterisk.org/">Asterisk PBX running on Raspberry Pi</a>. <a href="https://github.com/jstasiak/asterisk-chan-dongle">chan_dongle</a> is a driver for Asterisk PBX that allows the use of certain Huawei 3G USB dongles as a voice “board” for handling voice, SMS, and USSD. It’s like creating your own single-channel GSM gateway.</p>
 
 <p><img src="/images/raspberry-pi-with-dongle.png" alt="Raspberry PI with Huawei 3G dongle" /></p>
-<h1 id="instructions">Instructions</h1>
-<ul>
+
+<h2 id="instructions">Instructions</h2>
+
+<p>Follow these steps to set up chan_dongle:</p>
+
+<ol>
+  <li>Obtain a <a href="http://wiki.e1550.mobi/doku.php?id=requirements">compatible USB modem</a>.</li>
+  <li>Use <a href="https://www.dc-unlocker.com/">DC-Unlocker software</a> to check if the modem has voice function and is not locked.</li>
+  <li>If needed, unlock the modem by following the <a href="http://wiki.e1550.mobi/doku.php?id=preparation">unlock instructions and resources</a>.</li>
+  <li>(Optional) If the DC-Unlocker indicates that the modem has no voice function or you encounter issues during configuration, try <a href="http://www.dc-files.com/files/huawei/">upgrading the firmware</a>.</li>
   <li>
-    <p>Get <a href="http://wiki.e1550.mobi/doku.php?id=requirements">compatible USB modem</a>;</p>
+    <p>Download <a href="http://www.raspberry-asterisk.org/downloads/">Raspberry-asterisk</a> and flash it onto an SD card (at least 4GB in size). Below are the instructions for flashing on macOS:</p>
+
+    <div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code> <span class="c"># Find your card (in my case, it's disk1)</span>
+ mount /dev/disk1
+ diskutil unmountDisk /dev/disk1
+ <span class="nb">sudo dd </span><span class="k">if</span><span class="o">=</span>raspbian_wheezy_20120608.img <span class="nv">of</span><span class="o">=</span>/dev/rdisk1 <span class="nv">bs</span><span class="o">=</span>1m
+</code></pre></div>    </div>
+  </li>
+</ol>
+
+<h2 id="installation">Installation</h2>
+
+<p>Once you have the flashed SD card, power on the Raspberry Pi and follow these steps:</p>
+
+<ol>
+  <li>
+    <p>Upgrade the system by running the command:</p>
+
+    <div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code> raspbx-upgrade
+</code></pre></div>    </div>
   </li>
   <li>
-    <p>To check is modem have voice function and is not locked, use <a href="//www.dc-unlocker.com/">DC-Unlocker software</a>;</p>
+    <p>Install the necessary software:</p>
+
+    <div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code> apt-get <span class="nb">install </span>usbutils unzip autoconf automake
+
+ <span class="c"># Compile USB-modeswitch</span>
+ <span class="nb">cd</span> /usr/src/
+
+ wget http://www.draisberghof.de/usb_modeswitch/usb-modeswitch-1.2.5.tar.bz2
+ wget http://www.draisberghof.de/usb_modeswitch/usb-modeswitch-data-20121109.tar.bz2
+
+ <span class="nb">tar</span> <span class="nt">-jxvf</span> usb-modeswitch-1.2.5.tar.bz2
+ <span class="nb">tar</span> <span class="nt">-jxvf</span> usb-modeswitch-data-20121109.tar.bz2
+
+ <span class="nb">cd </span>usb-modeswitch-1.2.5
+ make all
+ make <span class="nb">install
+
+ cd</span> ../usb-modeswitch-data-20121109
+ make <span class="nb">install
+
+ cd</span> ..
+</code></pre></div>    </div>
   </li>
   <li>
-    <p>Unlock modem if needed (it’s locked to operator and you have SIM card from other operator). Check <a href="http://wiki.e1550.mobi/doku.php?id=preparation">unlock instructions and resources</a>;</p>
+    <p>Plug in the Huawei USB stick (if already plugged, eject it first) and check the output of the <code class="language-plaintext highlighter-rouge">lsusb</code> command:</p>
+
+    <div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code> lsusb | <span class="nb">grep </span>Huawei
+</code></pre></div>    </div>
+
+    <p>The output should resemble:</p>
+
+    <div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code> Bus 001 Device 005: ID 12d1:140c Huawei Technologies Co., Ltd.
+</code></pre></div>    </div>
   </li>
   <li>
-    <p>(optional step) if according to the DC-Unlocker, modem has no voice function, or you had issues with further configuration steps, try to <a href="http://www.dc-files.com/files/huawei/">upgrade firmware</a>;</p>
+    <p>Switch the USB-stick to modem mode. Use the values obtained from the previous step (<code class="language-plaintext highlighter-rouge">v</code> and <code class="language-plaintext highlighter-rouge">p</code> flags) and perform a Google search for your modem model and brand to find the value for the <code class="language-plaintext highlighter-rouge">M</code> flag.</p>
+
+    <div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code> usb_modeswitch <span class="nt">-v</span> 0x12d1 <span class="nt">-p</span> 0x140c <span class="nt">-H</span> <span class="nt">-s</span> 5 <span class="nt">-M</span> 55534243000000000000000000000011060000000000000000000000000000
+</code></pre></div>    </div>
   </li>
   <li>
-    <p>Download <a href="http://www.raspberry-asterisk.org/downloads/">Raspberry-asterisk</a>, flash it to the SD card (4GB at least; flash instructions on their website, below how I did that on mac OS):</p>
+    <p>Download and install chan_dongle:</p>
+
+    <div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code> wget https://github.com/jstasiak/asterisk-chan-dongle/archive/asterisk11.zip
+
+ unzip asterisk11.zip
+
+ <span class="nb">cd </span>asterisk-chan-dongle-asterisk11/
+ aclocal
+ autoconf
+ automake <span class="nt">-a</span>
+ ./configure
+ make all
+ make <span class="nb">install
+ cp </span>etc/dongle.conf /etc/asterisk/
+ <span class="nb">cp</span> /etc/extensions.conf /etc/asterisk/extensions-dongle.conf
+</code></pre></div>    </div>
   </li>
-</ul>
+  <li>
+    <p>Restart Asterisk PBX and check the modem status:</p>
 
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># find your card (disk1 in my case)</span>
-mount /dev/disk1
-diskutil unmountDisk /dev/disk1
-<span class="nb">sudo dd </span><span class="k">if</span><span class="o">=</span>raspbian_wheezy_20120608.img <span class="nv">of</span><span class="o">=</span>/dev/rdisk1 <span class="nv">bs</span><span class="o">=</span>1m
-</code></pre></div></div>
-<h1 id="installation">Installation</h1>
-<p>Power on Raspberry Pi, find its ip address, ssh and:</p>
+    <div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code> asterisk <span class="nt">-rx</span> <span class="s2">"core restart now"</span>
 
-<ul>
-  <li>Upgrade system</li>
-</ul>
+ <span class="c"># Check devices</span>
+ asterisk <span class="nt">-rx</span> <span class="s2">"dongle show devices"</span>
+</code></pre></div>    </div>
 
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>raspbx-upgrade
-</code></pre></div></div>
+    <p>You should see something like this:</p>
 
-<ul>
-  <li>Install necessary software:</li>
-</ul>
+    <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code> # *CLI&gt; dongle show devices
+ # ID           Group State      RSSI Mode Submode Provider Name  Model      Firmware          IMEI             IMSI             Number
+ # dongle0      0     Free       2    0    0       Yoigo          E1762      11.126.13.00.00   xxxx yyy  Unknown
+ # *CLI&gt;
+</code></pre></div>    </div>
+  </li>
+</ol>
 
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>apt-get <span class="nb">install </span>usbutils unzip autoconf automake
+<p>That’s it! You have successfully installed and configured chan_dongle. The next step is to configure your new GSM gateway.</p>
 
-<span class="c"># compile USB-modeswitch</span>
-
-<span class="nb">cd</span> /usr/src/
-
-wget http://www.draisberghof.de/usb_modeswitch/usb-modeswitch-1.2.5.tar.bz2
-wget http://www.draisberghof.de/usb_modeswitch/usb-modeswitch-data-20121109.tar.bz2
-
-<span class="nb">tar</span> <span class="nt">-jxvf</span> usb-modeswitch-1.2.5.tar.bz2
-<span class="nb">tar</span> <span class="nt">-jxvf</span> usb-modeswitch-data-20121109.tar.bz2
-
-<span class="nb">cd </span>usb-modeswitch-1.2.5
-make all
-make <span class="nb">install
-
-cd</span> ../usb-modeswitch-data-20121109
-make <span class="nb">install
-
-cd</span> ..
-</code></pre></div></div>
-
-<ul>
-  <li>Now plug-in (if plugged, eject it first) an Huawei USB stick and check <code class="highlighter-rouge">lsusb</code> output:</li>
-</ul>
-
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>lsusb | <span class="nb">grep </span>Huawei
-</code></pre></div></div>
-
-<p>It should print something like this:</p>
-
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Bus 001 Device 005: ID 12d1:140c Huawei Technologies Co., Ltd.
-</code></pre></div></div>
-
-<ul>
-  <li>Now switch USB-stick to the modem mode. Values foe <code class="highlighter-rouge">-v</code> and <code class="highlighter-rouge">-p</code> flags I get from previous step and value for <code class="highlighter-rouge">-M</code> flag, I get from google search for my modem model and brand.</li>
-</ul>
-
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>usb_modeswitch <span class="nt">-v</span> 0x12d1 <span class="nt">-p</span> 0x140c <span class="nt">-H</span> <span class="nt">-s</span> 5 <span class="nt">-M</span> 55534243000000000000000000000011060000000000000000000000000000
-</code></pre></div></div>
-
-<ul>
-  <li>Download and install chan_dongle:</li>
-</ul>
-
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>wget https://github.com/jstasiak/asterisk-chan-dongle/archive/asterisk11.zip
-
-unzip asterisk11.zip
-
-<span class="nb">cd </span>asterisk-chan-dongle-asterisk11/
-aclocal
-autoconf
-automake <span class="nt">-a</span>
-./configure
-make all
-make <span class="nb">install
-cp </span>etc/dongle.conf /etc/asterisk/
-<span class="nb">cp</span> /etc/extensions.conf /etc/asterisk/extensions-dongle.conf
-</code></pre></div></div>
-
-<ul>
-  <li>Restart Asterisk PBX and check modem status:</li>
-</ul>
-
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>asterisk <span class="nt">-rx</span> <span class="s2">"core restart now"</span>
-
-<span class="c"># done, checking devices</span>
-asterisk <span class="nt">-rx</span> <span class="s2">"dongle show devices"</span>
-</code></pre></div></div>
-
-<p>You should see something like this:</p>
-
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># *CLI&gt; dongle show devices</span>
-<span class="c"># ID           Group State      RSSI Mode Submode Provider Name  Model      Firmware          IMEI             IMSI             Number</span>
-<span class="c"># dongle0      0     Free       2    0    0       Yoigo          E1762      11.126.13.00.00   xxxx yyy  Unknown</span>
-<span class="c"># *CLI&gt;</span>
-</code></pre></div></div>
-
-<p>Done! Next step would be configuration of your new GSM gateway.</p>
-
-<p>Still playing with device. Quality is good, better than I get with Portech GSM gateway, price per port also way better, and it also can send and receive SMS and USSD.</p>
+<p>I am still experimenting with this device, but so far, the quality has been good and better than what I experienced with the Portech GSM gateway. The price per port is also more favorable, and it can send and receive SMS and USSD.</p>
 
 <p>Good luck!</p>
 
-<p>If you would like to try my system, download latest image here: <a href="//j.mp/tinypbx">j.mp/tinypbx</a>. Flashing instructions are same as for any Raspberry Pi image: gunzip .gz file, insert SD card, flash with Linux DD command… <a href="https://www.andrewmunsell.com/blog/getting-started-raspberry-pi-install-raspbian">This resource</a> for example, describes flashing procedure quite well.</p>
-<h1 id="some-useful-links">Some useful links</h1>
+<p>If you want to try my system, you can download the latest image <a href="https://j.mp/tinypbx">here</a>. The flashing instructions are the same as for any Raspberry Pi image: gunzip the .gz file, insert the SD card, and flash it using the Linux DD command. For example, you can refer to <a href="https://www.andrewmunsell.com/blog/getting-started-raspberry-pi-install-raspbian">this resource</a> for detailed flashing procedures.</p>
+
+<h2 id="useful-links">Useful Links</h2>
+
 <ul>
-  <li>
-    <p><a href="http://wiki.e1550.mobi/doku.php?id=usage">Asterisk CLI commands to control dongle, some instructions</a>;</p>
-  </li>
-  <li>
-    <p><a href="http://gix.net.pl/raspberry-pi/">Another resource regarding dongle with Raspberry Pi</a>;</p>
-  </li>
-  <li>
-    <p><a href="http://habrahabr.ru/post/160299/">Useful resource about chan_dongle (in Russian language, use google translate)</a>;</p>
-  </li>
-  <li>
-    <p><a href="http://wiki.e1550.mobi/doku.php?id=troubleshooting">How to troubleshoot your Huawei modem</a>.</p>
-  </li>
+  <li><a href="http://wiki.e1550.mobi/doku.php?id=usage">Asterisk CLI commands to control dongle and additional instructions</a>;</li>
+  <li><a href="http://gix.net.pl/raspberry-pi/">Another resource regarding dongle with Raspberry Pi</a>;</li>
+  <li><a href="http://habrahabr.ru/post/160299/">Useful resource about chan_dongle (in Russian language, use google translate)</a>;</li>
+  <li><a href="http://wiki.e1550.mobi/doku.php?id=troubleshooting">How to troubleshoot your Huawei modem</a>.</li>
 </ul>
+
 
                     ]]>
                 </content:encoded>
                 <guid isPermaLink="false">/2013/03/asterisk-on-raspberry-pi-as-gsm-gateway.html</guid>
                 <description>
                     
-                    Yesterday I've installed chan\_dongle for Asterisk PBX running at Raspberry Pi. What is chan\_dongle? It is driver for Asterisk PBX, that allow to use some Huawei 3G USB dongles as a voice &quot;board&quot; to handle voice, SMS and USSD. Kind of your own self-made single-channel GSM gateway.
+                    Yesterday, I installed chan_dongle for my Asterisk PBX running on Raspberry Pi. chan_dongle is a driver that enables the use of Huawei 3G USB dongles as a voice &quot;board&quot; for handling voice, SMS, and USSD. I conducted extensive research on various topics and summarized everything in a document. Additionally, I provided useful links related to Asterisk CLI commands, troubleshooting Huawei modems, and additional resources for chan_dongle.
                     
                 </description>
-                <pubDate>Tue, 05 Mar 2013 13:50:00 -0600</pubDate>
+                <pubDate>Tue, 05 Mar 2013 19:50:00 +0000</pubDate>
                 <author>Andrius Kairiukstis</author>
             </item>
         
     
         
             <item>
-                <title>Time based conditions in voice (AGI) application</title>
+                <title>Time based conditions in voice application</title>
                 <link>//andrius.mobi/2013/02/time-based-conditions-in-agi-application.html</link>
                 <content:encoded>
                     <![CDATA[
-                    <p>Typical telephony system process incoming call-flow based on different times (and of course customer do want to have control on that, handle time-ranges; also whole platform could be an multi-tenant server with different virtual PBX’es):</p>
+                    <p>The typical telephony system processes incoming call-flow based on different times, and customers want to have control over this and handle time-ranges. The whole platform can be a multi-tenant server with different virtual PBXes.</p>
+
+<p>Here are the different call-handling scenarios based on time:</p>
 
 <ul>
-  <li>
-    <p>During night call should be delivered to the voicemail;</p>
-  </li>
-  <li>
-    <p>In the morning, lunch time and evening should be forwarded to the cell phone;</p>
-  </li>
-  <li>
-    <p>During business hours, call should be processed following standard call-flow logic;</p>
-  </li>
-  <li>
-    <p>Friday’s time is shorter;</p>
-  </li>
-  <li>
-    <p>at Saturday company works only until lunch time;</p>
-  </li>
-  <li>
-    <p>and it’s closed at Sunday (calls should be routed to the voicemail);</p>
-  </li>
-  <li>
-    <p>Calls on public holidays should be forwarded to the voicemail too.</p>
-  </li>
+  <li>During the night, calls should be delivered to the voicemail.</li>
+  <li>In the morning, lunchtime, and evening, calls should be forwarded to the cell phone.</li>
+  <li>During business hours, calls should be processed following standard call-flow logic.</li>
+  <li>On Fridays, the working hours are shorter.</li>
+  <li>On Saturdays, the company works only until lunchtime.</li>
+  <li>On Sundays, the company is closed, and calls should be routed to the voicemail.</li>
+  <li>Calls on public holidays should also be forwarded to the voicemail.</li>
 </ul>
 
-<p>Long time ago I’ve created an following Ruby classes and ActiveRecord migrations for flexible business times management.  And now sharing this, it could be useful for anyone who deal with time conditions in the backend apps (and that’s not only telephony-related).</p>
+<p>A long time ago, I created the following Ruby classes and ActiveRecord migrations for flexible business time management. I am now sharing this, as it could be useful for anyone dealing with time conditions in backend applications, not just telephony-related ones.</p>
 
-<p><code class="highlighter-rouge">Item</code> is and kind polymorphic association that points to any voice-related “thing” in a PBX. I.e. to the extension, or voicemail, conference, whatever…</p>
+<p>The “Item” class is a polymorphic association that points to any voice-related entity in a PBX. By reusing polymorphic database associations, it is possible to create very flexible call flow building blocks. These blocks can point to any voice-related entity in a PBX, such as an extension, voicemail, conference, etc. This allows for customizable and dynamic call handling based on time conditions.</p>
 
-<p>If we would trigger method <code class="highlighter-rouge">operational?</code> for given business-time collection, it should return “item_id” or nil if time conditions did not met (office closed?).</p>
+<p>If we trigger the “operational?” method for a given business-time collection, it should return the “item_id” or nil if the time conditions are not met (i.e., the office is closed).</p>
+
 <h3 id="tests">Tests</h3>
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>1.9.3-p327 :001 &gt; Campaign.last.business_time.operational?
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>1.9.3-p327 :001 &gt; Campaign.last.business_time.operational?
 
 Campaign Load (0.1ms)  SELECT "campaigns".* FROM "campaigns" ORDER BY "campaigns"."id" DESC LIMIT 1
 BusinessTime Load (0.2ms)  SELECT "business_times".* FROM "business_times" WHERE "business_times"."id" = 1 LIMIT 1
@@ -1154,6 +1359,7 @@ BusinessTimeMember Load (0.3ms)  SELECT "business_time_members".* FROM "business
 =&gt; 0
 </code></pre></div></div>
 <h3 id="migrations">Migrations</h3>
+
 <div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">create_table</span> <span class="ss">:business_time_members</span> <span class="k">do</span> <span class="o">|</span><span class="n">t</span><span class="o">|</span>
 	<span class="n">t</span><span class="p">.</span><span class="nf">string</span>   <span class="ss">:name</span><span class="p">,</span> <span class="ss">:limit</span> <span class="o">=&gt;</span> <span class="mi">100</span>
 	<span class="n">t</span><span class="p">.</span><span class="nf">integer</span>  <span class="ss">:business_time_id</span>
@@ -1200,7 +1406,9 @@ BusinessTimeMember Load (0.3ms)  SELECT "business_time_members".* FROM "business
 		VALUES (?, 1, </span><span class="si">#{</span><span class="n">day</span><span class="si">}</span><span class="s2">, '</span><span class="si">#{</span><span class="n">time_from</span><span class="si">}</span><span class="s2">', '</span><span class="si">#{</span><span class="n">time_to</span><span class="si">}</span><span class="s2">', 0)"</span>
 <span class="k">end</span>
 </code></pre></div></div>
+
 <h3 id="models">Models</h3>
+
 <div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">class</span> <span class="nc">BusinessTimeMember</span> <span class="o">&lt;</span> <span class="no">ActiveRecord</span><span class="o">::</span><span class="no">Base</span>
   <span class="c1">#validations</span>
   <span class="n">validates_presence_of</span> <span class="ss">:business_time_id</span>
@@ -1225,7 +1433,7 @@ BusinessTimeMember Load (0.3ms)  SELECT "business_time_members".* FROM "business
   <span class="k">def</span> <span class="nf">operational?</span><span class="p">(</span><span class="n">details</span> <span class="o">=</span> <span class="p">{</span> <span class="ss">:datetime</span> <span class="o">=&gt;</span> <span class="no">Time</span><span class="p">.</span><span class="nf">now</span><span class="p">.</span><span class="nf">utc</span> <span class="p">})</span>
     <span class="n">d</span> <span class="o">=</span> <span class="n">details</span><span class="p">[</span><span class="ss">:datetime</span><span class="p">]</span>
 
-    <span class="o">=</span><span class="k">begin</span>
+    <span class="k">begin</span>
       <span class="k">if</span> <span class="nb">self</span><span class="p">.</span><span class="nf">timezone</span>
         <span class="k">begin</span>
           <span class="n">tz</span> <span class="o">=</span> <span class="no">TZInfo</span><span class="o">::</span><span class="no">Timezone</span><span class="p">.</span><span class="nf">get</span><span class="p">(</span><span class="nb">self</span><span class="p">.</span><span class="nf">timezone</span><span class="p">)</span>
@@ -1236,7 +1444,7 @@ BusinessTimeMember Load (0.3ms)  SELECT "business_time_members".* FROM "business
           <span class="nb">puts</span> <span class="s2">"got exception for timezone </span><span class="si">#{</span><span class="nb">self</span><span class="p">.</span><span class="nf">timezone</span><span class="si">}</span><span class="s2">"</span>
         <span class="k">end</span>
       <span class="k">end</span>
-    <span class="o">=</span><span class="k">end</span>
+    <span class="k">end</span>
 
     <span class="n">tm</span> <span class="o">=</span> <span class="no">BusinessTimeMember</span><span class="p">.</span><span class="nf">find</span><span class="p">(</span>
       <span class="ss">:all</span><span class="p">,</span>
@@ -1270,15 +1478,16 @@ BusinessTimeMember Load (0.3ms)  SELECT "business_time_members".* FROM "business
 <span class="k">end</span>
 </code></pre></div></div>
 
+
                     ]]>
                 </content:encoded>
                 <guid isPermaLink="false">/2013/02/time-based-conditions-in-agi-application.html</guid>
                 <description>
                     
-                    Typical telephony system process incoming call-flow based on different times (and of course customer do want to have control on that, handle time-ranges; also whole platform could be an multi-tenant server with different virtual PBX'es).
+                    The typical telephony system processes incoming call flows based on different times. Customers want to have control over this and handle time ranges. The platform can also be a multi-tenant server with different virtual PBXes. In my implementation, I use Ruby, ActiveRecord, and polymorphic associations to create routing blocks. By reusing polymorphic database associations, I can create flexible call flow building blocks. These blocks can be linked to any voice-related entity in a PBX, such as an extension, voicemail, conference, etc. This enables customizable and dynamic call handling based on time conditions.
                     
                 </description>
-                <pubDate>Fri, 22 Feb 2013 16:54:00 -0600</pubDate>
+                <pubDate>Fri, 22 Feb 2013 22:54:00 +0000</pubDate>
                 <author>Andrius Kairiukstis</author>
             </item>
         
@@ -1289,9 +1498,9 @@ BusinessTimeMember Load (0.3ms)  SELECT "business_time_members".* FROM "business
                 <link>//andrius.mobi/2013/02/delete-voice-recordings-older-than-n-days.html</link>
                 <content:encoded>
                     <![CDATA[
-                    <p>Disk space running out fast in loaded telephony systems with instant call recording  or either with heavy usage of voicemail. It’s good to purge them on regular basis.</p>
+                    <p>Disk space is running out quickly in loaded telephony systems with instant call recording or heavy usage of voicemail. It’s good to purge them on a regular basis.</p>
 
-<p>Create an executable bash file and put it to the <code class="highlighter-rouge">cron.daily</code>:</p>
+<p>Create an executable bash file and put it in the <code class="language-plaintext highlighter-rouge">cron.daily</code> directory:</p>
 
 <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">#!/bin/sh</span>
 <span class="nb">cd</span> /var/spool/asterisk/monitor
@@ -1306,10 +1515,10 @@ find <span class="nb">.</span> <span class="nt">-mtime</span> +31 <span class="n
                 <guid isPermaLink="false">/2013/02/delete-voice-recordings-older-than-n-days.html</guid>
                 <description>
                     
-                    Disk space running out fast in loaded telephony systems with instant call recording  or either with heavy usage of voicemail. It's good to purge them on regular basis.
+                    Disk space running out fast in loaded telephony systems with instant call recording  or either with heavy usage of voicemail. It&apos;s good to purge them on regular basis.
                     
                 </description>
-                <pubDate>Fri, 22 Feb 2013 09:30:00 -0600</pubDate>
+                <pubDate>Fri, 22 Feb 2013 09:30:00 +0000</pubDate>
                 <author>Andrius Kairiukstis</author>
             </item>
         
@@ -1320,46 +1529,32 @@ find <span class="nb">.</span> <span class="nt">-mtime</span> +31 <span class="n
                 <link>//andrius.mobi/2013/02/questionnaire-with-asterisk-pbx-agi-ruby.html</link>
                 <content:encoded>
                     <![CDATA[
-                    <p>There are several Ruby AGI implementations, the best one as for now is <a href="https://github.com/adhearsion/adhearsion">Adhearsion</a>. I do use it for most of my current projects, its great, but sometimes too big and it’s kind a framework that restrict flexibility a bit.</p>
+                    <p>There are several Ruby AGI implementations available, with the best one being <a href="https://github.com/adhearsion/adhearsion">Adhearsion</a> at the moment. I frequently use it for my current projects. While it is a great tool, it can sometimes be too large and restrict flexibility to some extent.</p>
 
-<p>Before Adhearsion I’ve used another one, named <a href="https://github.com/andrius/AsteriskRuby">AsteriskRuby</a>. It does offer AGI and FastAGI connections with Asterisk, and with <a href="https://github.com/andrius/rastman">Rastman</a> its possible to access AMI (Asterisk Manager Interface). Good swiss knife in combination. I love them both for simplicity, you could execute Asterisk commands get AMI events in Asterisk way, easy to troubleshoot, easy to show up for non-Ruby folks. Performance is great, no memory leaks, libraries are simple and flexible.</p>
+<p>Before using Adhearsion, I used another implementation called <a href="https://github.com/andrius/AsteriskRuby">AsteriskRuby</a>. It provides AGI and FastAGI connections with Asterisk, and when combined with <a href="https://github.com/andrius/rastman">Rastman</a>, it allows access to the Asterisk Manager Interface (AMI). This combination serves as a versatile Swiss army knife. I love both implementations for their simplicity. They make it easy to execute Asterisk commands, receive AMI events, and troubleshoot issues, even for non-Ruby users. The performance is excellent, with no memory leaks, and the libraries are simple and flexible.</p>
 
-<p>So back to the Questionnaire application. It were in production for long time for one small project, now I’ve decided to share with VoIP community. It’s based on AsteriskRuby gem.</p>
+<p>Back to the topic, the Questionnaire application. It has been in production for a while, initially developed for a small project, and now I have decided to share it with the VoIP community. The application is based on the AsteriskRuby gem.</p>
 
-<p>Code was worked with Asterisk 1.6.x/1.8.x and Ruby 1.8.x.</p>
+<p>The code was developed using Asterisk 1.6.x/1.8.x and Ruby 1.8.x.</p>
 
-<p>How to get it working:</p>
-
-<ul>
-  <li>
-    <p>populate code on local server with Asterisk;</p>
-  </li>
-  <li>
-    <p>You need a filename <code class="highlighter-rouge">codes.txt</code> containing phone numbers and PIN codes, and few voice recordings (can get filenames and messages from the application source);</p>
-  </li>
-  <li>
-    <p>update <code class="highlighter-rouge">extensions.conf</code>, point the exten to the FastAGI</p>
-  </li>
-</ul>
-
-<p>And how it works:</p>
+<p>To get it working, follow these steps:</p>
 
 <ul>
-  <li>
-    <p>for new caller system would play welcome announcement, for returned caller — “welcome back” announcement (caller authentication based on callerid number and PIN);</p>
-  </li>
-  <li>
-    <p>application will ask caller to enter a PIN code;</p>
-  </li>
-  <li>
-    <p>upon successful authentication, system will continue from last unanswered question (or will start with first question for new caller);</p>
-  </li>
-  <li>
-    <p>Amount of attempts is unlimited, answers and amount of calls are stored into DB.</p>
-  </li>
+  <li>Set up the code on a local server with Asterisk.</li>
+  <li>Create a file named <code class="language-plaintext highlighter-rouge">codes.txt</code> containing phone numbers and PIN codes. Additionally, prepare a few voice recordings (you can find the filenames and messages in the application source code).</li>
+  <li>Update the <code class="language-plaintext highlighter-rouge">extensions.conf</code> file and point the extension to the FastAGI.</li>
 </ul>
 
-<p>FastAGI source code (ruby):</p>
+<p>Here’s how the application works:</p>
+
+<ul>
+  <li>For new callers, the system will play a welcome announcement. For returning callers, it will play a “welcome back” announcement (caller authentication is based on the caller ID number and PIN).</li>
+  <li>The application will prompt the caller to enter a PIN code.</li>
+  <li>Upon successful authentication, the system will continue from the last unanswered question (or start with the first question for new callers).</li>
+  <li>There is no limit to the number of attempts, and the answers and the number of calls are stored in the database.</li>
+</ul>
+
+<p>Below is the source code for the FastAGI implementation in Ruby:</p>
 
 <div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">#!/bin/env ruby</span>
 
@@ -1658,10 +1853,10 @@ find <span class="nb">.</span> <span class="nt">-mtime</span> +31 <span class="n
                 <guid isPermaLink="false">/2013/02/questionnaire-with-asterisk-pbx-agi-ruby.html</guid>
                 <description>
                     
-                    Questionnaire application were in production for long time for one small project, now I've decided to share with VoIP community. It's based on AsteriskRuby gem. How it works: for new caller system would play welcome announcement, for returned caller &quot;welcome back&quot; announcement (caller authentication based on callerid number and PIN); upon successful authentication, system will continue from last unanswered question (or will start with first question for new caller); Amount of attempts is unlimited, answers and amount of calls are stored into DB.
+                    The Questionnaire application, based on the AsteriskRuby gem, is a production-ready system that was developed a while ago for a small project. Now, I want to share it with the VoIP community. The application provides caller authentication, prompts for a PIN code, and continues from the last unanswered question for returning callers, storing answers and call records in the database.
                     
                 </description>
-                <pubDate>Tue, 12 Feb 2013 16:29:00 -0600</pubDate>
+                <pubDate>Tue, 12 Feb 2013 22:29:00 +0000</pubDate>
                 <author>Andrius Kairiukstis</author>
             </item>
         
@@ -1672,70 +1867,67 @@ find <span class="nb">.</span> <span class="nt">-mtime</span> +31 <span class="n
                 <link>//andrius.mobi/2013/02/telephony-system-for-remote-locations.html</link>
                 <content:encoded>
                     <![CDATA[
-                    <p>Who is living far away from home country. Or working remotely. Who is travelling a lot, or have presence in another country — such people or businesses need some telecommunication system, that will keep them connected to the world.</p>
+                    <p>Are you living far away from your home country or working remotely? Do you travel frequently or have a presence in another country? If so, you may need a telecommunication system that keeps you connected to the world.</p>
 
 <h2 id="target-users">Target users</h2>
 
 <ul>
-  <li>Remote workers;</li>
-  <li>Travelers, tourists;</li>
-  <li>Digital nomads;</li>
-  <li>Expats, migrants, students;</li>
-  <li>Business companies operating internationally or having multiple branches;</li>
-  <li>Transport and logistics companies;</li>
-  <li>Travel agencies;</li>
+  <li>Remote workers</li>
+  <li>Travelers and tourists</li>
+  <li>Digital nomads</li>
+  <li>Expats, migrants, and students</li>
+  <li>International businesses or businesses with multiple branches</li>
+  <li>Transport and logistics companies</li>
+  <li>Travel agencies</li>
   <li>…and more!</li>
 </ul>
 
-<p><strong>Such users often searching for:</strong></p>
+<p><strong>These users often seek for:</strong></p>
 
 <ul>
-  <li>a local SIM card to make local calls and to browse internet;</li>
-  <li>an solution to get calls to the old (home) phone number without paying too much roaming fees;</li>
-  <li>low-cost roaming solution;</li>
-  <li>(who is looking to establish an virtual presence) — for local phone number in remote location;</li>
-  <li>low-cost calls;</li>
+  <li>A local SIM card for making local calls and browsing the internet;</li>
+  <li>A solution for receiving calls on their old (home) phone number without paying high roaming fees;</li>
+  <li>A low-cost roaming solution;</li>
+  <li>A virtual presence with a local phone number in a remote location;</li>
+  <li>Low-cost calls.</li>
 </ul>
 
 <h2 id="solution">Solution</h2>
 
-<p>So how that could be implemented?</p>
+<p>So how can this be achieved?</p>
 
-<p>To create a phone system with low-cost or zero-cost calls between two locations, you need such components:</p>
+<p>To create a phone system with low-cost or zero-cost calls between two locations, you need the following components:</p>
 
 <ul>
+  <li>VoIP server: a hosted PBX or a small server with Linux and Asterisk PBX onboard. This can be an old computer, Raspberry Pi, OpenWRT router, or VPS server;</li>
+  <li>Prepaid SIM card in the current location;</li>
   <li>
-    <p>VoIP server — hosted PBX or a small server with Linux and Asterisk PBX onboard. This box could be an: old computer, Raspberry Pi, OpenWRT router, VPS server;</p>
-  </li>
-  <li>
-    <p>Prepaid SIM card in present location with mobile internet;</p>
-  </li>
-  <li>
-    <p>DID phone number in home (remote for virtual presence) country. DID is a phone number you could get from an VoIP carrier, forwarded to your phone system</p>
+    <p>DID phone number in the home (or remote for virtual presence) location. DID is a phone number you can get from a VoIP carrier and forward it to your phone system.</p>
 
-    <p>or</p>
-
-    <p>as an option: an FXO/VoIP box to which you could plug your home phone-line or an Raspberry Pi with GSM USB stick or GSM gateway — with your old SIM card inside;</p>
+    <p>Alternatively, you can use an FXO/VoIP box to connect your home phone line or a Raspberry Pi with a GSM USB stick or GSM gateway, utilizing your old SIM card.</p>
   </li>
 </ul>
 
-<p>Setup call diversion from your home SIM card mobile to the DID number (or keep your SIM card within GSM gateway);</p>
+<p>Set up call diversion from your home SIM card mobile to the DID number (or keep your SIM card within the GSM gateway).</p>
 
-<p>Configure SIP account on your softphone, point it to the VoIP server;</p>
+<p>Configure a SIP account on your softphone and point it to the VoIP server.</p>
 
-<p>Update dialplan and get the calls, easy as 1-2-3 ;)</p>
+<p>Update the dialplan and start receiving calls effortlessly.</p>
 
-<p>Of course calls works in both directions! In case if there is no internet coverage, calls could be sent to the cellphone through VoIP trunk (and you would pay some fee for that, but it’s most likely still way cheaper than pay roaming fees).</p>
+<p>Of course, calls work in both directions! In case there is no internet coverage, calls can be sent to the cellphone through a VoIP trunk (and you may have to pay some fee for that, but it’s likely still cheaper than paying roaming fees).</p>
 
-<p>I do that for years and now working on roaming PBX solution that automate various use cases.</p>
+<p>I have been using this method for years and am currently working on a roaming PBX solution that automates various use cases.</p>
+
 
                     ]]>
                 </content:encoded>
                 <guid isPermaLink="false">/2013/02/telephony-system-for-remote-locations.html</guid>
                 <description>
                     
+                    How to build a telecommunication system to keep you connected globally while maintaining a good price/quality/flexibility balance. The components include a VoIP server, prepaid SIM card, and DID phone number for low-cost or zero-cost calls.
+                    
                 </description>
-                <pubDate>Tue, 05 Feb 2013 16:00:00 -0600</pubDate>
+                <pubDate>Tue, 05 Feb 2013 22:00:00 +0000</pubDate>
                 <author>Andrius Kairiukstis</author>
             </item>
         
@@ -1746,9 +1938,9 @@ find <span class="nb">.</span> <span class="nt">-mtime</span> +31 <span class="n
                 <link>//andrius.mobi/2013/02/asterisk-agi-sample-in-bash.html</link>
                 <content:encoded>
                     <![CDATA[
-                    <p>Asterisk AGI sample in bash, very interesting. Bash is great alternative in situation when external scripts must be executed to implement functionality Asterisk can’t do (and another option is <a href="https://wiki.asterisk.org/wiki/display/AST/Lua+Dialplan+Configuration">Lua dialplan</a>). I am using Ruby for the same purpose (<a href="http://adhearsion.com">Adhearsion</a> or <a href="https://rubygems.org/gems/AsteriskRuby">AsteriskRuby</a>).</p>
+                    <p>Asterisk AGI sample in bash, which is very interesting. Bash is a great alternative in situations where external scripts need to be executed to implement functionality that Asterisk cannot do. Another option is using <a href="https://wiki.asterisk.org/wiki/display/AST/Lua+Dialplan+Configuration">Lua dialplan</a>. Personally, I use Ruby for the same purpose, either with [Adhearsion](http://adhearsion.com or <a href="https://rubygems.org/gems/AsteriskRuby">AsteriskRuby</a>.</p>
 
-<p>Anyways here is the AGI, very basic one but fully functional:</p>
+<p>Anyway, here is the AGI script. It is very basic, but fully functional:</p>
 
 <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">#!/bin/bash </span>
 <span class="nb">declare</span> <span class="nt">-a</span> array 
@@ -1796,15 +1988,16 @@ checkresults
 <span class="nb">echo</span> <span class="s2">"=================== Complete ===================="</span> <span class="o">&gt;</span>&amp;2
 </code></pre></div></div>
 
+
                     ]]>
                 </content:encoded>
                 <guid isPermaLink="false">/2013/02/asterisk-agi-sample-in-bash.html</guid>
                 <description>
                     
-                    Asterisk AGI sample in bash, very interesting. Bash is great alternative in situation when external scripts must be executed to implement functionality Asterisk can't do.
+                    The Asterisk PBX AGI sample in Bash is a great option for creating small yet flexible dial plans for embedded devices and more.
                     
                 </description>
-                <pubDate>Sat, 02 Feb 2013 14:29:00 -0600</pubDate>
+                <pubDate>Sat, 02 Feb 2013 20:29:00 +0000</pubDate>
                 <author>Andrius Kairiukstis</author>
             </item>
         
