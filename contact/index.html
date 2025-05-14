@@ -14,13 +14,13 @@
     <link rel="manifest" type="application/manifest+json; charset=utf-8" href="/manifest.json" />
     <meta name="robots" content="all">
     <meta name="author" content="Andrius Kairiukstis">
-    <meta property="fb:pages" content="ctiapps" />
+    
     
     <link rel="canonical" href="//andrius.mobi/contact/">
     <link rel="alternate" type="application/rss+xml" title="RSS Feed for Andrius Kairiukstis's Blog" href="/feed.xml" />
 
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="/css/pixyll.css?202505141906" type="text/css">
+    <link rel="stylesheet" href="/css/pixyll.css?202505141930" type="text/css">
 
     <!-- Fonts -->
     
@@ -129,7 +129,7 @@
     <!-- a class="fa-brands fa-mastodon" href="//mastodon.social/@andrius_kai"></a -->
     <a class="fa-brands fa-linkedin" href="https://www.linkedin.com/in/andrius-kairiukstis"></a>
     <a class="fa-brands fa-telegram" href="https://t.me/andrius_kai"></a>
-    <a class="fa-brands fa-whatsapp" href="https://wa.me/34652299183"></a>
+    <!-- a class="fa-brands fa-whatsapp" href="https://wa.me/34652299183"></a -->
   </div>
 </div>
 <div class="clearfix"></div>
@@ -147,26 +147,112 @@
     <h1 class="h2">Contact me</h1>
   </header>
   <article class="post-content">
-  <div class="py2">
+  <style>
+  .contact-list {
+    list-style-type: none;
+    padding: 0;
+    margin: 1rem 0;
+  }
+
+  .contact-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1rem;
+    transition: transform 0.2s ease;
+  }
+
+  .contact-item:hover {
+    transform: translateX(5px);
+  }
+
+  .contact-icon {
+    font-size: 1.5rem;
+    color: #0076df;
+    margin-right: 0.5rem;
+    width: 2rem;
+    text-align: center;
+    transition: color 0.2s ease;
+  }
+
+  .contact-link {
+    color: #333;
+    text-decoration: none;
+    font-family: 'Lato', 'Helvetica Neue', Helvetica, sans-serif;
+    font-size: 1.1rem;
+    position: relative;
+  }
+
+  .contact-link:after {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 2px;
+    bottom: -2px;
+    left: 0;
+    background-color: #0076df;
+    transition: width 0.3s ease;
+  }
+
+  .contact-link:hover {
+    color: #0076df;
+  }
+
+  .contact-link:hover:after {
+    width: 100%;
+  }
+
+  .fa-telegram {
+    color: #0088cc;
+  }
+
+  .fa-square-x-twitter {
+    color: #1DA1F2;
+  }
+
+  .fa-envelope {
+    color: #f95020;
+  }
+
+  .fa-address-card {
+    color: #00ab37;
+  }
+</style>
+
+<div class="py2">
   <div class="post-header">
     <img src="/images/me.png" alt="Andrius Kairiukstis" class="avatar" />
   </div>
   <p>
-    Hi, I'm Andrius Kairiukstis, a software engineer with expertise in Ruby, DevOps, and VoIP technologies.
-    I excel in building robust applications and automating deployment pipelines.
-    Let's connect and discuss your needs!
+    Hi, I'm Andrius Kairiukstis. With years of experience as a software engineer,
+    I specialize in back-end and API development, focusing on enhancing business processes with efficient solutions.
+    My expertise includes creating robust voice platforms, managing large-scale distributed systems, and tackling performance bottlenecks.
+    I have a strong passion for integrating systems and developing streamlined workflows.
+    Currently, I am actively working with AI tools to deliver innovative solutions.
+    I'm here to help you tackle complex challenges and achieve project goals.
+    Let's connect and discuss how I can contribute to your success!
   </p>
   <p>
     Drop me a message through:
-    <ul>
-      <li><span class="fa-brands fa-telegram telegram-icon"></span>&nbsp;<a href="https://t.me/andrius_kai">telegram</a>;</li>
-      <li><span class="fa-brands fa-square-x-twitter"></span>&nbsp;<a href="https://x.com/andrius_kai">twitter</a>;</li>
-      <li><span class="fa-solid fa-envelope"></span>&nbsp;<a href=mailto:k@andrius.mobi>send email</a>.</li>
-      <li><span class="fa-solid fa-address-card"></span>&nbsp;<a href="/Andrius%20Kairiukstis.vcf">download my vCard</a>;</li>
-    </ul>
   </p>
+  <ul class="contact-list">
+    <li class="contact-item">
+      <span class="contact-icon fa-brands fa-telegram telegram-icon"></span>
+      <a href="https://t.me/andrius_kai" class="contact-link">telegram</a>
+    </li>
+    <li class="contact-item">
+      <span class="contact-icon fa-brands fa-square-x-twitter"></span>
+      <a href="https://x.com/andrius_kai" class="contact-link">twitter</a>
+    </li>
+    <li class="contact-item">
+      <span class="contact-icon fa-solid fa-envelope"></span>
+      <a href="mailto:k@andrius.mobi" class="contact-link">send email</a>
+    </li>
+    <li class="contact-item">
+      <span class="contact-icon fa-solid fa-address-card"></span>
+      <a href="/Andrius%20Kairiukstis.vcf" class="contact-link">download my vCard</a>
+    </li>
+  </ul>
 </div>
-
 
   </article>
 </div>
