@@ -10,17 +10,17 @@
     <link rel="dns-prefetch" href="//maxcdn.bootstrapcdn.com">
     <link rel="dns-prefetch" href="//cdnjs.cloudflare.com">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="I&apos;ve created and open-sourced a Crystal-lang shard (library) that handle all the Asterisk PBX interfaces (ARI, AMI and all types of AGI).">
+    <meta name="description" content="I&apos;ve created and open-sourced a Crystal-lang shard (library) that handles all Asterisk PBX interfaces (ARI, AMI, and all types of AGI).">
     <link rel="manifest" type="application/manifest+json; charset=utf-8" href="/manifest.json" />
     <meta name="robots" content="all">
     <meta name="author" content="Andrius Kairiukstis">
     <meta property="fb:pages" content="ctiapps" />
     <meta name="keywords" content="">
-    <link rel="canonical" href="//andrius.mobi/2019/10/all-in-one-asterisk-with-crysyal.html">
+    <link rel="canonical" href="//andrius.mobi/2019/10/all-in-one-asterisk-with-crystal.html">
     <link rel="alternate" type="application/rss+xml" title="RSS Feed for Andrius Kairiukstis's Blog" href="/feed.xml" />
 
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="/css/pixyll.css?202401052053" type="text/css">
+    <link rel="stylesheet" href="/css/pixyll.css?202505141835" type="text/css">
 
     <!-- Fonts -->
     
@@ -45,7 +45,7 @@
     <meta property="og:type" content="article">
     <meta property="og:title" content="All-in-one (Crystal-lang library that handle all the Asterisk PBX interfaces)">
     <meta property="og:description" content="This blog explores the realm of real-time voice applications, covering topics such as Unified Communications, CTI, and call centers. It also discusses open-source VoIP solutions like Asterisk, Freeswitch, and Kamailio, highlighting their features and benefits. Additionally, the blog touches upon automations, integrations, test automation, and the scalability of containerized applications using Docker, along with DevOps practices.">
-    <meta property="og:url" content="//andrius.mobi/2019/10/all-in-one-asterisk-with-crysyal.html">
+    <meta property="og:url" content="//andrius.mobi/2019/10/all-in-one-asterisk-with-crystal.html">
     <meta property="og:site_name" content="Andrius Kairiukstis&apos;s Blog">
     
     <meta property="og:image" content="//andrius.mobi/images/me.png">
@@ -58,8 +58,8 @@
         <meta name="twitter:creator" content="@andrius_kai" />
     
     <meta name="twitter:title" content="All-in-one (Crystal-lang library that handle all the Asterisk PBX interfaces)" />
-    <meta name="twitter:description" content="I've created and open-sourced a Crystal-lang shard (library) that handle all the Asterisk PBX interfaces (ARI, AMI and all types of AGI)." />
-    <meta name="twitter:url" content="//andrius.mobi/2019/10/all-in-one-asterisk-with-crysyal.html" />
+    <meta name="twitter:description" content="I've created and open-sourced a Crystal-lang shard (library) that handles all Asterisk PBX interfaces (ARI, AMI, and all types of AGI)." />
+    <meta name="twitter:url" content="//andrius.mobi/2019/10/all-in-one-asterisk-with-crystal.html" />
     
     <meta name="twitter:image" content="//andrius.mobi/images/me.png" />
     
@@ -156,22 +156,22 @@
 </div>
 
 <article class="post-content">
-  <p>I’ve created and open-sourced a Crystal-lang shard (library) that handle all the Asterisk PBX interfaces (ARI, AMI and all types of AGI). Get it here: <a href="https://github.com/ctiapps/asterisk">https://github.com/ctiapps/asterisk</a>.</p>
+  <p>I have created and open-sourced a Crystal-lang shard (library) that supports all Asterisk PBX interfaces: Asterisk REST Interface (ARI), Asterisk Manager Interface (AMI), and all types of Asterisk Gateway Interface (AGI, FastAGI, AsyncAGI). You can find it on GitHub: <a href="https://github.com/ctiapps/asterisk">ctiapps/asterisk</a>.</p>
 
-<h2 id="another-library">Another library?</h2>
+<h2 id="why-another-library">Why Another Library?</h2>
 
-<p>There were no <a href="https://crystalshards.xyz/?filter=voip">libraries for VoIP</a> with Crystal-lang so I’ve created my own.</p>
+<p>At the time of development, there were no existing <a href="https://crystalshards.xyz/?filter=voip">Crystal-lang libraries for VoIP</a>, which prompted me to create this one.</p>
 
-<p>Working on recent project we had a need to deal with AMI and ARI together, with a lot of async processing. Initial code were Ruby-based, but there it only single Ruby-gem for ARI and async support in Ruby is not the best one.</p>
+<p>In a recent project, we needed to work with both AMI and ARI concurrently, involving significant asynchronous processing. The initial codebase was Ruby-based; however, there was only a single Ruby gem available for ARI, and Ruby’s asynchronous support was not ideal for our needs.</p>
 
-<p>I really love <a href="https://crystal-lang.org">Crystal-lang</a>. It’s inspired by Ruby and I had no issues switching to it (however it is not Ruby, only syntax is more or less shared). It is fast, really fast, no lags, no delays! It compiles and resulting code is tiny, docker image with all the stuff packed-in is around 20MB in size. Before making decision I also have tried Elixir. Golang might be also an option, but after Ruby I don’t want to leave comfort zone ;)</p>
+<p>I am a strong proponent of <a href="https://crystal-lang.org">Crystal-lang</a>. Its Ruby-inspired syntax made the transition smooth (though it’s important to note Crystal is not Ruby; only the syntax shares similarities). Crystal-lang is exceptionally fast, exhibiting no lags or delays. It compiles to a tiny binary, allowing for Docker images of around 20MB with all dependencies packed in. Before settling on Crystal, I also considered Elixir. Golang was another possibility, but I preferred to stay within a more familiar syntactic comfort zone after working with Ruby.</p>
 
-<h2 id="whats-in-a-box">What’s in a box?</h2>
+<h2 id="whats-included">What’s Included?</h2>
 
 <ul>
-  <li>All the interfaces ARI, AMI, AGI, FastAGI and AsyncAGI;</li>
-  <li><a href="https://github.com/ctiapps/asterisk/tree/develop/spec">Test specs using live Asterisk PBX (in a Docker)</a>. Specs also demonstrate how to use library, but more documentation is coming;</li>
-  <li><a href="https://ctiapps.github.io/asterisk">Documentation</a>.</li>
+  <li>Support for all key Asterisk interfaces: ARI, AMI, AGI, FastAGI, and AsyncAGI.</li>
+  <li><a href="https://github.com/ctiapps/asterisk/tree/develop/spec">Comprehensive test specs</a> that run against a live Asterisk PBX instance within Docker. These specs also serve as usage examples for the library. More detailed documentation is forthcoming.</li>
+  <li><a href="https://ctiapps.github.io/asterisk">Official documentation</a>.</li>
 </ul>
 
 <hr />
@@ -186,7 +186,7 @@
   <div id="disqus_thread"></div>
   <script type="text/javascript">
     var disqus_shortname  = 'andrius-mobi';
-    var disqus_identifier = '/2019/10/all-in-one-asterisk-with-crysyal';
+    var disqus_identifier = '/2019/10/all-in-one-asterisk-with-crystal';
     var disqus_title      = "All-in-one (Crystal-lang library that handle all the Asterisk PBX interfaces)";
 
     (function() {

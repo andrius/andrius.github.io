@@ -20,7 +20,7 @@
     <link rel="alternate" type="application/rss+xml" title="RSS Feed for Andrius Kairiukstis's Blog" href="/feed.xml" />
 
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="/css/pixyll.css?202401052053" type="text/css">
+    <link rel="stylesheet" href="/css/pixyll.css?202505141835" type="text/css">
 
     <!-- Fonts -->
     
@@ -156,14 +156,14 @@
 </div>
 
 <article class="post-content">
-  <p>I’ve found an excellent tiny Docker image for ngrok (wernight/ngrok). From now just using it to handle this blog.</p>
+  <p>I discovered an excellent, tiny Docker image for ngrok: <code class="language-plaintext highlighter-rouge">wernight/ngrok</code>. I am now using it to expose this blog locally during development.</p>
 
-<p>Links at <a href="https://hub.docker.com/r/wernight/ngrok">Docker hub</a> and <a href="https://hub.docker.com/r/wernight/ngrok">Github</a>.</p>
+<p>You can find the image on <a href="https://hub.docker.com/r/wernight/ngrok">Docker Hub</a> and its source on <a href="https://github.com/wernight/docker-ngrok">GitHub</a> (assuming the GitHub link was intended to be the source, if it’s just a mirror of Docker Hub, the Docker Hub link is primary).</p>
 
-<p>Some handy snippets. Note, it’s possible to use docker-compose commands, i.e. to check tunnels <code class="language-plaintext highlighter-rouge">curl $(docker-compose port ngrok 4040)/api/tunnels</code>, but I’m using <code class="language-plaintext highlighter-rouge">$(docker ps -l -q --filter "name=blog_ngrok")</code> statement to identify container ID, as it works with both docker-compose “up” and “run” modes and with docker without using docker-compose.</p>
+<p>Here are some handy snippets for interacting with the ngrok container. Note that while <code class="language-plaintext highlighter-rouge">docker-compose port ngrok 4040</code> can be used to get the port for API calls (e.g., <code class="language-plaintext highlighter-rouge">curl $(docker-compose port ngrok 4040)/api/tunnels</code>), I use <code class="language-plaintext highlighter-rouge">$(docker ps -l -q --filter "name=blog_ngrok")</code> to identify the container ID. This approach works with both <code class="language-plaintext highlighter-rouge">docker-compose up/run</code> and direct <code class="language-plaintext highlighter-rouge">docker</code> commands.</p>
 
 <ul>
-  <li>Logs</li>
+  <li><strong>View Logs:</strong></li>
 </ul>
 
 <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">BLOG</span><span class="o">=</span><span class="si">$(</span>docker ps <span class="nt">-l</span> <span class="nt">-q</span> <span class="nt">--filter</span> <span class="s2">"name=blog_ngrok"</span><span class="si">)</span>
@@ -171,7 +171,7 @@ docker logs <span class="nt">-f</span> <span class="nv">$BLOG</span>
 </code></pre></div></div>
 
 <ul>
-  <li>Check open ngrok tunnels</li>
+  <li><strong>Check Open ngrok Tunnels:</strong></li>
 </ul>
 
 <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">BLOG</span><span class="o">=</span><span class="si">$(</span>docker ps <span class="nt">-l</span> <span class="nt">-q</span> <span class="nt">--filter</span> <span class="s2">"name=blog_ngrok"</span><span class="si">)</span>
@@ -179,14 +179,14 @@ curl <span class="si">$(</span>docker port <span class="nv">$BLOG</span> 4040<sp
 </code></pre></div></div>
 
 <ul>
-  <li>Open browser window with ngrok http console</li>
+  <li><strong>Open Browser with ngrok HTTP Console:</strong></li>
 </ul>
 
 <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">BLOG</span><span class="o">=</span><span class="si">$(</span>docker ps <span class="nt">-l</span> <span class="nt">-q</span> <span class="nt">--filter</span> <span class="s2">"name=blog_ngrok"</span><span class="si">)</span>
 open http://<span class="si">$(</span>docker port <span class="nv">$BLOG</span> 4040<span class="si">)</span>
 </code></pre></div></div>
 
-<p>It is how docker-compose file looks like for this Jekyll site:</p>
+<p>This is how the <code class="language-plaintext highlighter-rouge">docker-compose.yml</code> file looks for this Jekyll site, incorporating the ngrok service:</p>
 
 <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>version: '3'
 

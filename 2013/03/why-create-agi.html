@@ -20,7 +20,7 @@
     <link rel="alternate" type="application/rss+xml" title="RSS Feed for Andrius Kairiukstis's Blog" href="/feed.xml" />
 
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="/css/pixyll.css?202401052053" type="text/css">
+    <link rel="stylesheet" href="/css/pixyll.css?202505141835" type="text/css">
 
     <!-- Fonts -->
     
@@ -156,19 +156,19 @@
 </div>
 
 <article class="post-content">
-  <p>The Asterisk dial-plan is a powerful tool for creating custom voice applications using its functions. The AEL (Asterisk Extension Language) provides a high-level view of standard expressions, similar to extensions.conf. With the dial-plan, you can manipulate database data through func_odbc, call Linux system scripts and process the results, send notifications to web applications using the curl function, and even send emails or jabber/google talk notifications.</p>
+  <p>The Asterisk dial plan is a powerful tool for creating custom voice applications using its built-in functions. The Asterisk Extension Language (AEL) offers a high-level syntax, similar to <code class="language-plaintext highlighter-rouge">extensions.conf</code>, for defining dial plan logic. With the dial plan, you can manipulate database data via <code class="language-plaintext highlighter-rouge">func_odbc</code>, execute Linux system scripts and process their results, send notifications to web applications using the <code class="language-plaintext highlighter-rouge">curl</code> function, and even send email or Jabber/Google Talk notifications.</p>
 
-<p>However, there are situations where using AGI (Asterisk Gateway Interface) is preferred. Here are some reasons to consider using AGI:</p>
+<p>Despite the capabilities of the dial plan, there are situations where using the Asterisk Gateway Interface (AGI) is more advantageous. Consider using AGI for the following reasons:</p>
 
 <ol>
-  <li>Complex dial-plan: If your dial-plan is becoming complex with a growing number of macros and contexts, using AGI can help simplify and manage the code.</li>
-  <li>Hosting multiple customers: If your system is hosted or clustered with various customers, each with different needs and functions, AGI can provide a more flexible and customizable solution.</li>
-  <li>Integration with other applications: If you need to integrate with another application or web app, and process inbound events and send outbound events, AGI can facilitate the communication and data processing.</li>
-  <li>Creating an API: AGI can be used to create an API that supports third-party applications, allowing them to interact with your Asterisk system.</li>
-  <li>Accessing a database: If your application heavily relies on a database and requires permanent access to data, AGI can provide the necessary functionality.</li>
+  <li><strong>Complex Dial Plan Logic:</strong> If your dial plan becomes overly complex with numerous macros and contexts, AGI can help simplify code management and improve readability.</li>
+  <li><strong>Multi-Tenant Hosting:</strong> For systems hosting multiple customers, each with distinct needs and functionalities, AGI offers a more flexible and customizable solution.</li>
+  <li><strong>Application Integration:</strong> When integration with external applications or web services is required, particularly for processing inbound and outbound events, AGI can facilitate seamless communication and data exchange.</li>
+  <li><strong>API Development:</strong> AGI can be used to create an API, enabling third-party applications to interact with your Asterisk system.</li>
+  <li><strong>Intensive Database Interaction:</strong> If your application relies heavily on a database and requires persistent or complex data access, AGI can provide the necessary capabilities more effectively than dial plan functions alone.</li>
 </ol>
 
-<p>It’s important to keep in mind the “KISS principle” (Keep It Simple, Stupid). If a task can be resolved without using AGI, it’s recommended to use the dial-plan. However, if the dial-plan involves calling a lot of external shell scripts or requires more complex functionality, creating an AGI application may be a better approach.</p>
+<p>It is important to adhere to the “KISS principle” (Keep It Simple, Stupid). If a task can be accomplished effectively using only the dial plan, that is generally the recommended approach. However, if the dial plan would require extensive calls to external shell scripts or involves significantly complex logic, developing an AGI application is often a more robust and maintainable solution.</p>
 
 </article>
 

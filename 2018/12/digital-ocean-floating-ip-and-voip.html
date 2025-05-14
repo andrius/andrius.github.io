@@ -4,13 +4,13 @@
     
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>Digital Ocean, Floating IP and VoIP &#8211; Andrius Kairiukstis's Blog</title>
+    <title>DigitalOcean, Floating IP and VoIP &#8211; Andrius Kairiukstis's Blog</title>
     <link rel="dns-prefetch" href="//fonts.googleapis.com">
     <link rel="dns-prefetch" href="//fonts.gstatic.com">
     <link rel="dns-prefetch" href="//maxcdn.bootstrapcdn.com">
     <link rel="dns-prefetch" href="//cdnjs.cloudflare.com">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="How to configure Digital Ocean&apos;s floating IP with VoIP, specifically with Asterisk, with Docker!">
+    <meta name="description" content="How to configure DigitalOcean&apos;s floating IP with VoIP, specifically with Asterisk, using Docker.">
     <link rel="manifest" type="application/manifest+json; charset=utf-8" href="/manifest.json" />
     <meta name="robots" content="all">
     <meta name="author" content="Andrius Kairiukstis">
@@ -20,7 +20,7 @@
     <link rel="alternate" type="application/rss+xml" title="RSS Feed for Andrius Kairiukstis's Blog" href="/feed.xml" />
 
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="/css/pixyll.css?202401052053" type="text/css">
+    <link rel="stylesheet" href="/css/pixyll.css?202505141835" type="text/css">
 
     <!-- Fonts -->
     
@@ -43,7 +43,7 @@
     <!-- From: https://github.com/mmistakes/hpstr-jekyll-theme/blob/master/_includes/head.html -->
     <meta property="og:locale" content="en_US">
     <meta property="og:type" content="article">
-    <meta property="og:title" content="Digital Ocean, Floating IP and VoIP">
+    <meta property="og:title" content="DigitalOcean, Floating IP and VoIP">
     <meta property="og:description" content="This blog explores the realm of real-time voice applications, covering topics such as Unified Communications, CTI, and call centers. It also discusses open-source VoIP solutions like Asterisk, Freeswitch, and Kamailio, highlighting their features and benefits. Additionally, the blog touches upon automations, integrations, test automation, and the scalability of containerized applications using Docker, along with DevOps practices.">
     <meta property="og:url" content="//andrius.mobi/2018/12/digital-ocean-floating-ip-and-voip.html">
     <meta property="og:site_name" content="Andrius Kairiukstis&apos;s Blog">
@@ -57,8 +57,8 @@
         <meta name="twitter:site" content="@andrius_kai" />
         <meta name="twitter:creator" content="@andrius_kai" />
     
-    <meta name="twitter:title" content="Digital Ocean, Floating IP and VoIP" />
-    <meta name="twitter:description" content="How to configure Digital Ocean's floating IP with VoIP, specifically with Asterisk, with Docker!" />
+    <meta name="twitter:title" content="DigitalOcean, Floating IP and VoIP" />
+    <meta name="twitter:description" content="How to configure DigitalOcean's floating IP with VoIP, specifically with Asterisk, using Docker." />
     <meta name="twitter:url" content="//andrius.mobi/2018/12/digital-ocean-floating-ip-and-voip.html" />
     
     <meta name="twitter:image" content="//andrius.mobi/images/me.png" />
@@ -145,22 +145,23 @@
 
 
 <div class="post-header mb2">
-  <h1>Digital Ocean, Floating IP and VoIP</h1>
+  <h1>DigitalOcean, Floating IP and VoIP</h1>
   <span class="post-meta">Dec 18, 2018</span><br>
   
   <span class="post-meta small">
   
-    1 minute read
+    2 minute read
   
   </span>
 </div>
 
 <article class="post-content">
-  <p>Digital Ocean (<a href="https://m.do.co/c/492078597684">here is an referral link, claim your $100 credit</a>) were introduced <a href="https://www.digitalocean.com/docs/networking/floating-ips/overview/">floating IP</a> in the 2015, but I never use it with VoIP. Time to fix it.</p>
+  <p>DigitalOcean introduced <a href="https://www.digitalocean.com/docs/networking/floating-ips/overview/">Floating IPs</a> in 2015 (<a href="https://m.do.co/c/492078597684">here is a referral link for $100 credit</a>), but I had not previously used them with VoIP. This post details my experience configuring a Floating IP for VoIP, specifically with Asterisk.</p>
 
-<p>(Dear hackers, at the moment of publishing all the IP addresses releases and data vanished)</p>
-<h2 id="droplet-and-floating-ip">Droplet and floating IP</h2>
-<p>Floating IP 206.189.246.114 pointed in the Digital Ocean console to the newly created droplet with Debian linux. IP addresses of test droplet:</p>
+<p>(Note: At the time of publishing, all IP addresses mentioned were released, and associated data was removed.)</p>
+
+<h2 id="droplet-and-floating-ip-configuration">Droplet and Floating IP Configuration</h2>
+<p>A Floating IP, <code class="language-plaintext highlighter-rouge">206.189.246.114</code>, was assigned via the DigitalOcean console to a newly created Debian Linux Droplet. The IP addresses of the test Droplet were:</p>
 
 <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>root@test:~# /sbin/ifconfig | <span class="nb">grep</span> <span class="nt">-B</span> 1 <span class="s1">'inet '</span>
 
@@ -170,42 +171,44 @@ eth0: <span class="nv">flags</span><span class="o">=</span>4163&lt;UP,BROADCAST,
 eth0:1: <span class="nv">flags</span><span class="o">=</span>4163&lt;UP,BROADCAST,RUNNING,MULTICAST&gt;  mtu 1500
         inet 10.16.0.5  netmask 255.255.0.0  broadcast 10.16.255.255
 </code></pre></div></div>
-<h2 id="sip-configuration">SIP configuration</h2>
-<p>For test purpose I’ve installed Asterisk from the OS repository (<code class="language-plaintext highlighter-rouge">apt-get install -yqq asterisk</code>) and configured  SIP client to register on 206.189.246.114. No luck as expected, SIP packets does not flowing properly:</p>
 
-<p><img src="/images/floating-ip/1-failure.png" alt="/images/floating-ip/1-failure.png" /></p>
+<h2 id="sip-configuration">SIP Configuration</h2>
+<p>For testing purposes, I installed Asterisk from the OS repository (<code class="language-plaintext highlighter-rouge">apt-get install -yqq asterisk</code>) and configured a SIP client to register to the Floating IP <code class="language-plaintext highlighter-rouge">206.189.246.114</code>. As expected, this initial attempt was unsuccessful, with SIP packets not flowing correctly:</p>
 
-<p>Okay, lets try to update sip.conf with following. It’s typical setup for asterisk behind NAT (there is description notes in default sip.conf about externip, externhost and externaddr)</p>
+<p><img src="/images/floating-ip/1-failure.png" alt="SIP registration failure with basic setup" /></p>
 
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>externip=206.189.246.114
-nat=force_rport,comedia
+<p>Next, I updated <code class="language-plaintext highlighter-rouge">sip.conf</code> with typical settings for Asterisk behind NAT, utilizing <code class="language-plaintext highlighter-rouge">externip</code> (as described in the default <code class="language-plaintext highlighter-rouge">sip.conf</code> comments regarding <code class="language-plaintext highlighter-rouge">externip</code>, <code class="language-plaintext highlighter-rouge">externhost</code>, and <code class="language-plaintext highlighter-rouge">externaddr</code>):</p>
+
+<div class="language-ini highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="py">externip</span><span class="p">=</span><span class="s">206.189.246.114</span>
+<span class="py">nat</span><span class="p">=</span><span class="s">force_rport,comedia</span>
 </code></pre></div></div>
 
-<p>And get random results, but in most of cases SIP registration did not worked.</p>
+<p>This yielded inconsistent results; in most cases, SIP registration still failed.</p>
 
-<p><img src="/images/floating-ip/2-ok-but.png" alt="/images/floating-ip/2-ok-but.png" /></p>
+<p><img src="/images/floating-ip/2-ok-but.png" alt="Inconsistent SIP registration with externip" /></p>
 
-<p>After quick investigation (why there is 3rd IP in the SIP dump), I decided to change SIP bind address to the private IP:</p>
+<p>A quick investigation of the SIP dump (revealing a third IP address) led me to change the SIP bind address in <code class="language-plaintext highlighter-rouge">sip.conf</code> to the Droplet’s private IP:</p>
 
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>udpbindaddr=10.16.0.5
-tcpenable=yes
-tcpbindaddr=10.16.0.5
-; ...
-externip=206.189.246.114
-nat=force_rport,comedia
+<div class="language-ini highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="py">udpbindaddr</span><span class="p">=</span><span class="s">10.16.0.5</span>
+<span class="py">tcpenable</span><span class="p">=</span><span class="s">yes</span>
+<span class="py">tcpbindaddr</span><span class="p">=</span><span class="s">10.16.0.5</span>
+<span class="c">; ...
+</span><span class="py">externip</span><span class="p">=</span><span class="s">206.189.246.114</span>
+<span class="py">nat</span><span class="p">=</span><span class="s">force_rport,comedia</span>
 </code></pre></div></div>
 
-<p>Now all right</p>
+<p>Now, SIP registration and calls function correctly.</p>
 
-<p><img src="/images/floating-ip/3-ok.png" alt="/images/floating-ip/3-ok.png" /></p>
+<p><img src="/images/floating-ip/3-ok.png" alt="Successful SIP registration with private IP binding" /></p>
 
-<p>Calls also working</p>
+<p>Calls are also working as expected:</p>
 
-<p><img src="/images/floating-ip/4-call-ok.png" alt="/images/floating-ip/4-call-ok.png" /></p>
-<h2 id="docker-setup">Docker setup</h2>
-<p>Let’s try to get the same result with docker.</p>
+<p><img src="/images/floating-ip/4-call-ok.png" alt="Successful call with private IP binding" /></p>
 
-<p>It works if asterisk can bind to the same private IP address where floating IP points, but requires to run container with <code class="language-plaintext highlighter-rouge">--net=host</code> option:</p>
+<h2 id="docker-setup">Docker Setup</h2>
+<p>Let’s attempt to achieve the same result using Docker.</p>
+
+<p>The configuration works if Asterisk inside the Docker container can bind to the same private IP address to which the Floating IP is pointed. This requires running the container with the <code class="language-plaintext highlighter-rouge">--net=host</code> option:</p>
 
 <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>docker run <span class="nt">-ti</span> <span class="nt">--rm</span> <span class="se">\</span>
   <span class="nt">--net</span><span class="o">=</span>host <span class="se">\</span>
@@ -215,7 +218,7 @@ nat=force_rport,comedia
   asterisk <span class="nt">-vvvddddc</span>
 </code></pre></div></div>
 
-<p>Technically that’s enough for most of use cases, but such Asterisk won’t fit well into development environment with docker-compose; other containers won’t “see” it. I’ll be digging this little bit more. Perhaps if I would pass NET_ADMIN capability or will start container in privileged mode, I would be able to do necessary trick with iptables.</p>
+<p>Technically, this is sufficient for many use cases. However, an Asterisk container configured this way does not integrate well into a <code class="language-plaintext highlighter-rouge">docker-compose</code> development environment, as other containers will not be able to “see” it through Docker’s network bridging. I plan to investigate this further. Perhaps passing the <code class="language-plaintext highlighter-rouge">NET_ADMIN</code> capability or running the container in privileged mode would allow for the necessary <code class="language-plaintext highlighter-rouge">iptables</code> manipulations to resolve this.</p>
 
 </article>
 
@@ -228,7 +231,7 @@ nat=force_rport,comedia
   <script type="text/javascript">
     var disqus_shortname  = 'andrius-mobi';
     var disqus_identifier = '/2018/12/digital-ocean-floating-ip-and-voip';
-    var disqus_title      = "Digital Ocean, Floating IP and VoIP";
+    var disqus_title      = "DigitalOcean, Floating IP and VoIP";
 
     (function() {
       var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;

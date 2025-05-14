@@ -20,7 +20,7 @@
     <link rel="alternate" type="application/rss+xml" title="RSS Feed for Andrius Kairiukstis's Blog" href="/feed.xml" />
 
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="/css/pixyll.css?202401052053" type="text/css">
+    <link rel="stylesheet" href="/css/pixyll.css?202505141835" type="text/css">
 
     <!-- Fonts -->
     
@@ -150,94 +150,101 @@
   
   <span class="post-meta small">
   
-    1 minute read
+    2 minute read
   
   </span>
 </div>
 
 <article class="post-content">
-  <p>Quick answer: Create a reverse SSH proxy:</p>
+  <p>This post outlines a method for installing software on a server with outbound firewall restrictions by using a reverse SSH proxy.</p>
 
-<p>Create a dynamic tunnel with command  <code class="language-plaintext highlighter-rouge">ssh -D 51010 localhost</code> — this command create a dynamic SSH proxy from your local machine;</p>
+<p><strong>Quick Summary:</strong></p>
 
-<p>Then SSH to the remote machine with command like this: <code class="language-plaintext highlighter-rouge">ssh -R 51010:127.0.0.1:51010 firewalled-server</code>. 
-It will forward your dynamic SSH proxy to the remote machine, so you’ll get kind of a “poor man VPN” on it;</p>
+<ol>
+  <li><strong>Create a local SOCKS proxy:</strong> On your local machine, run <code class="language-plaintext highlighter-rouge">ssh -D 51010 localhost</code>. This creates a dynamic SOCKS proxy.</li>
+  <li><strong>Forward the proxy to the remote server:</strong> SSH to the firewalled server using <code class="language-plaintext highlighter-rouge">ssh -R 51010:127.0.0.1:51010 firewalled-server</code>. This forwards your local SOCKS proxy to the remote machine, effectively creating a “poor man’s VPN.”</li>
+  <li><strong>Install software via the proxy:</strong> Use a tool like <code class="language-plaintext highlighter-rouge">proxychains</code> or configure <code class="language-plaintext highlighter-rouge">apt.conf</code> to route traffic through the forwarded proxy.</li>
+</ol>
 
-<p>Finally install the software using the proxychains command (or update the apt.conf), see below.</p>
+<h2 id="preparation-steps">Preparation Steps</h2>
 
-<h2 id="preparation">Preparation</h2>
+<ol>
+  <li><strong>On your local (host) machine, open a terminal and establish a dynamic SOCKS proxy:</strong></li>
+</ol>
+
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  ssh <span class="nt">-D</span> 51010 localhost
+</code></pre></div></div>
+
+<ol>
+  <li><strong>In a new terminal tab on your local machine, SSH to the firewalled server, forwarding the local proxy port <sup id="fnref:1" role="doc-noteref"><a href="#fn:1" class="footnote" rel="footnote">1</a></sup>:</strong></li>
+</ol>
+
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  ssh <span class="nt">-R</span> 51010:127.0.0.1:51010 firewalled-server
+</code></pre></div></div>
 
 <ul>
-  <li>
-    <p>At host machine open terminal and SSH to self, in order to create dynamic tunnel:</p>
-
-    <div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ssh <span class="nt">-D</span> 51010 localhost
-</code></pre></div>    </div>
-  </li>
-  <li>
-    <p>Now in new termial tab, SSH to the remote machine <sup id="fnref:1" role="doc-noteref"><a href="#fn:1" class="footnote" rel="footnote">1</a></sup>:</p>
-
-    <div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ssh <span class="nt">-R</span> 51010:127.0.0.1:51010 firewalled-server
-</code></pre></div>    </div>
-  </li>
   <li>
     <p>Check that everything works fine (I assume that curl is already installed):</p>
 
     <div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">ALL_PROXY</span><span class="o">=</span><span class="s2">"socks5://127.0.0.1:51010"</span> curl ifconfig.co
 <span class="nv">ALL_PROXY</span><span class="o">=</span><span class="s2">"socks5h://127.0.0.1:51010"</span> curl ifconfig.co
 </code></pre></div>    </div>
+
+    <p>If both commands fail, check the <code class="language-plaintext highlighter-rouge">sshd</code> settings on the firewalled server (e.g., ensure <code class="language-plaintext highlighter-rouge">AllowTcpForwarding</code> is enabled). If only the first command (using <code class="language-plaintext highlighter-rouge">socks5://</code>) fails while the second (using <code class="language-plaintext highlighter-rouge">socks5h://</code>) succeeds, it indicates that DNS resolution is also likely firewalled, and <code class="language-plaintext highlighter-rouge">socks5h</code> (which proxies DNS requests) is necessary <sup id="fnref:2" role="doc-noteref"><a href="#fn:2" class="footnote" rel="footnote">2</a></sup>.</p>
   </li>
 </ul>
 
-<p>If both commands was failed, check sshd settings on the firewalled server (does port forwarding enabled etc.), and if only the first command failed <sup id="fnref:2" role="doc-noteref"><a href="#fn:2" class="footnote" rel="footnote">2</a></sup>, then it looks that DNS resolution also firewalled</p>
+<p>You are now almost ready to install packages.</p>
 
-<p>Almost ready!</p>
+<h2 id="installing-packages">Installing Packages</h2>
 
-<h2 id="installing-packages">Installing packages</h2>
+<p>Two primary options are available:</p>
 
-<p>There is two options available:</p>
+<ol>
+  <li><strong>Using <code class="language-plaintext highlighter-rouge">proxychains</code> to “socksify” <code class="language-plaintext highlighter-rouge">apt-get</code> <sup id="fnref:3" role="doc-noteref"><a href="#fn:3" class="footnote" rel="footnote">3</a></sup>:</strong></li>
+</ol>
 
-<ul>
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  proxychains4 <span class="nt">-q</span> <span class="nt">-f</span> /home/user/.proxychains/proxychains.conf apt-get <span class="nt">-yqq</span> <span class="nb">install </span>ngrep sngrep
+</code></pre></div></div>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>*(Note: The `apt-get` command should typically be part of the `proxychains4` execution line, or `proxychains4` should be configured to automatically wrap subsequent commands if run interactively.)*
+</code></pre></div></div>
+
+<ol>
   <li>
-    <p>“socksify” apt-get through proxychains <sup id="fnref:3" role="doc-noteref"><a href="#fn:3" class="footnote" rel="footnote">3</a></sup>:</p>
+    <p><strong>Configuring <code class="language-plaintext highlighter-rouge">apt</code> to use the SOCKS proxy via <code class="language-plaintext highlighter-rouge">apt.conf</code> <sup id="fnref:4" role="doc-noteref"><a href="#fn:4" class="footnote" rel="footnote">4</a></sup>:</strong></p>
 
-    <div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code>proxychains4 <span class="nt">-q</span> <span class="nt">-f</span> /home/user/.proxychains/proxychains.conf
-apt-get <span class="nt">-yqq</span> <span class="nb">install </span>ngrep sngrep
-</code></pre></div>    </div>
+    <p>Create or update the proxy setting in <code class="language-plaintext highlighter-rouge">/etc/apt/apt.conf</code> or a file in <code class="language-plaintext highlighter-rouge">/etc/apt/apt.conf.d/</code>:</p>
   </li>
-  <li>
-    <p>Or by creating entry in apt.conf file <sup id="fnref:4" role="doc-noteref"><a href="#fn:4" class="footnote" rel="footnote">4</a></sup>:</p>
+</ol>
 
-    <p>Setup proxy in <code class="language-plaintext highlighter-rouge">apt.conf</code></p>
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="nb">echo</span> <span class="s1">'Acquire::socks::Proxy "socks5h://127.0.0.1:51010/";'</span> <span class="se">\</span>
+    <span class="o">&gt;&gt;</span> /etc/apt/apt.conf
+</code></pre></div></div>
 
-    <div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">echo</span> <span class="s1">'Acquire::socks::Proxy "socks5h://127.0.0.1:51010/";'</span> <span class="se">\</span>
-  <span class="o">&gt;&gt;</span> /etc/apt/apt.conf
-</code></pre></div>    </div>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Then, install packages as usual with `apt-get`:
+</code></pre></div></div>
 
-    <p>and then install packages with apt-get:</p>
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  apt-get <span class="nt">-yqq</span> <span class="nb">install </span>ngrep sngrep
+</code></pre></div></div>
 
-    <div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code>apt-get <span class="nt">-yqq</span> <span class="nb">install </span>ngrep sngrep
-</code></pre></div>    </div>
-
-    <p>(Don’t forget to comment out or remove proxy directive in apt.conf after installation)</p>
-  </li>
-</ul>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>(Remember to comment out or remove the proxy directive in `apt.conf` after the installation is complete.)
+</code></pre></div></div>
 
 <hr />
 
 <div class="footnotes" role="doc-endnotes">
   <ol>
     <li id="fn:1" role="doc-endnote">
-      <p>Possible issues with <code class="language-plaintext highlighter-rouge">ssh -R</code>: <a href="https://serverfault.com/questions/595323/ssh-remote-port-forwarding-failed">https://serverfault.com/questions/595323/ssh-remote-port-forwarding-failed</a>; <a href="#fnref:1" class="reversefootnote" role="doc-backlink">&#8617;</a></p>
+      <p>For possible issues with <code class="language-plaintext highlighter-rouge">ssh -R</code>, see: <a href="https://serverfault.com/questions/595323/ssh-remote-port-forwarding-failed">Server Fault: SSH remote port forwarding failed</a>. <a href="#fnref:1" class="reversefootnote" role="doc-backlink">&#8617;</a></p>
     </li>
     <li id="fn:2" role="doc-endnote">
-      <p>Check <a href="https://unix.stackexchange.com/questions/175888/curl-7-27-any-proxy-set-curl-does-not-resolve-the-hostname-via-proxy">https://unix.stackexchange.com/questions/175888/curl-7-27-any-proxy-set-curl-does-not-resolve-the-hostname-via-proxy</a>; <a href="#fnref:2" class="reversefootnote" role="doc-backlink">&#8617;</a></p>
+      <p>For issues with <code class="language-plaintext highlighter-rouge">curl</code> and DNS resolution via proxy, check: <a href="https://unix.stackexchange.com/questions/175888/curl-7-27-any-proxy-set-curl-does-not-resolve-the-hostname-via-proxy">Unix Stack Exchange: curl &amp; SOCKS proxy DNS resolution</a>. <a href="#fnref:2" class="reversefootnote" role="doc-backlink">&#8617;</a></p>
     </li>
     <li id="fn:3" role="doc-endnote">
-      <p>How to get proxychains on remote host: there is few dependencies for proxychains4: <a href="https://packages.debian.org/buster/proxychains4">https://packages.debian.org/buster/proxychains4</a>, if command is not installed, there is always an option just to <code class="language-plaintext highlighter-rouge">scp</code> necessary files and install them manually. <a href="#fnref:3" class="reversefootnote" role="doc-backlink">&#8617;</a></p>
+      <p>To get <code class="language-plaintext highlighter-rouge">proxychains</code> on the remote host if it’s not installed: <code class="language-plaintext highlighter-rouge">proxychains4</code> has few dependencies (see <a href="https://packages.debian.org/buster/proxychains4">Debian packages for proxychains4</a>). If direct installation isn’t possible, you might need to <code class="language-plaintext highlighter-rouge">scp</code> the necessary <code class="language-plaintext highlighter-rouge">.deb</code> files (and their dependencies) and install them manually using <code class="language-plaintext highlighter-rouge">dpkg -i</code>. <a href="#fnref:3" class="reversefootnote" role="doc-backlink">&#8617;</a></p>
     </li>
     <li id="fn:4" role="doc-endnote">
-      <p>More options: <a href="https://askubuntu.com/questions/35223/syntax-for-socks-proxy-in-apt-conf">https://askubuntu.com/questions/35223/syntax-for-socks-proxy-in-apt-conf</a>. <a href="#fnref:4" class="reversefootnote" role="doc-backlink">&#8617;</a></p>
+      <p>For more <code class="language-plaintext highlighter-rouge">apt.conf</code> proxy options, see: <a href="https://askubuntu.com/questions/35223/syntax-for-socks-proxy-in-apt-conf">Ask Ubuntu: Syntax for SOCKS proxy in apt.conf</a>. <a href="#fnref:4" class="reversefootnote" role="doc-backlink">&#8617;</a></p>
     </li>
   </ol>
 </div>

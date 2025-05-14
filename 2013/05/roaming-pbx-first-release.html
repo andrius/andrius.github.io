@@ -10,7 +10,7 @@
     <link rel="dns-prefetch" href="//maxcdn.bootstrapcdn.com">
     <link rel="dns-prefetch" href="//cdnjs.cloudflare.com">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="Today, I created the latest image that includes Ruby, pcapsipdump, Asterisk PBX, and the SILK codec. Although it is still in the alpha stage, it is ready for testing.">
+    <meta name="description" content="Announcing the first alpha release of the Roaming PBX image, featuring Ruby, pcapsipdump, Asterisk PBX, and the SILK codec.">
     <link rel="manifest" type="application/manifest+json; charset=utf-8" href="/manifest.json" />
     <meta name="robots" content="all">
     <meta name="author" content="Andrius Kairiukstis">
@@ -20,7 +20,7 @@
     <link rel="alternate" type="application/rss+xml" title="RSS Feed for Andrius Kairiukstis's Blog" href="/feed.xml" />
 
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="/css/pixyll.css?202401052053" type="text/css">
+    <link rel="stylesheet" href="/css/pixyll.css?202505141835" type="text/css">
 
     <!-- Fonts -->
     
@@ -58,7 +58,7 @@
         <meta name="twitter:creator" content="@andrius_kai" />
     
     <meta name="twitter:title" content="First release of Roaming PBX" />
-    <meta name="twitter:description" content="Today, I created the latest image that includes Ruby, pcapsipdump, Asterisk PBX, and the SILK codec. Although it is still in the alpha stage, it is ready for testing." />
+    <meta name="twitter:description" content="Announcing the first alpha release of the Roaming PBX image, featuring Ruby, pcapsipdump, Asterisk PBX, and the SILK codec." />
     <meta name="twitter:url" content="//andrius.mobi/2013/05/roaming-pbx-first-release.html" />
     
     <meta name="twitter:image" content="//andrius.mobi/images/me.png" />
@@ -156,11 +156,11 @@
 </div>
 
 <article class="post-content">
-  Today, I created the latest image that includes Ruby, pcapsipdump, Asterisk PBX, and the SILK codec. Although it is still in the alpha stage, it is ready for testing. You can download the latest image from this [link](https://j.mp/tinypbx).
+  <p>Today, I have created the latest image for the Roaming PBX project. This alpha release includes Ruby, pcapsipdump, Asterisk PBX, and the SILK codec, and it is now ready for testing. You can download the image from this <a href="https://j.mp/tinypbx">link</a>.</p>
 
-To flash the image onto a Raspberry Pi, follow the typical instructions: unzip the .gz file, insert the SD card, and use the Linux DD command to flash it. For a detailed guide on flashing, you can refer to [this site](http://www.andrewmunsell.com/blog/getting-started-raspberry-pi-install-raspbian/).
+<p>To flash the image onto a Raspberry Pi, follow the standard instructions: decompress the <code class="language-plaintext highlighter-rouge">.gz</code> file, insert the SD card, and use the Linux <code class="language-plaintext highlighter-rouge">dd</code> command to write the image. For a detailed guide on flashing, you can refer to <a href="http://www.andrewmunsell.com/blog/getting-started-raspberry-pi-install-raspbian/">this site</a>.</p>
 
-The [GIT repository with the script](https://github.com/andrius/build-raspbian-image) that creates RPI images has been updated. I will write a separate post with a more detailed description of it. In summary, the installer creates a minimal Raspbian image and, at the end, mounts the "delivery" folder to the target image and executes the bash script "[install.sh](http://install.sh/)" (you can find a sample of it in the GIT repository).
+<p>The <a href="https://github.com/andrius/build-raspbian-image">Git repository containing the script</a> for creating RPI images has been updated. I plan to write a separate post with a more detailed description of this script. In summary, the installer creates a minimal Raspbian image and, at the end of the process, mounts a “delivery” folder to the target image and executes the <code class="language-plaintext highlighter-rouge">install.sh</code> bash script (a sample of which can be found in the Git repository).</p>
 
 </article>
 

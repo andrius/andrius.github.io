@@ -20,7 +20,7 @@
     <link rel="alternate" type="application/rss+xml" title="RSS Feed for Andrius Kairiukstis's Blog" href="/feed.xml" />
 
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="/css/pixyll.css?202401052053" type="text/css">
+    <link rel="stylesheet" href="/css/pixyll.css?202505141835" type="text/css">
 
     <!-- Fonts -->
     
@@ -156,41 +156,26 @@
 </div>
 
 <article class="post-content">
-  <p>Currently I do developing my own Roaming VoIP PBX as a Raspberry Pi image, and have to rebuild project packages often. It is not best idea to compile packages right on Raspberry Pi. That would take hours. I was searching for a tool that can create image base — on my laptop or VPS.</p>
+  <p>I am currently developing a custom Roaming VoIP PBX as a Raspberry Pi image, which requires frequent rebuilding of project packages. Compiling packages directly on the Raspberry Pi is not ideal as it can take several hours. Therefore, I was looking for a tool to create the base image on a more powerful machine, such as my laptop or a VPS.</p>
 
-<p>Here is good starting point: <a href="http://blog.kmp.or.at/2012/05/build-your-own-raspberry-pi-image/">http://blog.kmp.or.at/2012/05/build-your-own-raspberry-pi-image/</a>, there is an <a href="http://www.kmp.or.at/~klaus/raspberry/build_rpi_sd_card.sh">shell script that will build image (right-click and select ‘download as’)</a>.</p>
+<p>A good starting point is <a href="http://blog.kmp.or.at/2012/05/build-your-own-raspberry-pi-image/">this blog post on building your own Raspberry Pi image</a>. It includes a <a href="http://www.kmp.or.at/~klaus/raspberry/build_rpi_sd_card.sh">shell script for building the image</a> (right-click and select ‘download as’).</p>
 
-<p>Some links about cross compilation and QEMU (QEMU for emulation and compilation on “Raspberry Pi” environment):</p>
+<p>Here are some useful links regarding cross-compilation and QEMU (for emulating and compiling in a Raspberry Pi environment):</p>
+
 <ul>
-  <li>
-    <p><a href="http://ffmpeg.org/trac/ffmpeg/wiki/How%20to%20compile%20FFmpeg%20for%20Raspberry%20Pi%20(Raspbian)">http://ffmpeg.org/trac/ffmpeg/wiki/How%20to%20compile%20FFmpeg%20for%20Raspberry%20Pi%20(Raspbian)</a>;</p>
-  </li>
-  <li>
-    <p><a href="http://www.raspbian.org/RaspbianDocumentation">http://www.raspbian.org/RaspbianDocumentation”</a>;</p>
-  </li>
-  <li>
-    <p><a href="http://hertaville.com/2012/09/28/development-environment-raspberry-pi-cross-compiler/">http://hertaville.com/2012/09/28/development-environment-raspberry-pi-cross-compiler/”</a>;</p>
-  </li>
-  <li>
-    <p><a href="http://www.raspberrypiforums.com/forums/tutorials/article/16-a-raspberry-pi-emulated-environment-on-osx-lion/">http://www.raspberrypiforums.com/forums/tutorials/article/16-a-raspberry-pi-emulated-environment-on-osx-lion/”</a>;</p>
-  </li>
-  <li>
-    <p><a href="http://xecdesign.com/qemu-emulating-raspberry-pi-the-easy-way/">http://xecdesign.com/qemu-emulating-raspberry-pi-the-easy-way/”</a>;</p>
-  </li>
-  <li>
-    <p><a href="http://www.raspberrypi.org/phpBB3/viewtopic.php?f=29&amp;t=37386">http://www.raspberrypi.org/phpBB3/viewtopic.php?f=29&amp;t=37386”</a>;</p>
-  </li>
-  <li>
-    <p><a href="http://igor.gold.ac.uk/~mas01mjy/wp/?p=95">http://igor.gold.ac.uk/~mas01mjy/wp/?p=95”</a>;</p>
-  </li>
-  <li>
-    <p><a href="http://elinux.org/Rpi_kernel_compilation#Cross_compiling_from_OSX">http://elinux.org/Rpi_kernel_compilation#Cross_compiling_from_OSX”</a>.</p>
-  </li>
+  <li><a href="http://ffmpeg.org/trac/ffmpeg/wiki/How%20to%20compile%20FFmpeg%20for%20Raspberry%20Pi%20(Raspbian)">How to compile FFmpeg for Raspberry Pi (Raspbian)</a></li>
+  <li><a href="http://www.raspbian.org/RaspbianDocumentation">Raspbian Documentation</a></li>
+  <li><a href="http://hertaville.com/2012/09/28/development-environment-raspberry-pi-cross-compiler/">Development Environment Raspberry Pi Cross-Compiler</a></li>
+  <li><a href="http://www.raspberrypiforums.com/forums/tutorials/article/16-a-raspberry-pi-emulated-environment-on-osx-lion/">A Raspberry Pi emulated environment on OS X Lion</a></li>
+  <li><a href="http://xecdesign.com/qemu-emulating-raspberry-pi-the-easy-way/">QEMU Emulating Raspberry Pi The Easy Way</a></li>
+  <li><a href="http://www.raspberrypi.org/phpBB3/viewtopic.php?f=29&amp;t=37386">Raspberry Pi Forum Discussion on QEMU</a></li>
+  <li><a href="http://igor.gold.ac.uk/~mas01mjy/wp/?p=95">Blog post on Raspberry Pi QEMU Emulation</a></li>
+  <li><a href="http://elinux.org/Rpi_kernel_compilation#Cross_compiling_from_OSX">RPi Kernel Compilation (Cross compiling from OSX)</a></li>
 </ul>
 
 <h2 id="update-may-2013">Update (May 2013)</h2>
 
-<p>While ago I’ve created a repository with a helpers: <a href="https://github.com/andrius/build-raspbian-image/">https://github.com/andrius/build-raspbian-image/</a>, check it out!</p>
+<p>Sometime ago, I created a repository with helper scripts: <a href="https://github.com/andrius/build-raspbian-image">https://github.com/andrius/build-raspbian-image</a>. Feel free to check it out!</p>
 
 </article>
 

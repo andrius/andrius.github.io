@@ -20,7 +20,7 @@
     <link rel="alternate" type="application/rss+xml" title="RSS Feed for Andrius Kairiukstis's Blog" href="/feed.xml" />
 
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="/css/pixyll.css?202401052053" type="text/css">
+    <link rel="stylesheet" href="/css/pixyll.css?202505141835" type="text/css">
 
     <!-- Fonts -->
     
@@ -156,13 +156,15 @@
 </div>
 
 <article class="post-content">
-  <p>As part of lab-project (roaming PBX), I’ve compiled SILK and AMR codecs for Asterisk. AMR by googling and researching and SILK following instructions <a href="https://github.com/mordak/codec_silk">in this repository: https://github.com/mordak/codec_silk</a>.</p>
-<h2 id="update-20-march-2013">Update (20 March, 2013)</h2>
-<p>Tested SILK8 (SILK-NB) on Android (with CSIPSimple and Bria) – it does not work well, quality is not fantastic definitaly. Have tried both versions: compiled by myself and official Digium SILK codec.</p>
+  <p>As part of a lab project (Roaming PBX), I have compiled SILK and AMR codecs for Asterisk. The AMR codec compilation was based on online research, while SILK was compiled following the instructions in <a href="https://github.com/mordak/codec_silk">this repository</a>.</p>
 
-<p>Testing AMR-NB!</p>
-<h2 id="update-2-21-march-2013">Update #2 (21 March, 2013)</h2>
-<p>SILK8 are okay with Bria @ android, I had to modify codecs.conf and put following code:</p>
+<h2 id="update-march-20-2013">Update (March 20, 2013)</h2>
+<p>I tested SILK8 (SILK-NB) on Android devices using CSIPSimple and Bria. The performance was not optimal, and the quality was definitely not fantastic. This was true for both my self-compiled version and the official Digium SILK codec.</p>
+
+<p>Currently testing AMR-NB.</p>
+
+<h2 id="update-2-march-21-2013">Update #2 (March 21, 2013)</h2>
+<p>SILK8 performance with Bria on Android is acceptable after modifying <code class="language-plaintext highlighter-rouge">codecs.conf</code> with the following settings:</p>
 
 <pre><code class="language-cfg">[silk8]
 type=silk
@@ -175,9 +177,10 @@ dtx=false        ; Encode using discontinuous transmission mode or not. Turning 
                  ; increased computational complexity. Off by default.
 </code></pre>
 
-<p>Have little issues with AMR-NB, will post update later.</p>
-<h3 id="update-2-15-april-2013">Update #2 (15 April, 2013)</h3>
-<p>AMR-NB works way better, I will try to describe installation steps in a separate post. Quality is amazing and bandwidth it consuming is so little. Unfortunately due to licensing issues it can’t be included as a part of official Asterisk distribution.</p>
+<p>I encountered some minor issues with AMR-NB and will post an update later.</p>
+
+<h3 id="update-3-april-15-2013">Update #3 (April 15, 2013)</h3>
+<p>AMR-NB performs significantly better. I plan to describe the installation steps in a separate post. The quality is amazing, and the bandwidth consumption is very low. Unfortunately, due to licensing issues, AMR-NB cannot be included as part of the official Asterisk distribution.</p>
 
 </article>
 

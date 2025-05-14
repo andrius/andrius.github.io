@@ -20,7 +20,7 @@
     <link rel="alternate" type="application/rss+xml" title="RSS Feed for Andrius Kairiukstis's Blog" href="/feed.xml" />
 
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="/css/pixyll.css?202401052053" type="text/css">
+    <link rel="stylesheet" href="/css/pixyll.css?202505141835" type="text/css">
 
     <!-- Fonts -->
     
@@ -156,25 +156,25 @@
 </div>
 
 <article class="post-content">
-  <p>The typical telephony system processes incoming call-flow based on different times, and customers want to have control over this and handle time-ranges. The whole platform can be a multi-tenant server with different virtual PBXes.</p>
+  <p>Typical telephony systems process incoming call flows based on various time conditions, and customers often require control over these time ranges. The platform might also be a multi-tenant server hosting different virtual PBXes.</p>
 
-<p>Here are the different call-handling scenarios based on time:</p>
+<p>Common time-based call-handling scenarios include:</p>
 
 <ul>
-  <li>During the night, calls should be delivered to the voicemail.</li>
-  <li>In the morning, lunchtime, and evening, calls should be forwarded to the cell phone.</li>
-  <li>During business hours, calls should be processed following standard call-flow logic.</li>
-  <li>On Fridays, the working hours are shorter.</li>
-  <li>On Saturdays, the company works only until lunchtime.</li>
-  <li>On Sundays, the company is closed, and calls should be routed to the voicemail.</li>
-  <li>Calls on public holidays should also be forwarded to the voicemail.</li>
+  <li><strong>Night:</strong> Calls are routed to voicemail.</li>
+  <li><strong>Morning, Lunchtime, Evening:</strong> Calls are forwarded to a mobile phone.</li>
+  <li><strong>Business Hours:</strong> Calls follow standard call-flow logic.</li>
+  <li><strong>Fridays:</strong> Working hours are shorter.</li>
+  <li><strong>Saturdays:</strong> The company operates only until lunchtime.</li>
+  <li><strong>Sundays:</strong> The company is closed; calls go to voicemail.</li>
+  <li><strong>Public Holidays:</strong> Calls are forwarded to voicemail.</li>
 </ul>
 
-<p>A long time ago, I created the following Ruby classes and ActiveRecord migrations for flexible business time management. I am now sharing this, as it could be useful for anyone dealing with time conditions in backend applications, not just telephony-related ones.</p>
+<p>Some time ago, I developed the following Ruby classes and ActiveRecord migrations for flexible business time management. I am sharing them now, as they could be beneficial for anyone implementing time-based conditions in backend applications, not limited to telephony.</p>
 
-<p>The “Item” class is a polymorphic association that points to any voice-related entity in a PBX. By reusing polymorphic database associations, it is possible to create very flexible call flow building blocks. These blocks can point to any voice-related entity in a PBX, such as an extension, voicemail, conference, etc. This allows for customizable and dynamic call handling based on time conditions.</p>
+<p>The <code class="language-plaintext highlighter-rouge">Item</code> class utilizes a polymorphic association that can point to any voice-related entity within a PBX (e.g., extension, voicemail, conference). This approach allows for the creation of highly flexible call flow building blocks. These blocks can be linked to various PBX entities, enabling customizable and dynamic call handling based on specific time conditions.</p>
 
-<p>If we trigger the “operational?” method for a given business-time collection, it should return the “item_id” or nil if the time conditions are not met (i.e., the office is closed).</p>
+<p>When the <code class="language-plaintext highlighter-rouge">operational?</code> method is triggered for a given business-time collection, it returns the <code class="language-plaintext highlighter-rouge">item_id</code> if the time conditions are met, or <code class="language-plaintext highlighter-rouge">nil</code> otherwise (indicating, for example, that the office is closed).</p>
 
 <h3 id="tests">Tests</h3>
 
@@ -312,7 +312,6 @@ BusinessTimeMember Load (0.3ms)  SELECT "business_time_members".* FROM "business
   <span class="k">end</span>
 <span class="k">end</span>
 </code></pre></div></div>
-
 
 </article>
 

@@ -20,7 +20,7 @@
     <link rel="alternate" type="application/rss+xml" title="RSS Feed for Andrius Kairiukstis's Blog" href="/feed.xml" />
 
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="/css/pixyll.css?202401052053" type="text/css">
+    <link rel="stylesheet" href="/css/pixyll.css?202505141835" type="text/css">
 
     <!-- Fonts -->
     
@@ -156,7 +156,7 @@
 </div>
 
 <article class="post-content">
-  <p>Are you living far away from your home country or working remotely? Do you travel frequently or have a presence in another country? If so, you may need a telecommunication system that keeps you connected to the world.</p>
+  <p>Living far from one’s home country, working remotely, frequent travel, or maintaining a presence in another country often necessitates a reliable telecommunication system to stay connected globally.</p>
 
 <h2 id="target-users">Target users</h2>
 
@@ -171,42 +171,36 @@
   <li>…and more!</li>
 </ul>
 
-<p><strong>These users often seek for:</strong></p>
+<p><strong>These users often seek:</strong></p>
 
 <ul>
-  <li>A local SIM card for making local calls and browsing the internet;</li>
-  <li>A solution for receiving calls on their old (home) phone number without paying high roaming fees;</li>
-  <li>A low-cost roaming solution;</li>
-  <li>A virtual presence with a local phone number in a remote location;</li>
-  <li>Low-cost calls.</li>
+  <li>A local SIM card for local calls and internet browsing.</li>
+  <li>A way to receive calls on their original (home) phone number without incurring high roaming fees.</li>
+  <li>A cost-effective roaming solution.</li>
+  <li>A virtual presence with a local phone number in a remote location.</li>
+  <li>Low-cost calling options.</li>
 </ul>
 
 <h2 id="solution">Solution</h2>
 
-<p>So how can this be achieved?</p>
-
-<p>To create a phone system with low-cost or zero-cost calls between two locations, you need the following components:</p>
+<p>This can be achieved by setting up a phone system with the following components for low-cost or zero-cost calls between locations:</p>
 
 <ul>
-  <li>VoIP server: a hosted PBX or a small server with Linux and Asterisk PBX onboard. This can be an old computer, Raspberry Pi, OpenWRT router, or VPS server;</li>
-  <li>Prepaid SIM card in the current location;</li>
-  <li>
-    <p>DID phone number in the home (or remote for virtual presence) location. DID is a phone number you can get from a VoIP carrier and forward it to your phone system.</p>
-
-    <p>Alternatively, you can use an FXO/VoIP box to connect your home phone line or a Raspberry Pi with a GSM USB stick or GSM gateway, utilizing your old SIM card.</p>
-  </li>
+  <li><strong>VoIP server:</strong> This could be a hosted PBX or a small server (e.g., an old computer, Raspberry Pi, OpenWRT router, or VPS) running Linux and Asterisk PBX.</li>
+  <li><strong>Prepaid SIM card:</strong> For use in the current location.</li>
+  <li><strong>DID phone number:</strong> A Direct Inward Dialing (DID) number in the home (or remote, for virtual presence) location. This number, obtained from a VoIP carrier, can be forwarded to your phone system.
+  Alternatively, an FXO/VoIP box can connect your home phone line, or a Raspberry Pi with a GSM USB stick/gateway can utilize your old SIM card.</li>
 </ul>
 
-<p>Set up call diversion from your home SIM card mobile to the DID number (or keep your SIM card within the GSM gateway).</p>
+<p>Set up call diversion from your home SIM card to the DID number (or keep your SIM card active within the GSM gateway).</p>
 
 <p>Configure a SIP account on your softphone and point it to the VoIP server.</p>
 
-<p>Update the dialplan and start receiving calls effortlessly.</p>
+<p>Update the dialplan to start receiving calls effortlessly.</p>
 
-<p>Of course, calls work in both directions! In case there is no internet coverage, calls can be sent to the cellphone through a VoIP trunk (and you may have to pay some fee for that, but it’s likely still cheaper than paying roaming fees).</p>
+<p>This system supports calls in both directions. If internet coverage is unavailable, calls can be routed to a mobile phone via a VoIP trunk. While this may involve a fee, it is generally more economical than standard roaming charges.</p>
 
-<p>I have been using this method for years and am currently working on a roaming PBX solution that automates various use cases.</p>
-
+<p>I have personally used this method for years and am currently developing a roaming PBX solution to automate various use cases.</p>
 
 </article>
 

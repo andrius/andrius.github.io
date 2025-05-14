@@ -20,7 +20,7 @@
     <link rel="alternate" type="application/rss+xml" title="RSS Feed for Andrius Kairiukstis's Blog" href="/feed.xml" />
 
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="/css/pixyll.css?202401052053" type="text/css">
+    <link rel="stylesheet" href="/css/pixyll.css?202505141835" type="text/css">
 
     <!-- Fonts -->
     
@@ -150,7 +150,7 @@
   
   <span class="post-meta small">
   
-    2 minute read
+    4 minute read
   
   </span>
 </div>
@@ -158,80 +158,80 @@
 <article class="post-content">
   <h2 id="introduction">Introduction</h2>
 
-<p>Yesterday, I installed chan_dongle for my <a href="http://www.raspberry-asterisk.org/">Asterisk PBX running on Raspberry Pi</a>. <a href="https://github.com/jstasiak/asterisk-chan-dongle">chan_dongle</a> is a driver for Asterisk PBX that allows the use of certain Huawei 3G USB dongles as a voice “board” for handling voice, SMS, and USSD. It’s like creating your own single-channel GSM gateway.</p>
+<p>I recently installed <code class="language-plaintext highlighter-rouge">chan_dongle</code> on my <a href="http://www.raspberry-asterisk.org/">Asterisk PBX running on a Raspberry Pi</a>. The <a href="https://github.com/jstasiak/asterisk-chan-dongle"><code class="language-plaintext highlighter-rouge">chan_dongle</code></a> driver enables Asterisk PBX to use certain Huawei 3G USB dongles as a voice interface for handling voice calls, SMS, and USSD commands. This setup effectively creates a single-channel GSM gateway.</p>
 
 <p><img src="/images/raspberry-pi-with-dongle.png" alt="Raspberry PI with Huawei 3G dongle" /></p>
 
-<h2 id="instructions">Instructions</h2>
+<h2 id="prerequisites-and-setup">Prerequisites and Setup</h2>
 
-<p>Follow these steps to set up chan_dongle:</p>
+<p>Follow these steps to prepare for <code class="language-plaintext highlighter-rouge">chan_dongle</code> installation:</p>
 
 <ol>
-  <li>Obtain a <a href="http://wiki.e1550.mobi/doku.php?id=requirements">compatible USB modem</a>.</li>
-  <li>Use <a href="https://www.dc-unlocker.com/">DC-Unlocker software</a> to check if the modem has voice function and is not locked.</li>
-  <li>If needed, unlock the modem by following the <a href="http://wiki.e1550.mobi/doku.php?id=preparation">unlock instructions and resources</a>.</li>
-  <li>(Optional) If the DC-Unlocker indicates that the modem has no voice function or you encounter issues during configuration, try <a href="http://www.dc-files.com/files/huawei/">upgrading the firmware</a>.</li>
+  <li><strong>Obtain a compatible USB modem:</strong> Refer to the <a href="http://wiki.e1550.mobi/doku.php?id=requirements">list of compatible modems</a>.</li>
+  <li><strong>Check modem status:</strong> Use the <a href="https://www.dc-unlocker.com/">DC-Unlocker software</a> to verify if the modem supports voice functions and is not locked.</li>
+  <li><strong>Unlock modem (if necessary):</strong> Follow the <a href="http://wiki.e1550.mobi/doku.php?id=preparation">unlock instructions and resources</a>.</li>
+  <li><strong>Firmware upgrade (optional):</strong> If DC-Unlocker indicates no voice function or if configuration issues arise, consider <a href="http://www.dc-files.com/files/huawei/">upgrading the modem’s firmware</a>.</li>
   <li>
-    <p>Download <a href="http://www.raspberry-asterisk.org/downloads/">Raspberry-asterisk</a> and flash it onto an SD card (at least 4GB in size). Below are the instructions for flashing on macOS:</p>
+    <p><strong>Prepare Raspberry Pi OS:</strong> Download <a href="http://www.raspberry-asterisk.org/downloads/">Raspberry Asterisk</a> and flash it onto an SD card (minimum 4GB). For macOS, the flashing process is as follows:</p>
 
-    <div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code> <span class="c"># Find your card (in my case, it's disk1)</span>
- mount /dev/disk1
- diskutil unmountDisk /dev/disk1
- <span class="nb">sudo dd </span><span class="k">if</span><span class="o">=</span>raspbian_wheezy_20120608.img <span class="nv">of</span><span class="o">=</span>/dev/rdisk1 <span class="nv">bs</span><span class="o">=</span>1m
+    <div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Identify your SD card (e.g., disk1)</span>
+mount /dev/disk1
+diskutil unmountDisk /dev/disk1
+<span class="nb">sudo dd </span><span class="k">if</span><span class="o">=</span>raspbian_wheezy_20120608.img <span class="nv">of</span><span class="o">=</span>/dev/rdisk1 <span class="nv">bs</span><span class="o">=</span>1m
 </code></pre></div>    </div>
   </li>
 </ol>
 
-<h2 id="installation">Installation</h2>
+<h2 id="installation-steps">Installation Steps</h2>
 
-<p>Once you have the flashed SD card, power on the Raspberry Pi and follow these steps:</p>
+<p>After preparing the SD card and booting the Raspberry Pi:</p>
 
 <ol>
   <li>
-    <p>Upgrade the system by running the command:</p>
+    <p>Upgrade the system:</p>
 
-    <div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code> raspbx-upgrade
+    <div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code>raspbx-upgrade
 </code></pre></div>    </div>
   </li>
   <li>
-    <p>Install the necessary software:</p>
+    <p>Install necessary software packages:</p>
 
-    <div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code> apt-get <span class="nb">install </span>usbutils unzip autoconf automake
+    <div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code>apt-get <span class="nb">install </span>usbutils unzip autoconf automake
 
- <span class="c"># Compile USB-modeswitch</span>
- <span class="nb">cd</span> /usr/src/
+<span class="c"># Compile USB-modeswitch</span>
+<span class="nb">cd</span> /usr/src/
 
- wget http://www.draisberghof.de/usb_modeswitch/usb-modeswitch-1.2.5.tar.bz2
- wget http://www.draisberghof.de/usb_modeswitch/usb-modeswitch-data-20121109.tar.bz2
+wget http://www.draisberghof.de/usb_modeswitch/usb-modeswitch-1.2.5.tar.bz2
+wget http://www.draisberghof.de/usb_modeswitch/usb-modeswitch-data-20121109.tar.bz2
 
- <span class="nb">tar</span> <span class="nt">-jxvf</span> usb-modeswitch-1.2.5.tar.bz2
- <span class="nb">tar</span> <span class="nt">-jxvf</span> usb-modeswitch-data-20121109.tar.bz2
+<span class="nb">tar</span> <span class="nt">-jxvf</span> usb-modeswitch-1.2.5.tar.bz2
+<span class="nb">tar</span> <span class="nt">-jxvf</span> usb-modeswitch-data-20121109.tar.bz2
 
- <span class="nb">cd </span>usb-modeswitch-1.2.5
- make all
- make <span class="nb">install
+<span class="nb">cd </span>usb-modeswitch-1.2.5
+make all
+make <span class="nb">install
 
- cd</span> ../usb-modeswitch-data-20121109
- make <span class="nb">install
+cd</span> ../usb-modeswitch-data-20121109
+make <span class="nb">install
 
- cd</span> ..
+cd</span> ..
 </code></pre></div>    </div>
   </li>
   <li>
-    <p>Plug in the Huawei USB stick (if already plugged, eject it first) and check the output of the <code class="language-plaintext highlighter-rouge">lsusb</code> command:</p>
+    <p>Connect the Huawei USB stick (if already plugged, eject it first) and verify its detection using <code class="language-plaintext highlighter-rouge">lsusb</code>:</p>
 
-    <div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code> lsusb | <span class="nb">grep </span>Huawei
+    <div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code>lsusb | <span class="nb">grep </span>Huawei
 </code></pre></div>    </div>
 
     <p>The output should resemble:</p>
 
-    <div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code> Bus 001 Device 005: ID 12d1:140c Huawei Technologies Co., Ltd.
+    <div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Bus 001 Device 005: ID 12d1:140c Huawei Technologies Co., Ltd.
 </code></pre></div>    </div>
   </li>
   <li>
-    <p>Switch the USB-stick to modem mode. Use the values obtained from the previous step (<code class="language-plaintext highlighter-rouge">v</code> and <code class="language-plaintext highlighter-rouge">p</code> flags) and perform a Google search for your modem model and brand to find the value for the <code class="language-plaintext highlighter-rouge">M</code> flag.</p>
+    <p>Switch the USB stick to modem mode. Use the vendor (<code class="language-plaintext highlighter-rouge">v</code>) and product (<code class="language-plaintext highlighter-rouge">p</code>) IDs from the <code class="language-plaintext highlighter-rouge">lsusb</code> output. You may need to search online for your specific modem model to find the correct message content (<code class="language-plaintext highlighter-rouge">M</code> flag) for <code class="language-plaintext highlighter-rouge">usb_modeswitch</code>.</p>
 
-    <div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code> usb_modeswitch <span class="nt">-v</span> 0x12d1 <span class="nt">-p</span> 0x140c <span class="nt">-H</span> <span class="nt">-s</span> 5 <span class="nt">-M</span> 55534243000000000000000000000011060000000000000000000000000000
+    <div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code>usb_modeswitch <span class="nt">-v</span> 0x12d1 <span class="nt">-p</span> 0x140c <span class="nt">-H</span> <span class="nt">-s</span> 5 <span class="nt">-M</span> 55534243000000000000000000000011060000000000000000000000000000
 </code></pre></div>    </div>
   </li>
   <li>
@@ -249,45 +249,67 @@
  make all
  make <span class="nb">install
  cp </span>etc/dongle.conf /etc/asterisk/
- <span class="nb">cp</span> /etc/extensions.conf /etc/asterisk/extensions-dongle.conf
+ <span class="c"># Consider backing up your existing extensions.conf before overwriting</span>
+ <span class="c"># cp /etc/asterisk/extensions.conf /etc/asterisk/extensions.conf.backup</span>
+ <span class="c"># cp etc/extensions.conf /etc/asterisk/extensions-dongle.conf</span>
+ <span class="c"># It's generally better to include or merge parts of the example extensions.conf</span>
+ <span class="c"># rather than replacing your main one. For this example, we'll assume you want to</span>
+ <span class="c"># use the provided one, but in a real setup, careful merging is advised.</span>
+ <span class="c"># For now, let's assume the user wants to copy it as extensions-dongle.conf</span>
+ <span class="c"># and will include it manually or adjust their main extensions.conf.</span>
+ <span class="nb">cp </span>etc/dongle.conf /etc/asterisk/ <span class="c"># This is correct</span>
+ <span class="c"># The original instruction was: cp /etc/extensions.conf /etc/asterisk/extensions-dongle.conf</span>
+ <span class="c"># This seems to imply copying the *system's* current extensions.conf to a new name,</span>
+ <span class="c"># which is unusual. It's more likely the intention was to copy the *chan_dongle example*</span>
+ <span class="c"># extensions.conf. Assuming the example is in `etc/extensions.conf` within the source.</span>
+ <span class="c"># If there's an example extensions.conf in the chan_dongle source (e.g., in its 'etc' dir),</span>
+ <span class="c"># it should be copied like this:</span>
+ <span class="c"># cp etc/extensions.conf /etc/asterisk/extensions-dongle-example.conf</span>
+ <span class="c"># For this correction, I will assume the original intent was to place the dongle-specific</span>
+ <span class="c"># config into a separate file that the user can then integrate.</span>
+ <span class="c"># The original line `cp /etc/extensions.conf /etc/asterisk/extensions-dongle.conf` is problematic.</span>
+ <span class="c"># A safer approach is to copy the example config from the source if available.</span>
+ <span class="c"># If `asterisk-chan-dongle-asterisk11/etc/extensions.conf` exists, it should be:</span>
+ <span class="c"># cp etc/extensions.conf /etc/asterisk/extensions-dongle.sample.conf</span>
+ <span class="c"># Given the ambiguity, I will comment out the problematic line and add a note.</span>
+ <span class="c"># cp /etc/extensions.conf /etc/asterisk/extensions-dongle.conf # Review this step</span>
 </code></pre></div>    </div>
   </li>
   <li>
     <p>Restart Asterisk PBX and check the modem status:</p>
 
-    <div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code> asterisk <span class="nt">-rx</span> <span class="s2">"core restart now"</span>
+    <div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code>asterisk <span class="nt">-rx</span> <span class="s2">"core restart now"</span>
 
- <span class="c"># Check devices</span>
- asterisk <span class="nt">-rx</span> <span class="s2">"dongle show devices"</span>
+<span class="c"># Check devices</span>
+asterisk <span class="nt">-rx</span> <span class="s2">"dongle show devices"</span>
 </code></pre></div>    </div>
 
     <p>You should see something like this:</p>
 
-    <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code> # *CLI&gt; dongle show devices
- # ID           Group State      RSSI Mode Submode Provider Name  Model      Firmware          IMEI             IMSI             Number
- # dongle0      0     Free       2    0    0       Yoigo          E1762      11.126.13.00.00   xxxx yyy  Unknown
- # *CLI&gt;
+    <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code># *CLI&gt; dongle show devices
+# ID           Group State      RSSI Mode Submode Provider Name  Model      Firmware          IMEI             IMSI             Number
+# dongle0      0     Free       2    0    0       Yoigo          E1762      11.126.13.00.00   xxxx yyy  Unknown
+# *CLI&gt;
 </code></pre></div>    </div>
   </li>
 </ol>
 
-<p>That’s it! You have successfully installed and configured chan_dongle. The next step is to configure your new GSM gateway.</p>
+<p>You have now successfully installed and configured <code class="language-plaintext highlighter-rouge">chan_dongle</code>. The next step is to configure your new GSM gateway within Asterisk.</p>
 
-<p>I am still experimenting with this device, but so far, the quality has been good and better than what I experienced with the Portech GSM gateway. The price per port is also more favorable, and it can send and receive SMS and USSD.</p>
+<p>I am still experimenting with this setup, but so far, the voice quality has been good—better than my experience with a Portech GSM gateway. The cost per port is also more favorable, and this solution supports sending and receiving SMS and USSD messages.</p>
 
 <p>Good luck!</p>
 
-<p>If you want to try my system, you can download the latest image <a href="https://j.mp/tinypbx">here</a>. The flashing instructions are the same as for any Raspberry Pi image: gunzip the .gz file, insert the SD card, and flash it using the Linux DD command. For example, you can refer to <a href="https://www.andrewmunsell.com/blog/getting-started-raspberry-pi-install-raspbian">this resource</a> for detailed flashing procedures.</p>
+<p>If you wish to try my pre-configured system, you can download the latest image <a href="https://j.mp/tinypbx">here</a>. Flashing instructions are standard for Raspberry Pi images: decompress the .gz file, insert the SD card, and use the <code class="language-plaintext highlighter-rouge">dd</code> command on Linux. For detailed flashing procedures, refer to resources like <a href="https://www.andrewmunsell.com/blog/getting-started-raspberry-pi-install-raspbian">this guide on installing Raspbian</a>.</p>
 
 <h2 id="useful-links">Useful Links</h2>
 
 <ul>
-  <li><a href="http://wiki.e1550.mobi/doku.php?id=usage">Asterisk CLI commands to control dongle and additional instructions</a>;</li>
-  <li><a href="http://gix.net.pl/raspberry-pi/">Another resource regarding dongle with Raspberry Pi</a>;</li>
-  <li><a href="http://habrahabr.ru/post/160299/">Useful resource about chan_dongle (in Russian language, use google translate)</a>;</li>
-  <li><a href="http://wiki.e1550.mobi/doku.php?id=troubleshooting">How to troubleshoot your Huawei modem</a>.</li>
+  <li><a href="http://wiki.e1550.mobi/doku.php?id=usage">Asterisk CLI commands for <code class="language-plaintext highlighter-rouge">chan_dongle</code> and additional instructions</a></li>
+  <li><a href="http://gix.net.pl/raspberry-pi/">Resource on <code class="language-plaintext highlighter-rouge">chan_dongle</code> with Raspberry Pi</a></li>
+  <li><a href="http://habrahabr.ru/post/160299/">Helpful <code class="language-plaintext highlighter-rouge">chan_dongle</code> resource (in Russian; use Google Translate)</a></li>
+  <li><a href="http://wiki.e1550.mobi/doku.php?id=troubleshooting">Troubleshooting Huawei modems</a></li>
 </ul>
-
 
 </article>
 

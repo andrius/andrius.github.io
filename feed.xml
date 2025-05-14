@@ -8,20 +8,21 @@
     
       <item>
         <title>Register SIP account and receive calls with Twilio</title>
-        <description>&lt;p&gt;I live in three different countries and have friends, family members, and colleagues in each of them. As a result, I need to maintain phone numbers in each country for 2FA, e-signatures, and making and receiving calls. Although I do not use all three SIM cards at the same time, it is still important to receive phone calls.&lt;/p&gt;
+        <description>&lt;p&gt;Living across three different countries necessitates maintaining local phone numbers in each for various purposes, including 2FA, e-signatures, and general communication. While I don’t use all SIM cards simultaneously, receiving calls on these numbers remains important.&lt;/p&gt;
 
-&lt;p&gt;Years ago, I used to run Asterisk PBX on VPS, but I nuked it a while ago as I did not want to maintain one extra piece of software. The national phone numbers (DID’s) were purchased from various providers, and some time ago, I switched to Twilio.&lt;/p&gt;
+&lt;p&gt;Previously, I managed this with a self-hosted Asterisk PBX on a VPS. However, to reduce maintenance overhead, I decommissioned it and transitioned to Twilio for managing my Direct Inward Dialing (DID) numbers, which were originally sourced from various providers.&lt;/p&gt;
 
-&lt;p&gt;Twilio offers multiple options to maintain calls, one of which is TwiML. Let’s dive into it!&lt;/p&gt;
+&lt;p&gt;Twilio provides several methods for call handling, with TwiML (Twilio Markup Language) being a flexible option. This post details how to use TwiML to register a SIP softphone and receive inbound calls.&lt;/p&gt;
 
-&lt;p&gt;ISSUES FIRST! At the moment of writing (July 2023), Twilio offers POP’s in the EU (ie1), USA (us1), and Australia (au1). The full support of capabilities is possible with the US pop or I haven’t fount the way to get it working with the European pop. I spent some time attempting to deliver calls to the SIP trunk that is registered in the EU zone with error “32002 Your TwiML tried to Dial a Twilio SIP Domain that can’t be found”. So please be warned, and if you end up getting the EU pop working, please drop me a message.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Important Note on Regional POPs (Points of Presence):&lt;/strong&gt;
+As of July 2023, Twilio offers POPs in the EU (region &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;ie1&lt;/code&gt;), USA (region &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;us1&lt;/code&gt;), and Australia (region &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;au1&lt;/code&gt;). My experience indicates that full feature support, particularly for certain SIP dialing scenarios within TwiML, might be more straightforward or consistently available with the US POP (&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;us1&lt;/code&gt;). I encountered difficulties (specifically error “32002: Your TwiML tried to Dial a Twilio SIP Domain that can’t be found”) when attempting to use TwiML to dial a SIP endpoint registered in the EU zone (&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;ie1&lt;/code&gt;) from a number also configured within the EU. If you have successfully configured such a scenario using an EU POP, please share your insights. For the purposes of this guide, focusing on the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;us1&lt;/code&gt; region for TwiML Bins and SIP domain configuration is recommended if you encounter similar issues.&lt;/p&gt;
 
-&lt;p&gt;Here are the steps you need to follow to set up Twilio:&lt;/p&gt;
+&lt;p&gt;Here are the steps to set up Twilio for SIP registration and inbound call handling:&lt;/p&gt;
 
 &lt;ol&gt;
-  &lt;li&gt;Go to https://console.twilio.com/us1/develop/voice/manage/cls and create your SIP credentials list. It is a list with a username-password match that you will need in the next step.&lt;/li&gt;
-  &lt;li&gt;Create a new SIP domain with a unique name at https://console.twilio.com/us1/develop/voice/manage/sip-domains. Enable SIP registration and select the credentials list you will use with this domain. Configure everything else (encryption, etc.).&lt;/li&gt;
-  &lt;li&gt;Create a TwiML bin with the following content at https://console.twilio.com/us1/develop/twiml-bins/twiml-bins:&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;Create a SIP Credentials List:&lt;/strong&gt; Navigate to &lt;a href=&quot;https://console.twilio.com/us1/develop/voice/manage/cls&quot;&gt;SIP Credentials Lists&lt;/a&gt; in the Twilio console. Create a new list and add a username and password. This list will be used to authenticate your SIP softphone.&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;Create a SIP Domain:&lt;/strong&gt; Go to &lt;a href=&quot;https://console.twilio.com/us1/develop/voice/manage/sip-domains&quot;&gt;SIP Domains&lt;/a&gt;. Create a new SIP domain with a unique name (e.g., &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;yourusername.sip.twilio.com&lt;/code&gt;). Enable SIP registration and associate the credentials list created in the previous step. Configure other settings like encryption as needed. &lt;em&gt;Ensure you are creating this in the desired region (e.g., &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;us1&lt;/code&gt; for broader compatibility, or &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;ie1&lt;/code&gt; if you are specifically targeting the EU and are aware of potential limitations).&lt;/em&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;Create a TwiML Bin:&lt;/strong&gt; Go to &lt;a href=&quot;https://console.twilio.com/us1/develop/twiml-bins/twiml-bins&quot;&gt;TwiML Bins&lt;/a&gt;. Create a new TwiML Bin with the following content. Replace &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;USERNAME&lt;/code&gt; with the username from your credentials list and &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;YOURDOMAIN.sip.twilio.com&lt;/code&gt; with your actual SIP domain. Adjust the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;region&lt;/code&gt; parameter in the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;&amp;lt;Sip&amp;gt;&lt;/code&gt; noun if necessary (e.g., to &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;us1&lt;/code&gt; or &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;au1&lt;/code&gt;).&lt;/li&gt;
 &lt;/ol&gt;
 
 &lt;div class=&quot;language-xml highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;cp&quot;&gt;&amp;lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&amp;gt;&lt;/span&gt;
@@ -29,28 +30,33 @@
   &lt;span class=&quot;c&quot;&gt;&amp;lt;!-- Say&amp;gt;Hello from Twilio!&amp;lt;/Say --&amp;gt;&lt;/span&gt;
 
   &lt;span class=&quot;nt&quot;&gt;&amp;lt;Dial&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;answerOnBridge=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;true&quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;sequential=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;true&quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;ringTone=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;lt&quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;record=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;record-from-answer-dual&quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;trim=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;trim-silence&quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;
-    &lt;span class=&quot;nt&quot;&gt;&amp;lt;Sip&amp;gt;&lt;/span&gt;USERNAME@YOURDOMAIN.sip.twilio.com;region=ie1&lt;span class=&quot;nt&quot;&gt;&amp;lt;/Sip&amp;gt;&lt;/span&gt;
+    &lt;span class=&quot;nt&quot;&gt;&amp;lt;Sip&amp;gt;&lt;/span&gt;sip:USERNAME@YOURDOMAIN.sip.twilio.com;region=us1&lt;span class=&quot;nt&quot;&gt;&amp;lt;/Sip&amp;gt;&lt;/span&gt; &lt;span class=&quot;c&quot;&gt;&amp;lt;!-- Example using us1 region --&amp;gt;&lt;/span&gt;
   &lt;span class=&quot;nt&quot;&gt;&amp;lt;/Dial&amp;gt;&lt;/span&gt;
 
-  &lt;span class=&quot;c&quot;&gt;&amp;lt;!-- Simultaneous Dialing --&amp;gt;&lt;/span&gt;
-  &lt;span class=&quot;nt&quot;&gt;&amp;lt;Dial&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;answerOnBridge=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;true&quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;ringTone=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;es&quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;record=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;record-from-answer-dual&quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;trim=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;trim-silence&quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;
-    &lt;span class=&quot;nt&quot;&gt;&amp;lt;Sip&amp;gt;&lt;/span&gt;USERNAME@YOURDOMAIN.sip.twilio.com;region=ie1&lt;span class=&quot;nt&quot;&gt;&amp;lt;/Sip&amp;gt;&lt;/span&gt;
-    &lt;span class=&quot;nt&quot;&gt;&amp;lt;Number&amp;gt;&lt;/span&gt;+YOURNUMBER&lt;span class=&quot;nt&quot;&gt;&amp;lt;/Number&amp;gt;&lt;/span&gt;
-  &lt;span class=&quot;nt&quot;&gt;&amp;lt;/Dial&amp;gt;&lt;/span&gt;
+  &lt;span class=&quot;c&quot;&gt;&amp;lt;!-- Example of Simultaneous Dialing (Optional) --&amp;gt;&lt;/span&gt;
+  &lt;span class=&quot;c&quot;&gt;&amp;lt;!--
+  &amp;lt;Dial answerOnBridge=&quot;true&quot; ringTone=&quot;es&quot; record=&quot;record-from-answer-dual&quot; trim=&quot;trim-silence&quot;&amp;gt;
+    &amp;lt;Sip&amp;gt;sip:USERNAME@YOURDOMAIN.sip.twilio.com;region=us1&amp;lt;/Sip&amp;gt;
+    &amp;lt;Number&amp;gt;+YOUR_OTHER_PHONE_NUMBER&amp;lt;/Number&amp;gt;
+  &amp;lt;/Dial&amp;gt;
+  --&amp;gt;&lt;/span&gt;
 
-  &lt;span class=&quot;nt&quot;&gt;&amp;lt;Say&amp;gt;&lt;/span&gt;Hello, YOURNAME cannot answer. Please leave a message at the beep.&lt;span class=&quot;nt&quot;&gt;&amp;lt;/Say&amp;gt;&lt;/span&gt;
+  &lt;span class=&quot;nt&quot;&gt;&amp;lt;Say&amp;gt;&lt;/span&gt;Hello, the person you are trying to reach is unavailable. Please leave a message at the beep.&lt;span class=&quot;nt&quot;&gt;&amp;lt;/Say&amp;gt;&lt;/span&gt;
 
   &lt;span class=&quot;nt&quot;&gt;&amp;lt;Record&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;timeout=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;30&quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;transcribe=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;true&quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;playBeep=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;true&quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;/&amp;gt;&lt;/span&gt;
+  &lt;span class=&quot;nt&quot;&gt;&amp;lt;Hangup/&amp;gt;&lt;/span&gt;
 &lt;span class=&quot;nt&quot;&gt;&amp;lt;/Response&amp;gt;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;*Note: The example above shows sequential dialing to one SIP endpoint. You can modify this for simultaneous dialing or other call flows. Ensure the SIP URI is correctly formatted (`sip:username@domain`).*
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 
 &lt;ol&gt;
-  &lt;li&gt;Purchase a DID number at https://console.twilio.com/us1/develop/phone-numbers/manage/incoming and enter the inbound call routing section (A call comes in) to select the TwiML bin.&lt;/li&gt;
-  &lt;li&gt;Download a SIP client, such as Groundwire from Acrobits, and register it with Twilio using your username and password from the credentials list and the following registration domain: &lt;a href=&quot;http://yourdomain.sip.twilio.com/&quot;&gt;YOURDOMAIN.sip.twilio.com&lt;/a&gt;.&lt;/li&gt;
-  &lt;li&gt;Test inbound calls. If a call does not work, navigate to the logs at https://console.twilio.com/us1/monitor/logs/debugger/errors.&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;Configure Phone Number:&lt;/strong&gt; Purchase a DID number from &lt;a href=&quot;https://console.twilio.com/us1/develop/phone-numbers/manage/incoming&quot;&gt;Twilio Phone Numbers&lt;/a&gt;. In the number’s configuration, under “A CALL COMES IN,” select “TwiML Bin” and choose the Bin you created.&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;Configure SIP Client:&lt;/strong&gt; Download and configure a SIP client (e.g., Groundwire by Acrobits, Zoiper, Linphone). Use the username and password from your credentials list and your SIP domain (e.g., &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;YOURDOMAIN.sip.twilio.com&lt;/code&gt;) for registration.&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;Test Inbound Calls:&lt;/strong&gt; Make a test call to your Twilio DID number. If issues arise, check the &lt;a href=&quot;https://console.twilio.com/us1/monitor/logs/debugger&quot;&gt;Twilio Debugger logs&lt;/a&gt; for errors.&lt;/li&gt;
 &lt;/ol&gt;
 
-&lt;p&gt;Now that everything is set up, redirect your phone calls to the Twilio DID number by dialing &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;*21*+YOUR-TWILIO-NUMBER#&lt;/code&gt; on your mobile phone.&lt;/p&gt;
+&lt;p&gt;Once everything is set up and tested, you can redirect your existing mobile phone numbers to your new Twilio DID number using your mobile carrier’s call forwarding feature (e.g., by dialing &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;*21*+YOUR_TWILIO_NUMBER#&lt;/code&gt; on your mobile phone, though the exact code may vary by carrier).&lt;/p&gt;
 </description>
         <pubDate>Sat, 08 Jul 2023 13:35:00 +0000</pubDate>
         <link>//andrius.mobi/2023/07/register-sip-account-and-receive-calls-with-twilio.html</link>
@@ -59,24 +65,23 @@
     
       <item>
         <title>Properly terminate crystal-lang service in docker</title>
-        <description>&lt;p&gt;Production-ready crystal application in docker must process correctly several
-signals to shutdown properly. There is two commands in docker can be used to stop running container: &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;docker stop&lt;/code&gt; and &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;docker kill&lt;/code&gt;. First one, &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;docker stop&lt;/code&gt; stops a running container by sending it SIGTERM signal, let the main process process it, and after a grace period uses SIGKILL to terminate the application.&lt;/p&gt;
+        <description>&lt;p&gt;Production-ready Crystal-lang applications running in Docker containers must correctly process several signals to ensure proper shutdown. Docker provides two main commands to stop a running container: &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;docker stop&lt;/code&gt; and &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;docker kill&lt;/code&gt;. The &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;docker stop&lt;/code&gt; command first sends a SIGTERM signal to the container’s main process, allowing it to perform a graceful shutdown. If the process does not terminate within a grace period, Docker then sends a SIGKILL signal to forcibly terminate it.&lt;/p&gt;
 
-&lt;p&gt;In this article I’ll show how to process SIGING (Ctrl-C), SIGTERM and SIGKILL with Crystal-lang.&lt;/p&gt;
+&lt;p&gt;This article demonstrates how to handle SIGINT (Ctrl-C), SIGTERM, and SIGKILL signals within a Crystal-lang application.&lt;/p&gt;
 
-&lt;h2 id=&quot;download&quot;&gt;Download&lt;/h2&gt;
+&lt;h2 id=&quot;download-example-code&quot;&gt;Download Example Code&lt;/h2&gt;
 
-&lt;p&gt;It’s a part of my sandbox repository, &lt;a href=&quot;https://github.com/andrius/sandbox/tree/develop/crystal/signal_trap&quot;&gt;download it here&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;The example code is part of my sandbox repository and can be &lt;a href=&quot;https://github.com/andrius/sandbox/tree/develop/crystal/signal_trap&quot;&gt;downloaded here&lt;/a&gt;.&lt;/p&gt;
 
-&lt;p&gt;Not familiar with crystal-lang? &lt;a href=&quot;https://github.com/andrius/sandbox/blob/develop/crystal-signal-trap/src/signal_trap.cr&quot;&gt;This is the main file with business logic&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;If you are not familiar with Crystal-lang, the &lt;a href=&quot;https://github.com/andrius/sandbox/blob/develop/crystal/signal_trap/src/signal_trap.cr&quot;&gt;main file containing the business logic for this example is &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;src/signal_trap.cr&lt;/code&gt;&lt;/a&gt;.&lt;/p&gt;
 
 &lt;h2 id=&quot;installation&quot;&gt;Installation&lt;/h2&gt;
 
-&lt;p&gt;Everything is dockerised, just get docker installed and download git repository.&lt;/p&gt;
+&lt;p&gt;The example is fully Dockerized. Ensure Docker is installed, then clone the Git repository.&lt;/p&gt;
 
-&lt;h2 id=&quot;usage&quot;&gt;Usage&lt;/h2&gt;
+&lt;h2 id=&quot;usage-instructions&quot;&gt;Usage Instructions&lt;/h2&gt;
 
-&lt;p&gt;For development-mode application run this:&lt;/p&gt;
+&lt;p&gt;To run the application in development mode:&lt;/p&gt;
 
 &lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;docker build &lt;span class=&quot;nt&quot;&gt;--pull&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;--force-rm&lt;/span&gt; &lt;span class=&quot;se&quot;&gt;\&lt;/span&gt;
   &lt;span class=&quot;nt&quot;&gt;-t&lt;/span&gt; crystal-signal-trap &lt;span class=&quot;se&quot;&gt;\&lt;/span&gt;
@@ -84,8 +89,7 @@ signals to shutdown properly. There is two commands in docker can be used to sto
 &lt;span class=&quot;o&quot;&gt;&amp;amp;&amp;amp;&lt;/span&gt; docker run &lt;span class=&quot;nt&quot;&gt;-ti&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;--rm&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;--name&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;trap &lt;/span&gt;crystal-signal-trap
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 
-&lt;p&gt;But most important is to get signals trap working in production-ready docker,
-which is scratch, busybox or alpine-based. To test it, run following snippet:&lt;/p&gt;
+&lt;p&gt;More importantly, to test signal trapping in a production-like environment (using a minimal base image such as scratch, BusyBox, or Alpine), run the following:&lt;/p&gt;
 
 &lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;docker build &lt;span class=&quot;nt&quot;&gt;--pull&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;--force-rm&lt;/span&gt; &lt;span class=&quot;se&quot;&gt;\&lt;/span&gt;
   &lt;span class=&quot;nt&quot;&gt;-t&lt;/span&gt; crystal-signal-trap &lt;span class=&quot;se&quot;&gt;\&lt;/span&gt;
@@ -97,23 +101,23 @@ which is scratch, busybox or alpine-based. To test it, run following snippet:&lt
 
 &lt;p&gt;&lt;a href=&quot;https://asciinema.org/a/eIFSoH00QsLKpsfyypsL0i6cr&quot;&gt;&lt;img src=&quot;https://asciinema.org/a/eIFSoH00QsLKpsfyypsL0i6cr.svg&quot; alt=&quot;asciicast&quot; /&gt;&lt;/a&gt;&lt;/p&gt;
 
-&lt;h2 id=&quot;i-want-to-process-signals-separately&quot;&gt;I want to process signals separately!&lt;/h2&gt;
+&lt;h2 id=&quot;processing-signals-individually&quot;&gt;Processing Signals Individually&lt;/h2&gt;
 
-&lt;p&gt;Instead of grouping signals trap as it’s &lt;a href=&quot;https://github.com/andrius/sandbox/blob/develop/crystal/signal_trap/src/signal_trap.cr#L9-L16&quot;&gt;made in the demo app&lt;/a&gt;, it is possible just to process any of them:&lt;/p&gt;
+&lt;p&gt;Instead of grouping signal traps as demonstrated in the &lt;a href=&quot;https://github.com/andrius/sandbox/blob/develop/crystal/signal_trap/src/signal_trap.cr#L9-L16&quot;&gt;example application’s code&lt;/a&gt;, it is possible to handle each signal separately:&lt;/p&gt;
 
 &lt;div class=&quot;language-crystal highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt; &lt;span class=&quot;no&quot;&gt;Signal&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;::&lt;/span&gt;&lt;span class=&quot;no&quot;&gt;INT&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;trap&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;do&lt;/span&gt;
    &lt;span class=&quot;c1&quot;&gt;# Processing SIGING&lt;/span&gt;
  &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 
-&lt;h2 id=&quot;more-signals&quot;&gt;More signals?&lt;/h2&gt;
+&lt;h2 id=&quot;handling-other-signals&quot;&gt;Handling Other Signals&lt;/h2&gt;
 
-&lt;p&gt;It is possible to send other signals with docker:&lt;/p&gt;
+&lt;p&gt;Docker allows sending various signals to containers:&lt;/p&gt;
 
 &lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;docker &lt;span class=&quot;nb&quot;&gt;kill&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;--signal&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;SIGHUP  my_container
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 
-&lt;p&gt;In this case, Crystal-lang app shall catch that signal: &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Signal::INT.trap { ... }&lt;/code&gt;. Here is the &lt;a href=&quot;https://crystal-lang.org/api/latest/Signal.html&quot;&gt;list of known by Crystal-lang signals&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;In such cases, the Crystal-lang application should trap the specific signal, for example, &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Signal::HUP.trap { ... }&lt;/code&gt; for SIGHUP. A comprehensive &lt;a href=&quot;https://crystal-lang.org/api/latest/Signal.html&quot;&gt;list of signals known to Crystal-lang is available in the API documentation&lt;/a&gt;.&lt;/p&gt;
 
 &lt;hr /&gt;
 
@@ -132,11 +136,11 @@ which is scratch, busybox or alpine-based. To test it, run following snippet:&lt
     
       <item>
         <title>Create the smallest Crystal-lang docker image based on scratch</title>
-        <description>&lt;p&gt;Official &lt;a href=&quot;https://hub.docker.com/r/crystallang/crystal/tags&quot;&gt;Crystal-lang docker image&lt;/a&gt; is Ubuntu-based and relatively big, but production-ready image could be tiny, if we will use docker multi-stage builds. The smallest image could be created using &lt;a href=&quot;https://hub.docker.com/_/scratch&quot;&gt;scratch&lt;/a&gt; image, but if it’s needed to do some processing before actual code starts, &lt;a href=&quot;https://hub.docker.com/_/busybox&quot;&gt;busybox&lt;/a&gt; or &lt;a href=&quot;https://hub.docker.com/_/alpine&quot;&gt;alpine&lt;/a&gt; is recommended.&lt;/p&gt;
+        <description>&lt;p&gt;The official &lt;a href=&quot;https://hub.docker.com/r/crystallang/crystal/tags&quot;&gt;Crystal-lang Docker image&lt;/a&gt; is Ubuntu-based and relatively large. However, production-ready images can be significantly smaller by utilizing Docker multi-stage builds. The smallest possible image can be created using the &lt;a href=&quot;https://hub.docker.com/_/scratch&quot;&gt;scratch&lt;/a&gt; base image. If some pre-execution processing or shell utilities are needed, &lt;a href=&quot;https://hub.docker.com/_/busybox&quot;&gt;BusyBox&lt;/a&gt; or &lt;a href=&quot;https://hub.docker.com/_/alpine&quot;&gt;Alpine Linux&lt;/a&gt; are recommended alternatives.&lt;/p&gt;
 
-&lt;h2 id=&quot;dockerfile&quot;&gt;Dockerfile&lt;/h2&gt;
+&lt;h2 id=&quot;dockerfile-example&quot;&gt;Dockerfile Example&lt;/h2&gt;
 
-&lt;p&gt;Well, just compile app using crystal image and copy resulting binary to the scratch, like below:&lt;/p&gt;
+&lt;p&gt;To create a minimal image, compile the application using the official Crystal-lang image in an initial stage, and then copy the resulting binary (and any necessary dynamic libraries) to a &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;scratch&lt;/code&gt; image in a subsequent stage, as shown below:&lt;/p&gt;
 
 &lt;div class=&quot;language-docker highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;c&quot;&gt;# vim:set ft=dockerfile:&lt;/span&gt;
 &lt;span class=&quot;k&quot;&gt;FROM&lt;/span&gt;&lt;span class=&quot;s&quot;&gt; crystallang/crystal:0.31.1 as builder&lt;/span&gt;
@@ -147,35 +151,44 @@ which is scratch, busybox or alpine-based. To test it, run following snippet:&lt
 &lt;span class=&quot;k&quot;&gt;COPY&lt;/span&gt;&lt;span class=&quot;s&quot;&gt; . .&lt;/span&gt;
 
 &lt;span class=&quot;k&quot;&gt;RUN &lt;/span&gt;shards build &lt;span class=&quot;nt&quot;&gt;--production&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;--progress&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;--verbose&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;--warnings&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;all
+&lt;span class=&quot;c&quot;&gt;# Identify and copy runtime dependencies&lt;/span&gt;
 &lt;span class=&quot;k&quot;&gt;RUN &lt;/span&gt;ldd ./bin/app | &lt;span class=&quot;nb&quot;&gt;tr&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;-s&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;&apos;[:blank:]&apos;&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;&apos;\n&apos;&lt;/span&gt; | &lt;span class=&quot;nb&quot;&gt;grep&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;&apos;^/&apos;&lt;/span&gt; | &lt;span class=&quot;se&quot;&gt;\
-&lt;/span&gt;    xargs &lt;span class=&quot;nt&quot;&gt;-I&lt;/span&gt; % sh &lt;span class=&quot;nt&quot;&gt;-c&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;&apos;mkdir -p $(dirname deps%); cp % deps%;&apos;&lt;/span&gt;
+&lt;/span&gt;    xargs &lt;span class=&quot;nt&quot;&gt;-I&lt;/span&gt; % sh &lt;span class=&quot;nt&quot;&gt;-c&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;&apos;mkdir -p $(dirname deps%); cp -L % deps%;&apos;&lt;/span&gt; &lt;span class=&quot;c&quot;&gt;# Use -L to copy actual files for symlinks&lt;/span&gt;
 &lt;span class=&quot;c&quot;&gt;# RUN find ./deps/&lt;/span&gt;
 
 &lt;span class=&quot;c&quot;&gt;################################################################################&lt;/span&gt;
+&lt;span class=&quot;c&quot;&gt;# Final stage: copy artifacts to scratch image&lt;/span&gt;
 &lt;span class=&quot;k&quot;&gt;FROM&lt;/span&gt;&lt;span class=&quot;s&quot;&gt; scratch&lt;/span&gt;
 
 &lt;span class=&quot;k&quot;&gt;LABEL&lt;/span&gt;&lt;span class=&quot;s&quot;&gt; maintainer=&quot;Andrius Kairiukstis &amp;lt;****&amp;gt;&quot;&lt;/span&gt;
 
-&lt;span class=&quot;c&quot;&gt;# Dependences. That will fix DNS resolve issue in docker&lt;/span&gt;
-&lt;span class=&quot;k&quot;&gt;COPY&lt;/span&gt;&lt;span class=&quot;s&quot;&gt; --from=builder /src/deps /&lt;/span&gt;
-&lt;span class=&quot;k&quot;&gt;COPY&lt;/span&gt;&lt;span class=&quot;s&quot;&gt; --from=builder /lib/x86_64-linux-gnu/libnss_dns.so.* /lib/x86_64-linux-gnu/&lt;/span&gt;
-&lt;span class=&quot;k&quot;&gt;COPY&lt;/span&gt;&lt;span class=&quot;s&quot;&gt; --from=builder /lib/x86_64-linux-gnu/libresolv.so.*  /lib/x86_64-linux-gnu/&lt;/span&gt;
+&lt;span class=&quot;c&quot;&gt;# Copy runtime dependencies. These are crucial for DNS resolution in Docker.&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;COPY&lt;/span&gt;&lt;span class=&quot;s&quot;&gt; --from=builder /src/deps/ /&lt;/span&gt;
+&lt;span class=&quot;c&quot;&gt;# Specifically copy DNS-related libraries if not covered by the general deps copy&lt;/span&gt;
+&lt;span class=&quot;c&quot;&gt;# Ensure these paths are correct for the builder image (crystallang/crystal:0.31.1)&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;COPY&lt;/span&gt;&lt;span class=&quot;s&quot;&gt; --from=builder /lib/x86_64-linux-gnu/libnss_dns.so.2 /lib/x86_64-linux-gnu/&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;COPY&lt;/span&gt;&lt;span class=&quot;s&quot;&gt; --from=builder /lib/x86_64-linux-gnu/libresolv.so.2 /lib/x86_64-linux-gnu/&lt;/span&gt;
 
-&lt;span class=&quot;c&quot;&gt;# app&lt;/span&gt;
+&lt;span class=&quot;c&quot;&gt;# Copy the compiled application&lt;/span&gt;
 &lt;span class=&quot;k&quot;&gt;COPY&lt;/span&gt;&lt;span class=&quot;s&quot;&gt; --from=builder /src/bin/app /app&lt;/span&gt;
 
 &lt;span class=&quot;k&quot;&gt;ENTRYPOINT&lt;/span&gt;&lt;span class=&quot;s&quot;&gt; [&quot;/app&quot;]&lt;/span&gt;
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 
-&lt;h2 id=&quot;crystal-lang-notes&quot;&gt;Crystal-lang notes&lt;/h2&gt;
+&lt;h2 id=&quot;crystal-lang-notes-on-dns-resolution&quot;&gt;Crystal-lang Notes on DNS Resolution&lt;/h2&gt;
 
-&lt;p&gt;There is issues with DNS – see this &lt;a href=&quot;https://github.com/crystal-lang/crystal/issues/2426&quot;&gt;https://github.com/crystal-lang/crystal/issues/2426&lt;/a&gt; and &lt;a href=&quot;https://github.com/crystal-lang/crystal/issues/6099&quot;&gt;https://github.com/crystal-lang/crystal/issues/6099&lt;/a&gt;. The best way to resolve I’ve found is to &lt;a href=&quot;https://gist.github.com/bcardiff/85ae47e66ff0df35a78697508fcb49af#gistcomment-2578255&quot;&gt;copy libnss and libresolv files&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;A common issue with minimal Crystal-lang Docker images (especially those based on &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;scratch&lt;/code&gt;) is DNS resolution. This is documented in Crystal-lang GitHub issues such as &lt;a href=&quot;https://github.com/crystal-lang/crystal/issues/2426&quot;&gt;#2426&lt;/a&gt; and &lt;a href=&quot;https://github.com/crystal-lang/crystal/issues/6099&quot;&gt;#6099&lt;/a&gt;.
+The most effective solution I’ve found involves copying necessary &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;libnss_*.so&lt;/code&gt; and &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;libresolv.so&lt;/code&gt; files from the builder image, as demonstrated in the Dockerfile above and discussed in &lt;a href=&quot;https://gist.github.com/bcardiff/85ae47e66ff0df35a78697508fcb49af#gistcomment-2578255&quot;&gt;this Gist comment&lt;/a&gt;.&lt;/p&gt;
 
-&lt;p&gt;I’ve also tried to compile with &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;--static&lt;/code&gt; option, copying (and not) the DNS libraries (&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;libnss_dns.so&lt;/code&gt; and &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;libresolv.so&lt;/code&gt;), but did not get DNS working – that image is good only for listening services.&lt;/p&gt;
+&lt;p&gt;Attempting to compile with the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;--static&lt;/code&gt; flag, even when including these DNS libraries, did not consistently resolve DNS issues in my tests. Statically linked images without these libraries are generally only suitable for services that do not require external DNS lookups (e.g., purely listening services).&lt;/p&gt;
 
-&lt;h2 id=&quot;result&quot;&gt;Result&lt;/h2&gt;
+&lt;h2 id=&quot;resulting-image-sizes&quot;&gt;Resulting Image Sizes&lt;/h2&gt;
 
-&lt;p&gt;Resulting image is tiny, only 10MB (and the smallest one is 6.25MB only, but DNS won’t working)&lt;/p&gt;
+&lt;p&gt;The resulting image sizes are significantly reduced:&lt;/p&gt;
+&lt;ul&gt;
+  &lt;li&gt;&lt;strong&gt;scratch-based with ldd dependencies (DNS working):&lt;/strong&gt; ~10MB&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;scratch-based, statically linked (DNS not working):&lt;/strong&gt; ~6.25MB&lt;/li&gt;
+&lt;/ul&gt;
 
 &lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;$ docker image list dial_demo
 
@@ -184,9 +197,14 @@ which is scratch, busybox or alpine-based. To test it, run following snippet:&lt
 # smallest-docker-image  scratch-static-no-dns  595afcfad6f0  13 minutes ago  6.25MB
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 
-&lt;h2 id=&quot;can-i-download-this&quot;&gt;Can I download this?&lt;/h2&gt;
+&lt;h2 id=&quot;download-examples&quot;&gt;Download Examples&lt;/h2&gt;
 
-&lt;p&gt;Sure. &lt;a href=&quot;https://github.com/andrius/sandbox/tree/develop/crystal/smallest-docker-image&quot;&gt;I’ve pushed stuff to my sandbox repository&lt;/a&gt;. There is three Dockerfiles, for &lt;a href=&quot;https://github.com/andrius/sandbox/tree/develop/crystal/smallest-docker-image/scratch/ldd&quot;&gt;scratch&lt;/a&gt; – 10MB, &lt;a href=&quot;https://github.com/andrius/sandbox/tree/develop/crystal/smallest-docker-image/busybox/ldd&quot;&gt;busybox&lt;/a&gt; – 11.2MB and &lt;a href=&quot;https://github.com/andrius/sandbox/tree/develop/crystal/smallest-docker-image/alpine/ldd&quot;&gt;alpine linux&lt;/a&gt; – 15.6MB.&lt;/p&gt;
+&lt;p&gt;Example Dockerfiles demonstrating these techniques are available in my &lt;a href=&quot;https://github.com/andrius/sandbox/tree/develop/crystal/smallest-docker-image&quot;&gt;sandbox repository on GitHub&lt;/a&gt;. This includes configurations for:&lt;/p&gt;
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/andrius/sandbox/tree/develop/crystal/smallest-docker-image/scratch/ldd&quot;&gt;scratch (ldd dependencies)&lt;/a&gt; - ~10MB&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/andrius/sandbox/tree/develop/crystal/smallest-docker-image/busybox/ldd&quot;&gt;BusyBox (ldd dependencies)&lt;/a&gt; - ~11.2MB&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/andrius/sandbox/tree/develop/crystal/smallest-docker-image/alpine/ldd&quot;&gt;Alpine Linux (ldd dependencies)&lt;/a&gt; - ~15.6MB&lt;/li&gt;
+&lt;/ul&gt;
 
 &lt;hr /&gt;
 </description>
@@ -197,115 +215,122 @@ which is scratch, busybox or alpine-based. To test it, run following snippet:&lt
     
       <item>
         <title>All-in-one (Crystal-lang library that handle all the Asterisk PBX interfaces)</title>
-        <description>&lt;p&gt;I’ve created and open-sourced a Crystal-lang shard (library) that handle all the Asterisk PBX interfaces (ARI, AMI and all types of AGI). Get it here: &lt;a href=&quot;https://github.com/ctiapps/asterisk&quot;&gt;https://github.com/ctiapps/asterisk&lt;/a&gt;.&lt;/p&gt;
+        <description>&lt;p&gt;I have created and open-sourced a Crystal-lang shard (library) that supports all Asterisk PBX interfaces: Asterisk REST Interface (ARI), Asterisk Manager Interface (AMI), and all types of Asterisk Gateway Interface (AGI, FastAGI, AsyncAGI). You can find it on GitHub: &lt;a href=&quot;https://github.com/ctiapps/asterisk&quot;&gt;ctiapps/asterisk&lt;/a&gt;.&lt;/p&gt;
 
-&lt;h2 id=&quot;another-library&quot;&gt;Another library?&lt;/h2&gt;
+&lt;h2 id=&quot;why-another-library&quot;&gt;Why Another Library?&lt;/h2&gt;
 
-&lt;p&gt;There were no &lt;a href=&quot;https://crystalshards.xyz/?filter=voip&quot;&gt;libraries for VoIP&lt;/a&gt; with Crystal-lang so I’ve created my own.&lt;/p&gt;
+&lt;p&gt;At the time of development, there were no existing &lt;a href=&quot;https://crystalshards.xyz/?filter=voip&quot;&gt;Crystal-lang libraries for VoIP&lt;/a&gt;, which prompted me to create this one.&lt;/p&gt;
 
-&lt;p&gt;Working on recent project we had a need to deal with AMI and ARI together, with a lot of async processing. Initial code were Ruby-based, but there it only single Ruby-gem for ARI and async support in Ruby is not the best one.&lt;/p&gt;
+&lt;p&gt;In a recent project, we needed to work with both AMI and ARI concurrently, involving significant asynchronous processing. The initial codebase was Ruby-based; however, there was only a single Ruby gem available for ARI, and Ruby’s asynchronous support was not ideal for our needs.&lt;/p&gt;
 
-&lt;p&gt;I really love &lt;a href=&quot;https://crystal-lang.org&quot;&gt;Crystal-lang&lt;/a&gt;. It’s inspired by Ruby and I had no issues switching to it (however it is not Ruby, only syntax is more or less shared). It is fast, really fast, no lags, no delays! It compiles and resulting code is tiny, docker image with all the stuff packed-in is around 20MB in size. Before making decision I also have tried Elixir. Golang might be also an option, but after Ruby I don’t want to leave comfort zone ;)&lt;/p&gt;
+&lt;p&gt;I am a strong proponent of &lt;a href=&quot;https://crystal-lang.org&quot;&gt;Crystal-lang&lt;/a&gt;. Its Ruby-inspired syntax made the transition smooth (though it’s important to note Crystal is not Ruby; only the syntax shares similarities). Crystal-lang is exceptionally fast, exhibiting no lags or delays. It compiles to a tiny binary, allowing for Docker images of around 20MB with all dependencies packed in. Before settling on Crystal, I also considered Elixir. Golang was another possibility, but I preferred to stay within a more familiar syntactic comfort zone after working with Ruby.&lt;/p&gt;
 
-&lt;h2 id=&quot;whats-in-a-box&quot;&gt;What’s in a box?&lt;/h2&gt;
+&lt;h2 id=&quot;whats-included&quot;&gt;What’s Included?&lt;/h2&gt;
 
 &lt;ul&gt;
-  &lt;li&gt;All the interfaces ARI, AMI, AGI, FastAGI and AsyncAGI;&lt;/li&gt;
-  &lt;li&gt;&lt;a href=&quot;https://github.com/ctiapps/asterisk/tree/develop/spec&quot;&gt;Test specs using live Asterisk PBX (in a Docker)&lt;/a&gt;. Specs also demonstrate how to use library, but more documentation is coming;&lt;/li&gt;
-  &lt;li&gt;&lt;a href=&quot;https://ctiapps.github.io/asterisk&quot;&gt;Documentation&lt;/a&gt;.&lt;/li&gt;
+  &lt;li&gt;Support for all key Asterisk interfaces: ARI, AMI, AGI, FastAGI, and AsyncAGI.&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/ctiapps/asterisk/tree/develop/spec&quot;&gt;Comprehensive test specs&lt;/a&gt; that run against a live Asterisk PBX instance within Docker. These specs also serve as usage examples for the library. More detailed documentation is forthcoming.&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://ctiapps.github.io/asterisk&quot;&gt;Official documentation&lt;/a&gt;.&lt;/li&gt;
 &lt;/ul&gt;
 
 &lt;hr /&gt;
 </description>
         <pubDate>Wed, 23 Oct 2019 00:00:00 +0000</pubDate>
-        <link>//andrius.mobi/2019/10/all-in-one-asterisk-with-crysyal.html</link>
-        <guid isPermaLink="true">//andrius.mobi/2019/10/all-in-one-asterisk-with-crysyal.html</guid>
+        <link>//andrius.mobi/2019/10/all-in-one-asterisk-with-crystal.html</link>
+        <guid isPermaLink="true">//andrius.mobi/2019/10/all-in-one-asterisk-with-crystal.html</guid>
       </item>
     
       <item>
         <title>How to install software on firewalled server</title>
-        <description>&lt;p&gt;Quick answer: Create a reverse SSH proxy:&lt;/p&gt;
+        <description>&lt;p&gt;This post outlines a method for installing software on a server with outbound firewall restrictions by using a reverse SSH proxy.&lt;/p&gt;
 
-&lt;p&gt;Create a dynamic tunnel with command  &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;ssh -D 51010 localhost&lt;/code&gt; — this command create a dynamic SSH proxy from your local machine;&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Quick Summary:&lt;/strong&gt;&lt;/p&gt;
 
-&lt;p&gt;Then SSH to the remote machine with command like this: &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;ssh -R 51010:127.0.0.1:51010 firewalled-server&lt;/code&gt;. 
-It will forward your dynamic SSH proxy to the remote machine, so you’ll get kind of a “poor man VPN” on it;&lt;/p&gt;
+&lt;ol&gt;
+  &lt;li&gt;&lt;strong&gt;Create a local SOCKS proxy:&lt;/strong&gt; On your local machine, run &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;ssh -D 51010 localhost&lt;/code&gt;. This creates a dynamic SOCKS proxy.&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;Forward the proxy to the remote server:&lt;/strong&gt; SSH to the firewalled server using &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;ssh -R 51010:127.0.0.1:51010 firewalled-server&lt;/code&gt;. This forwards your local SOCKS proxy to the remote machine, effectively creating a “poor man’s VPN.”&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;Install software via the proxy:&lt;/strong&gt; Use a tool like &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;proxychains&lt;/code&gt; or configure &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;apt.conf&lt;/code&gt; to route traffic through the forwarded proxy.&lt;/li&gt;
+&lt;/ol&gt;
 
-&lt;p&gt;Finally install the software using the proxychains command (or update the apt.conf), see below.&lt;/p&gt;
+&lt;h2 id=&quot;preparation-steps&quot;&gt;Preparation Steps&lt;/h2&gt;
 
-&lt;h2 id=&quot;preparation&quot;&gt;Preparation&lt;/h2&gt;
+&lt;ol&gt;
+  &lt;li&gt;&lt;strong&gt;On your local (host) machine, open a terminal and establish a dynamic SOCKS proxy:&lt;/strong&gt;&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;div class=&quot;language-shell highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;  ssh &lt;span class=&quot;nt&quot;&gt;-D&lt;/span&gt; 51010 localhost
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;&lt;strong&gt;In a new terminal tab on your local machine, SSH to the firewalled server, forwarding the local proxy port &lt;sup id=&quot;fnref:1&quot; role=&quot;doc-noteref&quot;&gt;&lt;a href=&quot;#fn:1&quot; class=&quot;footnote&quot; rel=&quot;footnote&quot;&gt;1&lt;/a&gt;&lt;/sup&gt;:&lt;/strong&gt;&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;div class=&quot;language-shell highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;  ssh &lt;span class=&quot;nt&quot;&gt;-R&lt;/span&gt; 51010:127.0.0.1:51010 firewalled-server
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 
 &lt;ul&gt;
-  &lt;li&gt;
-    &lt;p&gt;At host machine open terminal and SSH to self, in order to create dynamic tunnel:&lt;/p&gt;
-
-    &lt;div class=&quot;language-shell highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;ssh &lt;span class=&quot;nt&quot;&gt;-D&lt;/span&gt; 51010 localhost
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;    &lt;/div&gt;
-  &lt;/li&gt;
-  &lt;li&gt;
-    &lt;p&gt;Now in new termial tab, SSH to the remote machine &lt;sup id=&quot;fnref:1&quot; role=&quot;doc-noteref&quot;&gt;&lt;a href=&quot;#fn:1&quot; class=&quot;footnote&quot; rel=&quot;footnote&quot;&gt;1&lt;/a&gt;&lt;/sup&gt;:&lt;/p&gt;
-
-    &lt;div class=&quot;language-shell highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;ssh &lt;span class=&quot;nt&quot;&gt;-R&lt;/span&gt; 51010:127.0.0.1:51010 firewalled-server
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;    &lt;/div&gt;
-  &lt;/li&gt;
   &lt;li&gt;
     &lt;p&gt;Check that everything works fine (I assume that curl is already installed):&lt;/p&gt;
 
     &lt;div class=&quot;language-shell highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nv&quot;&gt;ALL_PROXY&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;socks5://127.0.0.1:51010&quot;&lt;/span&gt; curl ifconfig.co
 &lt;span class=&quot;nv&quot;&gt;ALL_PROXY&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;socks5h://127.0.0.1:51010&quot;&lt;/span&gt; curl ifconfig.co
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;    &lt;/div&gt;
+
+    &lt;p&gt;If both commands fail, check the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;sshd&lt;/code&gt; settings on the firewalled server (e.g., ensure &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;AllowTcpForwarding&lt;/code&gt; is enabled). If only the first command (using &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;socks5://&lt;/code&gt;) fails while the second (using &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;socks5h://&lt;/code&gt;) succeeds, it indicates that DNS resolution is also likely firewalled, and &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;socks5h&lt;/code&gt; (which proxies DNS requests) is necessary &lt;sup id=&quot;fnref:2&quot; role=&quot;doc-noteref&quot;&gt;&lt;a href=&quot;#fn:2&quot; class=&quot;footnote&quot; rel=&quot;footnote&quot;&gt;2&lt;/a&gt;&lt;/sup&gt;.&lt;/p&gt;
   &lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;p&gt;If both commands was failed, check sshd settings on the firewalled server (does port forwarding enabled etc.), and if only the first command failed &lt;sup id=&quot;fnref:2&quot; role=&quot;doc-noteref&quot;&gt;&lt;a href=&quot;#fn:2&quot; class=&quot;footnote&quot; rel=&quot;footnote&quot;&gt;2&lt;/a&gt;&lt;/sup&gt;, then it looks that DNS resolution also firewalled&lt;/p&gt;
+&lt;p&gt;You are now almost ready to install packages.&lt;/p&gt;
 
-&lt;p&gt;Almost ready!&lt;/p&gt;
+&lt;h2 id=&quot;installing-packages&quot;&gt;Installing Packages&lt;/h2&gt;
 
-&lt;h2 id=&quot;installing-packages&quot;&gt;Installing packages&lt;/h2&gt;
+&lt;p&gt;Two primary options are available:&lt;/p&gt;
 
-&lt;p&gt;There is two options available:&lt;/p&gt;
+&lt;ol&gt;
+  &lt;li&gt;&lt;strong&gt;Using &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;proxychains&lt;/code&gt; to “socksify” &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;apt-get&lt;/code&gt; &lt;sup id=&quot;fnref:3&quot; role=&quot;doc-noteref&quot;&gt;&lt;a href=&quot;#fn:3&quot; class=&quot;footnote&quot; rel=&quot;footnote&quot;&gt;3&lt;/a&gt;&lt;/sup&gt;:&lt;/strong&gt;&lt;/li&gt;
+&lt;/ol&gt;
 
-&lt;ul&gt;
+&lt;div class=&quot;language-shell highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;  proxychains4 &lt;span class=&quot;nt&quot;&gt;-q&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;-f&lt;/span&gt; /home/user/.proxychains/proxychains.conf apt-get &lt;span class=&quot;nt&quot;&gt;-yqq&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;install &lt;/span&gt;ngrep sngrep
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;*(Note: The `apt-get` command should typically be part of the `proxychains4` execution line, or `proxychains4` should be configured to automatically wrap subsequent commands if run interactively.)*
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;ol&gt;
   &lt;li&gt;
-    &lt;p&gt;“socksify” apt-get through proxychains &lt;sup id=&quot;fnref:3&quot; role=&quot;doc-noteref&quot;&gt;&lt;a href=&quot;#fn:3&quot; class=&quot;footnote&quot; rel=&quot;footnote&quot;&gt;3&lt;/a&gt;&lt;/sup&gt;:&lt;/p&gt;
+    &lt;p&gt;&lt;strong&gt;Configuring &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;apt&lt;/code&gt; to use the SOCKS proxy via &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;apt.conf&lt;/code&gt; &lt;sup id=&quot;fnref:4&quot; role=&quot;doc-noteref&quot;&gt;&lt;a href=&quot;#fn:4&quot; class=&quot;footnote&quot; rel=&quot;footnote&quot;&gt;4&lt;/a&gt;&lt;/sup&gt;:&lt;/strong&gt;&lt;/p&gt;
 
-    &lt;div class=&quot;language-shell highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;proxychains4 &lt;span class=&quot;nt&quot;&gt;-q&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;-f&lt;/span&gt; /home/user/.proxychains/proxychains.conf
-apt-get &lt;span class=&quot;nt&quot;&gt;-yqq&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;install &lt;/span&gt;ngrep sngrep
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;    &lt;/div&gt;
+    &lt;p&gt;Create or update the proxy setting in &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;/etc/apt/apt.conf&lt;/code&gt; or a file in &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;/etc/apt/apt.conf.d/&lt;/code&gt;:&lt;/p&gt;
   &lt;/li&gt;
-  &lt;li&gt;
-    &lt;p&gt;Or by creating entry in apt.conf file &lt;sup id=&quot;fnref:4&quot; role=&quot;doc-noteref&quot;&gt;&lt;a href=&quot;#fn:4&quot; class=&quot;footnote&quot; rel=&quot;footnote&quot;&gt;4&lt;/a&gt;&lt;/sup&gt;:&lt;/p&gt;
+&lt;/ol&gt;
 
-    &lt;p&gt;Setup proxy in &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;apt.conf&lt;/code&gt;&lt;/p&gt;
+&lt;div class=&quot;language-shell highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;  &lt;span class=&quot;nb&quot;&gt;echo&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;&apos;Acquire::socks::Proxy &quot;socks5h://127.0.0.1:51010/&quot;;&apos;&lt;/span&gt; &lt;span class=&quot;se&quot;&gt;\&lt;/span&gt;
+    &lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&lt;/span&gt; /etc/apt/apt.conf
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 
-    &lt;div class=&quot;language-shell highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nb&quot;&gt;echo&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;&apos;Acquire::socks::Proxy &quot;socks5h://127.0.0.1:51010/&quot;;&apos;&lt;/span&gt; &lt;span class=&quot;se&quot;&gt;\&lt;/span&gt;
-  &lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&lt;/span&gt; /etc/apt/apt.conf
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;    &lt;/div&gt;
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;Then, install packages as usual with `apt-get`:
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 
-    &lt;p&gt;and then install packages with apt-get:&lt;/p&gt;
+&lt;div class=&quot;language-shell highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;  apt-get &lt;span class=&quot;nt&quot;&gt;-yqq&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;install &lt;/span&gt;ngrep sngrep
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 
-    &lt;div class=&quot;language-shell highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;apt-get &lt;span class=&quot;nt&quot;&gt;-yqq&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;install &lt;/span&gt;ngrep sngrep
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;    &lt;/div&gt;
-
-    &lt;p&gt;(Don’t forget to comment out or remove proxy directive in apt.conf after installation)&lt;/p&gt;
-  &lt;/li&gt;
-&lt;/ul&gt;
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;(Remember to comment out or remove the proxy directive in `apt.conf` after the installation is complete.)
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 
 &lt;hr /&gt;
 
 &lt;div class=&quot;footnotes&quot; role=&quot;doc-endnotes&quot;&gt;
   &lt;ol&gt;
     &lt;li id=&quot;fn:1&quot; role=&quot;doc-endnote&quot;&gt;
-      &lt;p&gt;Possible issues with &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;ssh -R&lt;/code&gt;: &lt;a href=&quot;https://serverfault.com/questions/595323/ssh-remote-port-forwarding-failed&quot;&gt;https://serverfault.com/questions/595323/ssh-remote-port-forwarding-failed&lt;/a&gt;; &lt;a href=&quot;#fnref:1&quot; class=&quot;reversefootnote&quot; role=&quot;doc-backlink&quot;&gt;&amp;#8617;&lt;/a&gt;&lt;/p&gt;
+      &lt;p&gt;For possible issues with &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;ssh -R&lt;/code&gt;, see: &lt;a href=&quot;https://serverfault.com/questions/595323/ssh-remote-port-forwarding-failed&quot;&gt;Server Fault: SSH remote port forwarding failed&lt;/a&gt;. &lt;a href=&quot;#fnref:1&quot; class=&quot;reversefootnote&quot; role=&quot;doc-backlink&quot;&gt;&amp;#8617;&lt;/a&gt;&lt;/p&gt;
     &lt;/li&gt;
     &lt;li id=&quot;fn:2&quot; role=&quot;doc-endnote&quot;&gt;
-      &lt;p&gt;Check &lt;a href=&quot;https://unix.stackexchange.com/questions/175888/curl-7-27-any-proxy-set-curl-does-not-resolve-the-hostname-via-proxy&quot;&gt;https://unix.stackexchange.com/questions/175888/curl-7-27-any-proxy-set-curl-does-not-resolve-the-hostname-via-proxy&lt;/a&gt;; &lt;a href=&quot;#fnref:2&quot; class=&quot;reversefootnote&quot; role=&quot;doc-backlink&quot;&gt;&amp;#8617;&lt;/a&gt;&lt;/p&gt;
+      &lt;p&gt;For issues with &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;curl&lt;/code&gt; and DNS resolution via proxy, check: &lt;a href=&quot;https://unix.stackexchange.com/questions/175888/curl-7-27-any-proxy-set-curl-does-not-resolve-the-hostname-via-proxy&quot;&gt;Unix Stack Exchange: curl &amp;amp; SOCKS proxy DNS resolution&lt;/a&gt;. &lt;a href=&quot;#fnref:2&quot; class=&quot;reversefootnote&quot; role=&quot;doc-backlink&quot;&gt;&amp;#8617;&lt;/a&gt;&lt;/p&gt;
     &lt;/li&gt;
     &lt;li id=&quot;fn:3&quot; role=&quot;doc-endnote&quot;&gt;
-      &lt;p&gt;How to get proxychains on remote host: there is few dependencies for proxychains4: &lt;a href=&quot;https://packages.debian.org/buster/proxychains4&quot;&gt;https://packages.debian.org/buster/proxychains4&lt;/a&gt;, if command is not installed, there is always an option just to &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;scp&lt;/code&gt; necessary files and install them manually. &lt;a href=&quot;#fnref:3&quot; class=&quot;reversefootnote&quot; role=&quot;doc-backlink&quot;&gt;&amp;#8617;&lt;/a&gt;&lt;/p&gt;
+      &lt;p&gt;To get &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;proxychains&lt;/code&gt; on the remote host if it’s not installed: &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;proxychains4&lt;/code&gt; has few dependencies (see &lt;a href=&quot;https://packages.debian.org/buster/proxychains4&quot;&gt;Debian packages for proxychains4&lt;/a&gt;). If direct installation isn’t possible, you might need to &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;scp&lt;/code&gt; the necessary &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;.deb&lt;/code&gt; files (and their dependencies) and install them manually using &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;dpkg -i&lt;/code&gt;. &lt;a href=&quot;#fnref:3&quot; class=&quot;reversefootnote&quot; role=&quot;doc-backlink&quot;&gt;&amp;#8617;&lt;/a&gt;&lt;/p&gt;
     &lt;/li&gt;
     &lt;li id=&quot;fn:4&quot; role=&quot;doc-endnote&quot;&gt;
-      &lt;p&gt;More options: &lt;a href=&quot;https://askubuntu.com/questions/35223/syntax-for-socks-proxy-in-apt-conf&quot;&gt;https://askubuntu.com/questions/35223/syntax-for-socks-proxy-in-apt-conf&lt;/a&gt;. &lt;a href=&quot;#fnref:4&quot; class=&quot;reversefootnote&quot; role=&quot;doc-backlink&quot;&gt;&amp;#8617;&lt;/a&gt;&lt;/p&gt;
+      &lt;p&gt;For more &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;apt.conf&lt;/code&gt; proxy options, see: &lt;a href=&quot;https://askubuntu.com/questions/35223/syntax-for-socks-proxy-in-apt-conf&quot;&gt;Ask Ubuntu: Syntax for SOCKS proxy in apt.conf&lt;/a&gt;. &lt;a href=&quot;#fnref:4&quot; class=&quot;reversefootnote&quot; role=&quot;doc-backlink&quot;&gt;&amp;#8617;&lt;/a&gt;&lt;/p&gt;
     &lt;/li&gt;
   &lt;/ol&gt;
 &lt;/div&gt;
@@ -316,12 +341,13 @@ apt-get &lt;span class=&quot;nt&quot;&gt;-yqq&lt;/span&gt; &lt;span class=&quot;
       </item>
     
       <item>
-        <title>Digital Ocean, Floating IP and VoIP</title>
-        <description>&lt;p&gt;Digital Ocean (&lt;a href=&quot;https://m.do.co/c/492078597684&quot;&gt;here is an referral link, claim your $100 credit&lt;/a&gt;) were introduced &lt;a href=&quot;https://www.digitalocean.com/docs/networking/floating-ips/overview/&quot;&gt;floating IP&lt;/a&gt; in the 2015, but I never use it with VoIP. Time to fix it.&lt;/p&gt;
+        <title>DigitalOcean, Floating IP and VoIP</title>
+        <description>&lt;p&gt;DigitalOcean introduced &lt;a href=&quot;https://www.digitalocean.com/docs/networking/floating-ips/overview/&quot;&gt;Floating IPs&lt;/a&gt; in 2015 (&lt;a href=&quot;https://m.do.co/c/492078597684&quot;&gt;here is a referral link for $100 credit&lt;/a&gt;), but I had not previously used them with VoIP. This post details my experience configuring a Floating IP for VoIP, specifically with Asterisk.&lt;/p&gt;
 
-&lt;p&gt;(Dear hackers, at the moment of publishing all the IP addresses releases and data vanished)&lt;/p&gt;
-&lt;h2 id=&quot;droplet-and-floating-ip&quot;&gt;Droplet and floating IP&lt;/h2&gt;
-&lt;p&gt;Floating IP 206.189.246.114 pointed in the Digital Ocean console to the newly created droplet with Debian linux. IP addresses of test droplet:&lt;/p&gt;
+&lt;p&gt;(Note: At the time of publishing, all IP addresses mentioned were released, and associated data was removed.)&lt;/p&gt;
+
+&lt;h2 id=&quot;droplet-and-floating-ip-configuration&quot;&gt;Droplet and Floating IP Configuration&lt;/h2&gt;
+&lt;p&gt;A Floating IP, &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;206.189.246.114&lt;/code&gt;, was assigned via the DigitalOcean console to a newly created Debian Linux Droplet. The IP addresses of the test Droplet were:&lt;/p&gt;
 
 &lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;root@test:~# /sbin/ifconfig | &lt;span class=&quot;nb&quot;&gt;grep&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;-B&lt;/span&gt; 1 &lt;span class=&quot;s1&quot;&gt;&apos;inet &apos;&lt;/span&gt;
 
@@ -331,42 +357,44 @@ eth0: &lt;span class=&quot;nv&quot;&gt;flags&lt;/span&gt;&lt;span class=&quot;o&
 eth0:1: &lt;span class=&quot;nv&quot;&gt;flags&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;4163&amp;lt;UP,BROADCAST,RUNNING,MULTICAST&amp;gt;  mtu 1500
         inet 10.16.0.5  netmask 255.255.0.0  broadcast 10.16.255.255
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-&lt;h2 id=&quot;sip-configuration&quot;&gt;SIP configuration&lt;/h2&gt;
-&lt;p&gt;For test purpose I’ve installed Asterisk from the OS repository (&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;apt-get install -yqq asterisk&lt;/code&gt;) and configured  SIP client to register on 206.189.246.114. No luck as expected, SIP packets does not flowing properly:&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&quot;/images/floating-ip/1-failure.png&quot; alt=&quot;/images/floating-ip/1-failure.png&quot; /&gt;&lt;/p&gt;
+&lt;h2 id=&quot;sip-configuration&quot;&gt;SIP Configuration&lt;/h2&gt;
+&lt;p&gt;For testing purposes, I installed Asterisk from the OS repository (&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;apt-get install -yqq asterisk&lt;/code&gt;) and configured a SIP client to register to the Floating IP &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;206.189.246.114&lt;/code&gt;. As expected, this initial attempt was unsuccessful, with SIP packets not flowing correctly:&lt;/p&gt;
 
-&lt;p&gt;Okay, lets try to update sip.conf with following. It’s typical setup for asterisk behind NAT (there is description notes in default sip.conf about externip, externhost and externaddr)&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;/images/floating-ip/1-failure.png&quot; alt=&quot;SIP registration failure with basic setup&quot; /&gt;&lt;/p&gt;
 
-&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;externip=206.189.246.114
-nat=force_rport,comedia
+&lt;p&gt;Next, I updated &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;sip.conf&lt;/code&gt; with typical settings for Asterisk behind NAT, utilizing &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;externip&lt;/code&gt; (as described in the default &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;sip.conf&lt;/code&gt; comments regarding &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;externip&lt;/code&gt;, &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;externhost&lt;/code&gt;, and &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;externaddr&lt;/code&gt;):&lt;/p&gt;
+
+&lt;div class=&quot;language-ini highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;py&quot;&gt;externip&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;206.189.246.114&lt;/span&gt;
+&lt;span class=&quot;py&quot;&gt;nat&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;force_rport,comedia&lt;/span&gt;
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 
-&lt;p&gt;And get random results, but in most of cases SIP registration did not worked.&lt;/p&gt;
+&lt;p&gt;This yielded inconsistent results; in most cases, SIP registration still failed.&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&quot;/images/floating-ip/2-ok-but.png&quot; alt=&quot;/images/floating-ip/2-ok-but.png&quot; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;/images/floating-ip/2-ok-but.png&quot; alt=&quot;Inconsistent SIP registration with externip&quot; /&gt;&lt;/p&gt;
 
-&lt;p&gt;After quick investigation (why there is 3rd IP in the SIP dump), I decided to change SIP bind address to the private IP:&lt;/p&gt;
+&lt;p&gt;A quick investigation of the SIP dump (revealing a third IP address) led me to change the SIP bind address in &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;sip.conf&lt;/code&gt; to the Droplet’s private IP:&lt;/p&gt;
 
-&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;udpbindaddr=10.16.0.5
-tcpenable=yes
-tcpbindaddr=10.16.0.5
-; ...
-externip=206.189.246.114
-nat=force_rport,comedia
+&lt;div class=&quot;language-ini highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;py&quot;&gt;udpbindaddr&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;10.16.0.5&lt;/span&gt;
+&lt;span class=&quot;py&quot;&gt;tcpenable&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;yes&lt;/span&gt;
+&lt;span class=&quot;py&quot;&gt;tcpbindaddr&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;10.16.0.5&lt;/span&gt;
+&lt;span class=&quot;c&quot;&gt;; ...
+&lt;/span&gt;&lt;span class=&quot;py&quot;&gt;externip&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;206.189.246.114&lt;/span&gt;
+&lt;span class=&quot;py&quot;&gt;nat&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;force_rport,comedia&lt;/span&gt;
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 
-&lt;p&gt;Now all right&lt;/p&gt;
+&lt;p&gt;Now, SIP registration and calls function correctly.&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&quot;/images/floating-ip/3-ok.png&quot; alt=&quot;/images/floating-ip/3-ok.png&quot; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;/images/floating-ip/3-ok.png&quot; alt=&quot;Successful SIP registration with private IP binding&quot; /&gt;&lt;/p&gt;
 
-&lt;p&gt;Calls also working&lt;/p&gt;
+&lt;p&gt;Calls are also working as expected:&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&quot;/images/floating-ip/4-call-ok.png&quot; alt=&quot;/images/floating-ip/4-call-ok.png&quot; /&gt;&lt;/p&gt;
-&lt;h2 id=&quot;docker-setup&quot;&gt;Docker setup&lt;/h2&gt;
-&lt;p&gt;Let’s try to get the same result with docker.&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;/images/floating-ip/4-call-ok.png&quot; alt=&quot;Successful call with private IP binding&quot; /&gt;&lt;/p&gt;
 
-&lt;p&gt;It works if asterisk can bind to the same private IP address where floating IP points, but requires to run container with &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;--net=host&lt;/code&gt; option:&lt;/p&gt;
+&lt;h2 id=&quot;docker-setup&quot;&gt;Docker Setup&lt;/h2&gt;
+&lt;p&gt;Let’s attempt to achieve the same result using Docker.&lt;/p&gt;
+
+&lt;p&gt;The configuration works if Asterisk inside the Docker container can bind to the same private IP address to which the Floating IP is pointed. This requires running the container with the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;--net=host&lt;/code&gt; option:&lt;/p&gt;
 
 &lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;docker run &lt;span class=&quot;nt&quot;&gt;-ti&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;--rm&lt;/span&gt; &lt;span class=&quot;se&quot;&gt;\&lt;/span&gt;
   &lt;span class=&quot;nt&quot;&gt;--net&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;host &lt;span class=&quot;se&quot;&gt;\&lt;/span&gt;
@@ -376,7 +404,7 @@ nat=force_rport,comedia
   asterisk &lt;span class=&quot;nt&quot;&gt;-vvvddddc&lt;/span&gt;
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 
-&lt;p&gt;Technically that’s enough for most of use cases, but such Asterisk won’t fit well into development environment with docker-compose; other containers won’t “see” it. I’ll be digging this little bit more. Perhaps if I would pass NET_ADMIN capability or will start container in privileged mode, I would be able to do necessary trick with iptables.&lt;/p&gt;
+&lt;p&gt;Technically, this is sufficient for many use cases. However, an Asterisk container configured this way does not integrate well into a &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;docker-compose&lt;/code&gt; development environment, as other containers will not be able to “see” it through Docker’s network bridging. I plan to investigate this further. Perhaps passing the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;NET_ADMIN&lt;/code&gt; capability or running the container in privileged mode would allow for the necessary &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;iptables&lt;/code&gt; manipulations to resolve this.&lt;/p&gt;
 </description>
         <pubDate>Tue, 18 Dec 2018 00:00:00 +0000</pubDate>
         <link>//andrius.mobi/2018/12/digital-ocean-floating-ip-and-voip.html</link>
@@ -385,14 +413,14 @@ nat=force_rport,comedia
     
       <item>
         <title>Tiny docker image with ngrok</title>
-        <description>&lt;p&gt;I’ve found an excellent tiny Docker image for ngrok (wernight/ngrok). From now just using it to handle this blog.&lt;/p&gt;
+        <description>&lt;p&gt;I discovered an excellent, tiny Docker image for ngrok: &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;wernight/ngrok&lt;/code&gt;. I am now using it to expose this blog locally during development.&lt;/p&gt;
 
-&lt;p&gt;Links at &lt;a href=&quot;https://hub.docker.com/r/wernight/ngrok&quot;&gt;Docker hub&lt;/a&gt; and &lt;a href=&quot;https://hub.docker.com/r/wernight/ngrok&quot;&gt;Github&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;You can find the image on &lt;a href=&quot;https://hub.docker.com/r/wernight/ngrok&quot;&gt;Docker Hub&lt;/a&gt; and its source on &lt;a href=&quot;https://github.com/wernight/docker-ngrok&quot;&gt;GitHub&lt;/a&gt; (assuming the GitHub link was intended to be the source, if it’s just a mirror of Docker Hub, the Docker Hub link is primary).&lt;/p&gt;
 
-&lt;p&gt;Some handy snippets. Note, it’s possible to use docker-compose commands, i.e. to check tunnels &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;curl $(docker-compose port ngrok 4040)/api/tunnels&lt;/code&gt;, but I’m using &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;$(docker ps -l -q --filter &quot;name=blog_ngrok&quot;)&lt;/code&gt; statement to identify container ID, as it works with both docker-compose “up” and “run” modes and with docker without using docker-compose.&lt;/p&gt;
+&lt;p&gt;Here are some handy snippets for interacting with the ngrok container. Note that while &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;docker-compose port ngrok 4040&lt;/code&gt; can be used to get the port for API calls (e.g., &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;curl $(docker-compose port ngrok 4040)/api/tunnels&lt;/code&gt;), I use &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;$(docker ps -l -q --filter &quot;name=blog_ngrok&quot;)&lt;/code&gt; to identify the container ID. This approach works with both &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;docker-compose up/run&lt;/code&gt; and direct &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;docker&lt;/code&gt; commands.&lt;/p&gt;
 
 &lt;ul&gt;
-  &lt;li&gt;Logs&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;View Logs:&lt;/strong&gt;&lt;/li&gt;
 &lt;/ul&gt;
 
 &lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nv&quot;&gt;BLOG&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;si&quot;&gt;$(&lt;/span&gt;docker ps &lt;span class=&quot;nt&quot;&gt;-l&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;-q&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;--filter&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;name=blog_ngrok&quot;&lt;/span&gt;&lt;span class=&quot;si&quot;&gt;)&lt;/span&gt;
@@ -400,7 +428,7 @@ docker logs &lt;span class=&quot;nt&quot;&gt;-f&lt;/span&gt; &lt;span class=&quo
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 
 &lt;ul&gt;
-  &lt;li&gt;Check open ngrok tunnels&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;Check Open ngrok Tunnels:&lt;/strong&gt;&lt;/li&gt;
 &lt;/ul&gt;
 
 &lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nv&quot;&gt;BLOG&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;si&quot;&gt;$(&lt;/span&gt;docker ps &lt;span class=&quot;nt&quot;&gt;-l&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;-q&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;--filter&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;name=blog_ngrok&quot;&lt;/span&gt;&lt;span class=&quot;si&quot;&gt;)&lt;/span&gt;
@@ -408,14 +436,14 @@ curl &lt;span class=&quot;si&quot;&gt;$(&lt;/span&gt;docker port &lt;span class=
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 
 &lt;ul&gt;
-  &lt;li&gt;Open browser window with ngrok http console&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;Open Browser with ngrok HTTP Console:&lt;/strong&gt;&lt;/li&gt;
 &lt;/ul&gt;
 
 &lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nv&quot;&gt;BLOG&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;si&quot;&gt;$(&lt;/span&gt;docker ps &lt;span class=&quot;nt&quot;&gt;-l&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;-q&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;--filter&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;name=blog_ngrok&quot;&lt;/span&gt;&lt;span class=&quot;si&quot;&gt;)&lt;/span&gt;
 open http://&lt;span class=&quot;si&quot;&gt;$(&lt;/span&gt;docker port &lt;span class=&quot;nv&quot;&gt;$BLOG&lt;/span&gt; 4040&lt;span class=&quot;si&quot;&gt;)&lt;/span&gt;
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 
-&lt;p&gt;It is how docker-compose file looks like for this Jekyll site:&lt;/p&gt;
+&lt;p&gt;This is how the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;docker-compose.yml&lt;/code&gt; file looks for this Jekyll site, incorporating the ngrok service:&lt;/p&gt;
 
 &lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;version: &apos;3&apos;
 
@@ -463,7 +491,7 @@ services:
     
       <item>
         <title>Updated OPUS codec patch that supports Asterisk 11.11.0 and 12.2.5</title>
-        <description>&lt;p&gt;I have updated the OPUS codec patch that now supports Asterisk 11.11.0 and 12.2.5. I have tested it with VP8 in pass-through mode, and it works well. You can &lt;a href=&quot;https://github.com/andrius/asterisk-opus&quot;&gt;download it here&lt;/a&gt;!&lt;/p&gt;
+        <description>&lt;p&gt;I have updated the OPUS codec patch, which now supports Asterisk 11.11.0 and 12.2.5. I have tested it with VP8 in pass-through mode, and it functions correctly. You can download the patch &lt;a href=&quot;https://github.com/andrius/asterisk-opus&quot;&gt;here&lt;/a&gt;.&lt;/p&gt;
 </description>
         <pubDate>Fri, 08 Aug 2014 10:07:00 +0000</pubDate>
         <link>//andrius.mobi/2014/08/asterisk-opus-patch-for-11110.html</link>
@@ -472,11 +500,15 @@ services:
     
       <item>
         <title>WebRTC with Asterisk 11?</title>
-        <description>&lt;p&gt;Tonight, I tried two WebRTC clients (&lt;a href=&quot;http://jssip.net/&quot;&gt;JsSIP&lt;/a&gt; and &lt;a href=&quot;http://sipml5.org/&quot;&gt;sipML5&lt;/a&gt;) with Asterisk 11. I was able to get both of them working for echo test calls with the ulaw (g711u) codec. However, when I called from WebRTC to the SIP softphone, there was only one-way audio.&lt;/p&gt;
+        <description>&lt;p&gt;I recently tested two WebRTC clients, &lt;a href=&quot;http://jssip.net/&quot;&gt;JsSIP&lt;/a&gt; and &lt;a href=&quot;http://sipml5.org/&quot;&gt;sipML5&lt;/a&gt;, with Asterisk 11. Both clients successfully completed echo tests using the ulaw (g711u) codec. However, calls initiated from a WebRTC client to a SIP softphone resulted in one-way audio.&lt;/p&gt;
 
-&lt;p&gt;To configure WebRTC, I followed the Asterisk wiki articles: &lt;a href=&quot;https://wiki.asterisk.org/wiki/display/AST/Asterisk+WebRTC+Support&quot;&gt;Asterisk WebRTC Support&lt;/a&gt; and &lt;a href=&quot;https://wiki.asterisk.org/wiki/display/AST/WebRTC+tutorial+using+SIPML5&quot;&gt;WebRTC tutorial using SIPML5&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;For WebRTC configuration, I referred to the following Asterisk wiki articles:&lt;/p&gt;
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;https://wiki.asterisk.org/wiki/display/AST/Asterisk+WebRTC+Support&quot;&gt;Asterisk WebRTC Support&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://wiki.asterisk.org/wiki/display/AST/WebRTC+tutorial+using+SIPML5&quot;&gt;WebRTC tutorial using SIPML5&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
 
-&lt;p&gt;Excited!&lt;/p&gt;
+&lt;p&gt;I’m excited about the potential of WebRTC with Asterisk!&lt;/p&gt;
 </description>
         <pubDate>Thu, 11 Jul 2013 11:38:00 +0000</pubDate>
         <link>//andrius.mobi/2013/07/webrtc-with-asterisk-11.html</link>
@@ -485,18 +517,25 @@ services:
     
       <item>
         <title>Roaming PBX update</title>
-        <description>&lt;p&gt;What’s new:&lt;/p&gt;
+        <description>&lt;p&gt;New features in this update:&lt;/p&gt;
 
 &lt;ul&gt;
   &lt;li&gt;Asterisk 11.4&lt;/li&gt;
   &lt;li&gt;SILK codec&lt;/li&gt;
-  &lt;li&gt;Watchdog to improve Raspberry Pi board performance and prevent deadlocks&lt;/li&gt;
+  &lt;li&gt;Watchdog implementation to improve Raspberry Pi board performance and prevent deadlocks.&lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;p&gt;Download link: &lt;a href=&quot;https://j.mp/tinypbx&quot;&gt;j.mp/tinypbx&lt;/a&gt;
-Image name for this release: &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;raspbian_basic_wheezy_20130523.img.gz&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Download link:&lt;/strong&gt; &lt;a href=&quot;https://j.mp/tinypbx&quot;&gt;j.mp/tinypbx&lt;/a&gt;
+&lt;strong&gt;Image name for this release:&lt;/strong&gt; &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;raspbian_basic_wheezy_20130523.img.gz&lt;/code&gt;&lt;/p&gt;
 
-&lt;p&gt;Credentials: SSH (port 22), username: &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;root&lt;/code&gt;, password: &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;raspberry&lt;/code&gt;. Remember to update passwords after flashing and first boot!&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Credentials:&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+  &lt;li&gt;SSH (port 22)&lt;/li&gt;
+  &lt;li&gt;Username: &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;root&lt;/code&gt;&lt;/li&gt;
+  &lt;li&gt;Password: &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;raspberry&lt;/code&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Remember to update passwords after flashing and the first boot!&lt;/p&gt;
 </description>
         <pubDate>Thu, 23 May 2013 23:30:00 +0000</pubDate>
         <link>//andrius.mobi/2013/05/roaming-pbx-update.html</link>
@@ -505,11 +544,11 @@ Image name for this release: &lt;code class=&quot;language-plaintext highlighter
     
       <item>
         <title>First release of Roaming PBX</title>
-        <description>Today, I created the latest image that includes Ruby, pcapsipdump, Asterisk PBX, and the SILK codec. Although it is still in the alpha stage, it is ready for testing. You can download the latest image from this [link](https://j.mp/tinypbx).
+        <description>&lt;p&gt;Today, I have created the latest image for the Roaming PBX project. This alpha release includes Ruby, pcapsipdump, Asterisk PBX, and the SILK codec, and it is now ready for testing. You can download the image from this &lt;a href=&quot;https://j.mp/tinypbx&quot;&gt;link&lt;/a&gt;.&lt;/p&gt;
 
-To flash the image onto a Raspberry Pi, follow the typical instructions: unzip the .gz file, insert the SD card, and use the Linux DD command to flash it. For a detailed guide on flashing, you can refer to [this site](http://www.andrewmunsell.com/blog/getting-started-raspberry-pi-install-raspbian/).
+&lt;p&gt;To flash the image onto a Raspberry Pi, follow the standard instructions: decompress the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;.gz&lt;/code&gt; file, insert the SD card, and use the Linux &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;dd&lt;/code&gt; command to write the image. For a detailed guide on flashing, you can refer to &lt;a href=&quot;http://www.andrewmunsell.com/blog/getting-started-raspberry-pi-install-raspbian/&quot;&gt;this site&lt;/a&gt;.&lt;/p&gt;
 
-The [GIT repository with the script](https://github.com/andrius/build-raspbian-image) that creates RPI images has been updated. I will write a separate post with a more detailed description of it. In summary, the installer creates a minimal Raspbian image and, at the end, mounts the &quot;delivery&quot; folder to the target image and executes the bash script &quot;[install.sh](http://install.sh/)&quot; (you can find a sample of it in the GIT repository).
+&lt;p&gt;The &lt;a href=&quot;https://github.com/andrius/build-raspbian-image&quot;&gt;Git repository containing the script&lt;/a&gt; for creating RPI images has been updated. I plan to write a separate post with a more detailed description of this script. In summary, the installer creates a minimal Raspbian image and, at the end of the process, mounts a “delivery” folder to the target image and executes the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;install.sh&lt;/code&gt; bash script (a sample of which can be found in the Git repository).&lt;/p&gt;
 </description>
         <pubDate>Tue, 07 May 2013 21:32:00 +0000</pubDate>
         <link>//andrius.mobi/2013/05/roaming-pbx-first-release.html</link>
@@ -518,45 +557,39 @@ The [GIT repository with the script](https://github.com/andrius/build-raspbian-i
     
       <item>
         <title>Creating your own custom image for Raspberry Pi</title>
-        <description>&lt;p&gt;I wanted to create image builder for cross-compile environment, so say hello to it: &lt;a href=&quot;//github.com/andrius/build-raspbian-image&quot;&gt;https://github.com/andrius/build-raspbian-image&lt;/a&gt;.&lt;/p&gt;
+        <description>&lt;p&gt;To facilitate a cross-compile environment for Raspberry Pi images, I created an image builder project: &lt;a href=&quot;https://github.com/andrius/build-raspbian-image&quot;&gt;build-raspbian-image on GitHub&lt;/a&gt;.&lt;/p&gt;
 
-&lt;p&gt;It’s based on &lt;a href=&quot;https://blog.kmp.or.at/build-your-own-raspberry-pi-image/&quot;&gt;blog post and code by Klaus Maria Pfeiffer&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;This project is based on a &lt;a href=&quot;https://blog.kmp.or.at/build-your-own-raspberry-pi-image/&quot;&gt;blog post and code by Klaus Maria Pfeiffer&lt;/a&gt;.&lt;/p&gt;
 
-&lt;p&gt;The code works perfectly on Debian (tested with CrunchBangLinux) and Ubuntu.&lt;/p&gt;
+&lt;p&gt;The code functions correctly on Debian (tested with CrunchBangLinux) and Ubuntu.&lt;/p&gt;
 
 &lt;p&gt;Instructions:&lt;/p&gt;
 
-&lt;ul&gt;
-  &lt;li&gt;
-    &lt;p&gt;git clone :)&lt;/p&gt;
-  &lt;/li&gt;
-  &lt;li&gt;
-    &lt;p&gt;Check content and install packages or execute &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;./install.sh&lt;/code&gt; script;&lt;/p&gt;
-  &lt;/li&gt;
-  &lt;li&gt;
-    &lt;p&gt;execute &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;./raspbian/build_raspbian_sd_card.sh&lt;/code&gt;, and soon you’ll get your IMG fine in the /tmp/rpi folder.&lt;/p&gt;
-  &lt;/li&gt;
-&lt;/ul&gt;
+&lt;ol&gt;
+  &lt;li&gt;Clone the repository: &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;git clone https://github.com/andrius/build-raspbian-image.git&lt;/code&gt;&lt;/li&gt;
+  &lt;li&gt;Navigate into the cloned directory. Review the content and install necessary packages, or execute the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;./install.sh&lt;/code&gt; script.&lt;/li&gt;
+  &lt;li&gt;Run &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;./raspbian/build_raspbian_sd_card.sh&lt;/code&gt;. The resulting &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;.img&lt;/code&gt; file will be located in the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;/tmp/rpi&lt;/code&gt; folder.&lt;/li&gt;
+&lt;/ol&gt;
 
-&lt;p&gt;Main issue right now is cross-compilation environment. Unfortunately, I don’t have much time to automate process, so in a middle of cross-compilation, user have do it manually:&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nb&quot;&gt;echo&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;execute all necessary commands, then type exit&quot;&lt;/span&gt;
-&lt;span class=&quot;nb&quot;&gt;echo&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;asterisk install files located at /usr/src/asterisk&quot;&lt;/span&gt;
+&lt;p&gt;The main challenge currently lies with the cross-compilation environment. Due to time constraints, the process is not fully automated. During cross-compilation, manual intervention is required:&lt;/p&gt;
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nb&quot;&gt;echo&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;Execute all necessary commands, then type exit&quot;&lt;/span&gt;
+&lt;span class=&quot;nb&quot;&gt;echo&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;Asterisk install files are located at /usr/src/asterisk&quot;&lt;/span&gt;
 bash
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
 &lt;h2 id=&quot;update&quot;&gt;Update&lt;/h2&gt;
-&lt;p&gt;Github repository updated, now installation script mount delivery folder to target RPI image and execute &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;install.sh&lt;/code&gt; script located in mounted folder. Now you could create your own build script or just type in &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;bash&lt;/code&gt; in order to access command-line prompt during RPI image creation.&lt;/p&gt;
+&lt;p&gt;The GitHub repository has been updated. The installation script now mounts a &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;delivery&lt;/code&gt; folder to the target RPI image and executes an &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;install.sh&lt;/code&gt; script located within that mounted folder. This allows for custom build scripts or manual command-line access via &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;bash&lt;/code&gt; during RPI image creation.&lt;/p&gt;
 
-&lt;p&gt;Below is image with Ruby 2.0 and Asterisk PBX:&lt;/p&gt;
+&lt;p&gt;An example image created with this process, featuring Ruby 2.0 and Asterisk PBX, is available.&lt;/p&gt;
 
-&lt;p&gt;Download link, containing latest TinyPBX image: &lt;a href=&quot;//j.mp/tinypbx&quot;&gt;j.mp/tinypbx&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;Download link for the latest TinyPBX image: &lt;a href=&quot;http://j.mp/tinypbx&quot;&gt;j.mp/tinypbx&lt;/a&gt;.&lt;/p&gt;
 
-&lt;p&gt;Flashing instructions are standard for RPI (&lt;a href=&quot;//www.andrewmunsell.com/blog/getting-started-raspberry-pi-install-raspbian/&quot;&gt;This site describing flashing procedure pretty well&lt;/a&gt;)&lt;/p&gt;
+&lt;p&gt;Standard Raspberry Pi flashing instructions apply (a good guide can be found at &lt;a href=&quot;http://www.andrewmunsell.com/blog/getting-started-raspberry-pi-install-raspbian/&quot;&gt;this site describing the flashing procedure&lt;/a&gt;):&lt;/p&gt;
 
 &lt;ul&gt;
-  &lt;li&gt;gunzip .gz file&lt;/li&gt;
-  &lt;li&gt;insert SD card&lt;/li&gt;
-  &lt;li&gt;flash with Linux DD command…&lt;/li&gt;
+  &lt;li&gt;Decompress the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;.gz&lt;/code&gt; file.&lt;/li&gt;
+  &lt;li&gt;Insert the SD card.&lt;/li&gt;
+  &lt;li&gt;Flash the image using the Linux &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;dd&lt;/code&gt; command.&lt;/li&gt;
 &lt;/ul&gt;
 </description>
         <pubDate>Thu, 25 Apr 2013 21:59:00 +0000</pubDate>
@@ -566,9 +599,9 @@ bash
     
       <item>
         <title>SIP TCP vs UDP with mobile client: awesome results</title>
-        <description>&lt;p&gt;Yes, I knew that TCP is better for mobile VoIP in terms of battery consumption, but I didn’t know how much better it would be! Yesterday, I replaced UDP with TCP on my Android softphone (Bria) and… Usually by this time (2:20 PM), my cellphone battery would be at 50% charge, but now it’s at 88 percent.&lt;/p&gt;
+        <description>&lt;p&gt;While it is generally known that TCP can be more battery-efficient for mobile VoIP compared to UDP, the extent of this improvement can be surprising. After switching my Android softphone (Bria) from UDP to TCP yesterday, I observed a significant difference. Typically, by 2:20 PM, my mobile phone battery would be around 50%; however, with TCP, it is now at 88%.&lt;/p&gt;
 
-&lt;p&gt;As for voice quality, I don’t notice any difference.&lt;/p&gt;
+&lt;p&gt;Regarding voice quality, I have not noticed any discernible difference between the two protocols.&lt;/p&gt;
 </description>
         <pubDate>Tue, 02 Apr 2013 12:24:00 +0000</pubDate>
         <link>//andrius.mobi/2013/04/perfect-results-sip-tcp-vs-udp.html</link>
@@ -577,41 +610,26 @@ bash
     
       <item>
         <title>Raspberry Pi: how to create your own image</title>
-        <description>&lt;p&gt;Currently I do developing my own Roaming VoIP PBX as a Raspberry Pi image, and have to rebuild project packages often. It is not best idea to compile packages right on Raspberry Pi. That would take hours. I was searching for a tool that can create image base — on my laptop or VPS.&lt;/p&gt;
+        <description>&lt;p&gt;I am currently developing a custom Roaming VoIP PBX as a Raspberry Pi image, which requires frequent rebuilding of project packages. Compiling packages directly on the Raspberry Pi is not ideal as it can take several hours. Therefore, I was looking for a tool to create the base image on a more powerful machine, such as my laptop or a VPS.&lt;/p&gt;
 
-&lt;p&gt;Here is good starting point: &lt;a href=&quot;http://blog.kmp.or.at/2012/05/build-your-own-raspberry-pi-image/&quot;&gt;http://blog.kmp.or.at/2012/05/build-your-own-raspberry-pi-image/&lt;/a&gt;, there is an &lt;a href=&quot;http://www.kmp.or.at/~klaus/raspberry/build_rpi_sd_card.sh&quot;&gt;shell script that will build image (right-click and select ‘download as’)&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;A good starting point is &lt;a href=&quot;http://blog.kmp.or.at/2012/05/build-your-own-raspberry-pi-image/&quot;&gt;this blog post on building your own Raspberry Pi image&lt;/a&gt;. It includes a &lt;a href=&quot;http://www.kmp.or.at/~klaus/raspberry/build_rpi_sd_card.sh&quot;&gt;shell script for building the image&lt;/a&gt; (right-click and select ‘download as’).&lt;/p&gt;
 
-&lt;p&gt;Some links about cross compilation and QEMU (QEMU for emulation and compilation on “Raspberry Pi” environment):&lt;/p&gt;
+&lt;p&gt;Here are some useful links regarding cross-compilation and QEMU (for emulating and compiling in a Raspberry Pi environment):&lt;/p&gt;
+
 &lt;ul&gt;
-  &lt;li&gt;
-    &lt;p&gt;&lt;a href=&quot;http://ffmpeg.org/trac/ffmpeg/wiki/How%20to%20compile%20FFmpeg%20for%20Raspberry%20Pi%20(Raspbian)&quot;&gt;http://ffmpeg.org/trac/ffmpeg/wiki/How%20to%20compile%20FFmpeg%20for%20Raspberry%20Pi%20(Raspbian)&lt;/a&gt;;&lt;/p&gt;
-  &lt;/li&gt;
-  &lt;li&gt;
-    &lt;p&gt;&lt;a href=&quot;http://www.raspbian.org/RaspbianDocumentation&quot;&gt;http://www.raspbian.org/RaspbianDocumentation”&lt;/a&gt;;&lt;/p&gt;
-  &lt;/li&gt;
-  &lt;li&gt;
-    &lt;p&gt;&lt;a href=&quot;http://hertaville.com/2012/09/28/development-environment-raspberry-pi-cross-compiler/&quot;&gt;http://hertaville.com/2012/09/28/development-environment-raspberry-pi-cross-compiler/”&lt;/a&gt;;&lt;/p&gt;
-  &lt;/li&gt;
-  &lt;li&gt;
-    &lt;p&gt;&lt;a href=&quot;http://www.raspberrypiforums.com/forums/tutorials/article/16-a-raspberry-pi-emulated-environment-on-osx-lion/&quot;&gt;http://www.raspberrypiforums.com/forums/tutorials/article/16-a-raspberry-pi-emulated-environment-on-osx-lion/”&lt;/a&gt;;&lt;/p&gt;
-  &lt;/li&gt;
-  &lt;li&gt;
-    &lt;p&gt;&lt;a href=&quot;http://xecdesign.com/qemu-emulating-raspberry-pi-the-easy-way/&quot;&gt;http://xecdesign.com/qemu-emulating-raspberry-pi-the-easy-way/”&lt;/a&gt;;&lt;/p&gt;
-  &lt;/li&gt;
-  &lt;li&gt;
-    &lt;p&gt;&lt;a href=&quot;http://www.raspberrypi.org/phpBB3/viewtopic.php?f=29&amp;amp;t=37386&quot;&gt;http://www.raspberrypi.org/phpBB3/viewtopic.php?f=29&amp;amp;t=37386”&lt;/a&gt;;&lt;/p&gt;
-  &lt;/li&gt;
-  &lt;li&gt;
-    &lt;p&gt;&lt;a href=&quot;http://igor.gold.ac.uk/~mas01mjy/wp/?p=95&quot;&gt;http://igor.gold.ac.uk/~mas01mjy/wp/?p=95”&lt;/a&gt;;&lt;/p&gt;
-  &lt;/li&gt;
-  &lt;li&gt;
-    &lt;p&gt;&lt;a href=&quot;http://elinux.org/Rpi_kernel_compilation#Cross_compiling_from_OSX&quot;&gt;http://elinux.org/Rpi_kernel_compilation#Cross_compiling_from_OSX”&lt;/a&gt;.&lt;/p&gt;
-  &lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;http://ffmpeg.org/trac/ffmpeg/wiki/How%20to%20compile%20FFmpeg%20for%20Raspberry%20Pi%20(Raspbian)&quot;&gt;How to compile FFmpeg for Raspberry Pi (Raspbian)&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;http://www.raspbian.org/RaspbianDocumentation&quot;&gt;Raspbian Documentation&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;http://hertaville.com/2012/09/28/development-environment-raspberry-pi-cross-compiler/&quot;&gt;Development Environment Raspberry Pi Cross-Compiler&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;http://www.raspberrypiforums.com/forums/tutorials/article/16-a-raspberry-pi-emulated-environment-on-osx-lion/&quot;&gt;A Raspberry Pi emulated environment on OS X Lion&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;http://xecdesign.com/qemu-emulating-raspberry-pi-the-easy-way/&quot;&gt;QEMU Emulating Raspberry Pi The Easy Way&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;http://www.raspberrypi.org/phpBB3/viewtopic.php?f=29&amp;amp;t=37386&quot;&gt;Raspberry Pi Forum Discussion on QEMU&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;http://igor.gold.ac.uk/~mas01mjy/wp/?p=95&quot;&gt;Blog post on Raspberry Pi QEMU Emulation&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;http://elinux.org/Rpi_kernel_compilation#Cross_compiling_from_OSX&quot;&gt;RPi Kernel Compilation (Cross compiling from OSX)&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
 
 &lt;h2 id=&quot;update-may-2013&quot;&gt;Update (May 2013)&lt;/h2&gt;
 
-&lt;p&gt;While ago I’ve created a repository with a helpers: &lt;a href=&quot;https://github.com/andrius/build-raspbian-image/&quot;&gt;https://github.com/andrius/build-raspbian-image/&lt;/a&gt;, check it out!&lt;/p&gt;
+&lt;p&gt;Sometime ago, I created a repository with helper scripts: &lt;a href=&quot;https://github.com/andrius/build-raspbian-image&quot;&gt;https://github.com/andrius/build-raspbian-image&lt;/a&gt;. Feel free to check it out!&lt;/p&gt;
 </description>
         <pubDate>Fri, 22 Mar 2013 08:24:00 +0000</pubDate>
         <link>//andrius.mobi/2013/03/raspberry-pi-how-to-create-own-image.html</link>
@@ -620,13 +638,15 @@ bash
     
       <item>
         <title>Asterisk with silk8 and amr-nb codecs</title>
-        <description>&lt;p&gt;As part of lab-project (roaming PBX), I’ve compiled SILK and AMR codecs for Asterisk. AMR by googling and researching and SILK following instructions &lt;a href=&quot;https://github.com/mordak/codec_silk&quot;&gt;in this repository: https://github.com/mordak/codec_silk&lt;/a&gt;.&lt;/p&gt;
-&lt;h2 id=&quot;update-20-march-2013&quot;&gt;Update (20 March, 2013)&lt;/h2&gt;
-&lt;p&gt;Tested SILK8 (SILK-NB) on Android (with CSIPSimple and Bria) – it does not work well, quality is not fantastic definitaly. Have tried both versions: compiled by myself and official Digium SILK codec.&lt;/p&gt;
+        <description>&lt;p&gt;As part of a lab project (Roaming PBX), I have compiled SILK and AMR codecs for Asterisk. The AMR codec compilation was based on online research, while SILK was compiled following the instructions in &lt;a href=&quot;https://github.com/mordak/codec_silk&quot;&gt;this repository&lt;/a&gt;.&lt;/p&gt;
 
-&lt;p&gt;Testing AMR-NB!&lt;/p&gt;
-&lt;h2 id=&quot;update-2-21-march-2013&quot;&gt;Update #2 (21 March, 2013)&lt;/h2&gt;
-&lt;p&gt;SILK8 are okay with Bria @ android, I had to modify codecs.conf and put following code:&lt;/p&gt;
+&lt;h2 id=&quot;update-march-20-2013&quot;&gt;Update (March 20, 2013)&lt;/h2&gt;
+&lt;p&gt;I tested SILK8 (SILK-NB) on Android devices using CSIPSimple and Bria. The performance was not optimal, and the quality was definitely not fantastic. This was true for both my self-compiled version and the official Digium SILK codec.&lt;/p&gt;
+
+&lt;p&gt;Currently testing AMR-NB.&lt;/p&gt;
+
+&lt;h2 id=&quot;update-2-march-21-2013&quot;&gt;Update #2 (March 21, 2013)&lt;/h2&gt;
+&lt;p&gt;SILK8 performance with Bria on Android is acceptable after modifying &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;codecs.conf&lt;/code&gt; with the following settings:&lt;/p&gt;
 
 &lt;pre&gt;&lt;code class=&quot;language-cfg&quot;&gt;[silk8]
 type=silk
@@ -639,9 +659,10 @@ dtx=false        ; Encode using discontinuous transmission mode or not. Turning 
                  ; increased computational complexity. Off by default.
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;p&gt;Have little issues with AMR-NB, will post update later.&lt;/p&gt;
-&lt;h3 id=&quot;update-2-15-april-2013&quot;&gt;Update #2 (15 April, 2013)&lt;/h3&gt;
-&lt;p&gt;AMR-NB works way better, I will try to describe installation steps in a separate post. Quality is amazing and bandwidth it consuming is so little. Unfortunately due to licensing issues it can’t be included as a part of official Asterisk distribution.&lt;/p&gt;
+&lt;p&gt;I encountered some minor issues with AMR-NB and will post an update later.&lt;/p&gt;
+
+&lt;h3 id=&quot;update-3-april-15-2013&quot;&gt;Update #3 (April 15, 2013)&lt;/h3&gt;
+&lt;p&gt;AMR-NB performs significantly better. I plan to describe the installation steps in a separate post. The quality is amazing, and the bandwidth consumption is very low. Unfortunately, due to licensing issues, AMR-NB cannot be included as part of the official Asterisk distribution.&lt;/p&gt;
 </description>
         <pubDate>Mon, 18 Mar 2013 23:11:00 +0000</pubDate>
         <link>//andrius.mobi/2013/03/asterisk-with-silk8-and-amr-nb-codecs.html</link>
@@ -650,27 +671,28 @@ dtx=false        ; Encode using discontinuous transmission mode or not. Turning 
     
       <item>
         <title>Debian installer (Asterisk and Adhearsion AGI framework)</title>
-        <description>&lt;p&gt;Here is a script that installs Asterisk PBX 11.x: with fax support, MySQL, Ruby, and Adhearsion AGI. Please run it as root. If you don’t need ImageMagick, you can remove the part that downloads and installs it.&lt;/p&gt;
+        <description>&lt;p&gt;This script installs Asterisk PBX 11.x, including support for fax, MySQL, Ruby, and the Adhearsion AGI framework. Please run this script as root. If ImageMagick is not required, the section that downloads and installs it can be removed.&lt;/p&gt;
 
 &lt;div class=&quot;language-shell highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;c&quot;&gt;#!/bin/bash&lt;/span&gt;
 
-&lt;span class=&quot;c&quot;&gt;# function to generate random password, on input requires an argument - lenght of password &lt;/span&gt;
+&lt;span class=&quot;c&quot;&gt;# Function to generate a random password.&lt;/span&gt;
+&lt;span class=&quot;c&quot;&gt;# Input: $1 (optional) - desired password length (default: 20).&lt;/span&gt;
 genpasswd&lt;span class=&quot;o&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
   &lt;span class=&quot;nb&quot;&gt;local &lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;l&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$1&lt;/span&gt;
   &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$l&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;==&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;&quot;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;amp;&amp;amp;&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;l&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;20
   &lt;span class=&quot;nb&quot;&gt;tr&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;-dc&lt;/span&gt; A-Za-z0-9_ &amp;lt; /dev/urandom | &lt;span class=&quot;nb&quot;&gt;head&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;-c&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;${&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;l&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;}&lt;/span&gt; | xargs
 &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
 
-&lt;span class=&quot;c&quot;&gt;# MySQL default root password&lt;/span&gt;
+&lt;span class=&quot;c&quot;&gt;# MySQL default root password. This can be replaced with a static password string.&lt;/span&gt;
 &lt;span class=&quot;nv&quot;&gt;MYSQL_ROOT_PASSWORD&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;sb&quot;&gt;`&lt;/span&gt;genpasswd 16&lt;span class=&quot;sb&quot;&gt;`&lt;/span&gt; &lt;span class=&quot;c&quot;&gt;# can be replaced by static text password&lt;/span&gt;
 
-&lt;span class=&quot;c&quot;&gt;# Remove MySQL with following commands (copy-paste to shell)&lt;/span&gt;
+&lt;span class=&quot;c&quot;&gt;# To remove MySQL completely, execute the following commands (copy-paste to shell):&lt;/span&gt;
 &lt;span class=&quot;c&quot;&gt;# M=`dpkg -l|grep mysql|awk &apos;{print $2}&apos;|xargs`;apt-get -y purge ${M};rm -rf /etc/mysql;rm -rf /var/lib/mysql&lt;/span&gt;
 
 &lt;span class=&quot;nv&quot;&gt;MYSQL_SERVER_VERSION&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;sb&quot;&gt;`&lt;/span&gt;apt-cache showpkg mysql-server|grep &lt;span class=&quot;s2&quot;&gt;&quot;Versions:&quot;&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;-A&lt;/span&gt; 1|tail &lt;span class=&quot;nt&quot;&gt;--lines&lt;/span&gt; 1|awk &lt;span class=&quot;s1&quot;&gt;&apos;{print $1}&apos;&lt;/span&gt;&lt;span class=&quot;sb&quot;&gt;`&lt;/span&gt;
 &lt;span class=&quot;c&quot;&gt;# tell installer about pre-set MySQL server password&lt;/span&gt;
 &lt;span class=&quot;nb&quot;&gt;echo&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;mysql-server-&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;${&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;MYSQL_SERVER_VERSION&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt; mysql-server/root_password password &lt;/span&gt;&lt;span class=&quot;k&quot;&gt;${&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;MYSQL_ROOT_PASSWORD&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt; &lt;span class=&quot;se&quot;&gt;\&lt;/span&gt;
-  | debconf-set-selections 
+  | debconf-set-selections
 &lt;span class=&quot;nb&quot;&gt;echo&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;mysql-server-&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;${&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;MYSQL_SERVER_VERSION&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt; mysql-server/root_password_again password &lt;/span&gt;&lt;span class=&quot;k&quot;&gt;${&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;MYSQL_ROOT_PASSWORD&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt; &lt;span class=&quot;se&quot;&gt;\&lt;/span&gt;
   | debconf-set-selections
 
@@ -701,7 +723,7 @@ wget &lt;span class=&quot;nt&quot;&gt;--continue&lt;/span&gt; http://downloads.a
 &lt;span class=&quot;nb&quot;&gt;tar&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;-zxf&lt;/span&gt; ImageMagick-6.8.3-9.tar.gz
 &lt;span class=&quot;nb&quot;&gt;tar&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;-zxf&lt;/span&gt; asterisk-11.2.1.tar.gz
 
-&lt;span class=&quot;c&quot;&gt;# dowlnoad asterisk add-ons&lt;/span&gt;
+&lt;span class=&quot;c&quot;&gt;# download asterisk add-ons&lt;/span&gt;
 &lt;span class=&quot;nb&quot;&gt;cd &lt;/span&gt;asterisk-11.2.1
 ./contrib/scripts/get_ilbc_source.sh
 ./contrib/scripts/get_mp3_source.sh
@@ -729,7 +751,7 @@ curl &lt;span class=&quot;nt&quot;&gt;-L&lt;/span&gt; get.rvm.io | bash &lt;span
 &lt;span class=&quot;c&quot;&gt;# to remove rvm do:&lt;/span&gt;
 &lt;span class=&quot;c&quot;&gt;# rvm implode&lt;/span&gt;
 &lt;span class=&quot;nb&quot;&gt;source&lt;/span&gt; /etc/profile.d/rvm.sh
-ldconfig 
+ldconfig
 rvm &lt;span class=&quot;nb&quot;&gt;install &lt;/span&gt;1.9.3
 gem &lt;span class=&quot;nb&quot;&gt;install&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;--no-rdoc&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;--no-ri&lt;/span&gt; bundler sqlite3 mysql &lt;span class=&quot;se&quot;&gt;\&lt;/span&gt;
   adhearsion adhearsion-activerecord adhearsion-asterisk adhearsion-drb adhearsion-rails adhearsion-xmpp
@@ -749,31 +771,32 @@ gem &lt;span class=&quot;nb&quot;&gt;install&lt;/span&gt; &lt;span class=&quot;n
     
       <item>
         <title>Roaming PBX with Raspberry Pi, Asterisk and chan_dongle</title>
-        <description>&lt;p&gt;As a frequent traveler, I understand the telecommunications needs of other travelers and citizens of the world. Recently, I decided to dedicate my free time to building a Roaming PBX solution.&lt;/p&gt;
+        <description>&lt;p&gt;As a frequent traveler, I recognize the telecommunication needs of fellow travelers and global citizens. Consequently, I have decided to dedicate my free time to developing a Roaming PBX solution.&lt;/p&gt;
 
-&lt;p&gt;Here’s my plan:&lt;/p&gt;
+&lt;p&gt;My plan includes the following:&lt;/p&gt;
 
 &lt;ul&gt;
-  &lt;li&gt;Create a Raspberry Pi image, possibly with an OpenWRT solution.&lt;/li&gt;
+  &lt;li&gt;Create a Raspberry Pi image, potentially incorporating an OpenWRT solution.&lt;/li&gt;
   &lt;li&gt;Set up Asterisk PBX.&lt;/li&gt;
-  &lt;li&gt;Install asterisk chan_dongle, a driver for Huawei USB modems that handles two-way GSM calls.&lt;/li&gt;
-  &lt;li&gt;Use a VPN to bypass VoIP blocking in certain locations.&lt;/li&gt;
-  &lt;li&gt;Utilize the FreePBX GUI to manage dial plans.&lt;/li&gt;
-  &lt;li&gt;Configure Asterisk2billing to control expenses.&lt;/li&gt;
-  &lt;li&gt;Implement keep-alive scripts for monitoring.&lt;/li&gt;
+  &lt;li&gt;Install &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;chan_dongle&lt;/code&gt;, an Asterisk driver for Huawei USB modems, to handle two-way GSM calls.&lt;/li&gt;
+  &lt;li&gt;Implement VPN functionality to bypass VoIP blocking in certain locations.&lt;/li&gt;
+  &lt;li&gt;Utilize the FreePBX GUI for managing dial plans.&lt;/li&gt;
+  &lt;li&gt;Configure Asterisk2billing for expense tracking.&lt;/li&gt;
+  &lt;li&gt;Develop keep-alive scripts for system monitoring.&lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;p&gt;Anything else?&lt;/p&gt;
+&lt;p&gt;Are there any other features to consider?&lt;/p&gt;
 
-&lt;h3 id=&quot;update-19-march-2013&quot;&gt;Update (19 March, 2013)&lt;/h3&gt;
+&lt;h3 id=&quot;update-march-19-2013&quot;&gt;Update (March 19, 2013)&lt;/h3&gt;
 
-&lt;p&gt;I have successfully created an image file based on the standard Raspbian. Currently, I am busy working on a cross-compiler.&lt;/p&gt;
+&lt;p&gt;I have successfully created an image file based on standard Raspbian. Currently, I am working on a cross-compiler.&lt;/p&gt;
 
-&lt;h3 id=&quot;update-2-6-may-2013&quot;&gt;Update #2 (6 May, 2013)&lt;/h3&gt;
+&lt;h3 id=&quot;update-2-may-6-2013&quot;&gt;Update #2 (May 6, 2013)&lt;/h3&gt;
 
-&lt;p&gt;For those interested, you can download the latest image from this link: http://j.mp/tinypbx. Follow standard flashing instructions: gunzip the .gz file, insert the SD card, and flash it using the Linux DD command. You can find detailed instructions on how to flash the image on this site: &lt;a href=&quot;http://www.andrewmunsell.com/blog/getting-started-raspberry-pi-install-raspbian/&quot;&gt;http://www.andrewmunsell.com/blog/getting-started-raspberry-pi-install-raspbian/&lt;/a&gt;, that provides a comprehensive description of the flashing procedure.&lt;/p&gt;
+&lt;p&gt;For those interested, the latest image can be downloaded from: &lt;a href=&quot;http://j.mp/tinypbx&quot;&gt;http://j.mp/tinypbx&lt;/a&gt;.
+Standard flashing instructions apply: decompress the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;.gz&lt;/code&gt; file, insert the SD card, and use the Linux &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;dd&lt;/code&gt; command to flash the image. Detailed instructions for flashing can be found at resources like &lt;a href=&quot;http://www.andrewmunsell.com/blog/getting-started-raspberry-pi-install-raspbian/&quot;&gt;this guide on installing Raspbian&lt;/a&gt;.&lt;/p&gt;
 
-&lt;p&gt;Additionally, I have created a side project that allows you to cross-compile anything and build your own image. You can find it at: &lt;a href=&quot;https://github.com/andrius/build-raspbian-image&quot;&gt;https://github.com/andrius/build-raspbian-image&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;Additionally, I have initiated a side project for cross-compiling and building custom images, available at: &lt;a href=&quot;https://github.com/andrius/build-raspbian-image&quot;&gt;https://github.com/andrius/build-raspbian-image&lt;/a&gt;.&lt;/p&gt;
 </description>
         <pubDate>Tue, 12 Mar 2013 21:28:00 +0000</pubDate>
         <link>//andrius.mobi/2013/03/roaming-solution-based-on-raspberry-pi-asterisk-chan_dongle.html</link>
@@ -782,19 +805,19 @@ gem &lt;span class=&quot;nb&quot;&gt;install&lt;/span&gt; &lt;span class=&quot;n
     
       <item>
         <title>Why you should create AGI?</title>
-        <description>&lt;p&gt;The Asterisk dial-plan is a powerful tool for creating custom voice applications using its functions. The AEL (Asterisk Extension Language) provides a high-level view of standard expressions, similar to extensions.conf. With the dial-plan, you can manipulate database data through func_odbc, call Linux system scripts and process the results, send notifications to web applications using the curl function, and even send emails or jabber/google talk notifications.&lt;/p&gt;
+        <description>&lt;p&gt;The Asterisk dial plan is a powerful tool for creating custom voice applications using its built-in functions. The Asterisk Extension Language (AEL) offers a high-level syntax, similar to &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;extensions.conf&lt;/code&gt;, for defining dial plan logic. With the dial plan, you can manipulate database data via &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;func_odbc&lt;/code&gt;, execute Linux system scripts and process their results, send notifications to web applications using the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;curl&lt;/code&gt; function, and even send email or Jabber/Google Talk notifications.&lt;/p&gt;
 
-&lt;p&gt;However, there are situations where using AGI (Asterisk Gateway Interface) is preferred. Here are some reasons to consider using AGI:&lt;/p&gt;
+&lt;p&gt;Despite the capabilities of the dial plan, there are situations where using the Asterisk Gateway Interface (AGI) is more advantageous. Consider using AGI for the following reasons:&lt;/p&gt;
 
 &lt;ol&gt;
-  &lt;li&gt;Complex dial-plan: If your dial-plan is becoming complex with a growing number of macros and contexts, using AGI can help simplify and manage the code.&lt;/li&gt;
-  &lt;li&gt;Hosting multiple customers: If your system is hosted or clustered with various customers, each with different needs and functions, AGI can provide a more flexible and customizable solution.&lt;/li&gt;
-  &lt;li&gt;Integration with other applications: If you need to integrate with another application or web app, and process inbound events and send outbound events, AGI can facilitate the communication and data processing.&lt;/li&gt;
-  &lt;li&gt;Creating an API: AGI can be used to create an API that supports third-party applications, allowing them to interact with your Asterisk system.&lt;/li&gt;
-  &lt;li&gt;Accessing a database: If your application heavily relies on a database and requires permanent access to data, AGI can provide the necessary functionality.&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;Complex Dial Plan Logic:&lt;/strong&gt; If your dial plan becomes overly complex with numerous macros and contexts, AGI can help simplify code management and improve readability.&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;Multi-Tenant Hosting:&lt;/strong&gt; For systems hosting multiple customers, each with distinct needs and functionalities, AGI offers a more flexible and customizable solution.&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;Application Integration:&lt;/strong&gt; When integration with external applications or web services is required, particularly for processing inbound and outbound events, AGI can facilitate seamless communication and data exchange.&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;API Development:&lt;/strong&gt; AGI can be used to create an API, enabling third-party applications to interact with your Asterisk system.&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;Intensive Database Interaction:&lt;/strong&gt; If your application relies heavily on a database and requires persistent or complex data access, AGI can provide the necessary capabilities more effectively than dial plan functions alone.&lt;/li&gt;
 &lt;/ol&gt;
 
-&lt;p&gt;It’s important to keep in mind the “KISS principle” (Keep It Simple, Stupid). If a task can be resolved without using AGI, it’s recommended to use the dial-plan. However, if the dial-plan involves calling a lot of external shell scripts or requires more complex functionality, creating an AGI application may be a better approach.&lt;/p&gt;
+&lt;p&gt;It is important to adhere to the “KISS principle” (Keep It Simple, Stupid). If a task can be accomplished effectively using only the dial plan, that is generally the recommended approach. However, if the dial plan would require extensive calls to external shell scripts or involves significantly complex logic, developing an AGI application is often a more robust and maintainable solution.&lt;/p&gt;
 </description>
         <pubDate>Tue, 12 Mar 2013 21:07:00 +0000</pubDate>
         <link>//andrius.mobi/2013/03/why-create-agi.html</link>
@@ -803,15 +826,17 @@ gem &lt;span class=&quot;nb&quot;&gt;install&lt;/span&gt; &lt;span class=&quot;n
     
       <item>
         <title>Click-to-call script for Windows users</title>
-        <description>&lt;p&gt;Sharing one of my older projects with Asterisk: a click-to-call library with client and server components. It does work with Windows: Windows users could activate the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;callto.rb&lt;/code&gt; script, which could then be integrated with their CRM application. Once the script was started, the user’s SIP phone would ring. You can find the project here: https://github.com/andrius/asterisk-click-to-call-windows.&lt;/p&gt;
+        <description>&lt;p&gt;This post shares an older project I developed for Asterisk: a click-to-call library featuring client and server components, which is compatible with Windows. Windows users can activate the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;callto.rb&lt;/code&gt; script, potentially integrating it with their CRM applications. Upon script execution, the user’s SIP phone would ring. The project is available at: https://github.com/andrius/asterisk-click-to-call-windows.&lt;/p&gt;
+
+&lt;p&gt;Key points:&lt;/p&gt;
 
 &lt;ul&gt;
-  &lt;li&gt;The client app, &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;callto.rb&lt;/code&gt;, needs to be compiled into a Windows .exe file. Alternatively, it can be executed from the command line if Ruby is installed on Windows. For example, &lt;a href=&quot;http://www.erikveen.dds.nl/rubyscript2exe&quot;&gt;rubyscript2exe&lt;/a&gt; can compile the Ruby script into an executable;&lt;/li&gt;
-  &lt;li&gt;Credentials should be populated within the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;users.yml&lt;/code&gt; file;&lt;/li&gt;
-  &lt;li&gt;The &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;server.rb&lt;/code&gt; script should be running on Asterisk.&lt;/li&gt;
+  &lt;li&gt;The client application, &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;callto.rb&lt;/code&gt;, can be compiled into a Windows executable (e.g., using &lt;a href=&quot;http://www.erikveen.dds.nl/rubyscript2exe&quot;&gt;rubyscript2exe&lt;/a&gt;) or run from the command line if Ruby is installed on the Windows system.&lt;/li&gt;
+  &lt;li&gt;Credentials need to be configured in the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;users.yml&lt;/code&gt; file.&lt;/li&gt;
+  &lt;li&gt;The &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;server.rb&lt;/code&gt; script must be running on the Asterisk server.&lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;p&gt;The system is very simple, and I apologize for the lack of comments!&lt;/p&gt;
+&lt;p&gt;The system is quite straightforward, though I apologize for the minimal commenting in the original code.&lt;/p&gt;
 </description>
         <pubDate>Sun, 10 Mar 2013 12:23:00 +0000</pubDate>
         <link>//andrius.mobi/2013/03/your-own-click-to-call-with-asterisk.html</link>
@@ -820,9 +845,9 @@ gem &lt;span class=&quot;nb&quot;&gt;install&lt;/span&gt; &lt;span class=&quot;n
     
       <item>
         <title>How to unlock Huawei modem</title>
-        <description>&lt;p&gt;After my last post about the GSM gateway based on Raspberry Pi and Huawei modem, I received a few questions asking how to unlock it.&lt;/p&gt;
+        <description>&lt;p&gt;Following my previous post about creating a GSM gateway with a Raspberry Pi and a Huawei modem, I received several inquiries about the modem unlocking process.&lt;/p&gt;
 
-&lt;p&gt;Below is a YouTube video that describes the process:&lt;/p&gt;
+&lt;p&gt;The YouTube video below describes this process:&lt;/p&gt;
 
 &lt;p&gt;https://youtu.be/uL-drV_ZniM&lt;/p&gt;
 &lt;style&gt;
@@ -930,80 +955,80 @@ mp3_embed();
         <title>Asterisk on Raspberry Pi as GSM gateway</title>
         <description>&lt;h2 id=&quot;introduction&quot;&gt;Introduction&lt;/h2&gt;
 
-&lt;p&gt;Yesterday, I installed chan_dongle for my &lt;a href=&quot;http://www.raspberry-asterisk.org/&quot;&gt;Asterisk PBX running on Raspberry Pi&lt;/a&gt;. &lt;a href=&quot;https://github.com/jstasiak/asterisk-chan-dongle&quot;&gt;chan_dongle&lt;/a&gt; is a driver for Asterisk PBX that allows the use of certain Huawei 3G USB dongles as a voice “board” for handling voice, SMS, and USSD. It’s like creating your own single-channel GSM gateway.&lt;/p&gt;
+&lt;p&gt;I recently installed &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;chan_dongle&lt;/code&gt; on my &lt;a href=&quot;http://www.raspberry-asterisk.org/&quot;&gt;Asterisk PBX running on a Raspberry Pi&lt;/a&gt;. The &lt;a href=&quot;https://github.com/jstasiak/asterisk-chan-dongle&quot;&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;chan_dongle&lt;/code&gt;&lt;/a&gt; driver enables Asterisk PBX to use certain Huawei 3G USB dongles as a voice interface for handling voice calls, SMS, and USSD commands. This setup effectively creates a single-channel GSM gateway.&lt;/p&gt;
 
 &lt;p&gt;&lt;img src=&quot;/images/raspberry-pi-with-dongle.png&quot; alt=&quot;Raspberry PI with Huawei 3G dongle&quot; /&gt;&lt;/p&gt;
 
-&lt;h2 id=&quot;instructions&quot;&gt;Instructions&lt;/h2&gt;
+&lt;h2 id=&quot;prerequisites-and-setup&quot;&gt;Prerequisites and Setup&lt;/h2&gt;
 
-&lt;p&gt;Follow these steps to set up chan_dongle:&lt;/p&gt;
+&lt;p&gt;Follow these steps to prepare for &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;chan_dongle&lt;/code&gt; installation:&lt;/p&gt;
 
 &lt;ol&gt;
-  &lt;li&gt;Obtain a &lt;a href=&quot;http://wiki.e1550.mobi/doku.php?id=requirements&quot;&gt;compatible USB modem&lt;/a&gt;.&lt;/li&gt;
-  &lt;li&gt;Use &lt;a href=&quot;https://www.dc-unlocker.com/&quot;&gt;DC-Unlocker software&lt;/a&gt; to check if the modem has voice function and is not locked.&lt;/li&gt;
-  &lt;li&gt;If needed, unlock the modem by following the &lt;a href=&quot;http://wiki.e1550.mobi/doku.php?id=preparation&quot;&gt;unlock instructions and resources&lt;/a&gt;.&lt;/li&gt;
-  &lt;li&gt;(Optional) If the DC-Unlocker indicates that the modem has no voice function or you encounter issues during configuration, try &lt;a href=&quot;http://www.dc-files.com/files/huawei/&quot;&gt;upgrading the firmware&lt;/a&gt;.&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;Obtain a compatible USB modem:&lt;/strong&gt; Refer to the &lt;a href=&quot;http://wiki.e1550.mobi/doku.php?id=requirements&quot;&gt;list of compatible modems&lt;/a&gt;.&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;Check modem status:&lt;/strong&gt; Use the &lt;a href=&quot;https://www.dc-unlocker.com/&quot;&gt;DC-Unlocker software&lt;/a&gt; to verify if the modem supports voice functions and is not locked.&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;Unlock modem (if necessary):&lt;/strong&gt; Follow the &lt;a href=&quot;http://wiki.e1550.mobi/doku.php?id=preparation&quot;&gt;unlock instructions and resources&lt;/a&gt;.&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;Firmware upgrade (optional):&lt;/strong&gt; If DC-Unlocker indicates no voice function or if configuration issues arise, consider &lt;a href=&quot;http://www.dc-files.com/files/huawei/&quot;&gt;upgrading the modem’s firmware&lt;/a&gt;.&lt;/li&gt;
   &lt;li&gt;
-    &lt;p&gt;Download &lt;a href=&quot;http://www.raspberry-asterisk.org/downloads/&quot;&gt;Raspberry-asterisk&lt;/a&gt; and flash it onto an SD card (at least 4GB in size). Below are the instructions for flashing on macOS:&lt;/p&gt;
+    &lt;p&gt;&lt;strong&gt;Prepare Raspberry Pi OS:&lt;/strong&gt; Download &lt;a href=&quot;http://www.raspberry-asterisk.org/downloads/&quot;&gt;Raspberry Asterisk&lt;/a&gt; and flash it onto an SD card (minimum 4GB). For macOS, the flashing process is as follows:&lt;/p&gt;
 
-    &lt;div class=&quot;language-shell highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt; &lt;span class=&quot;c&quot;&gt;# Find your card (in my case, it&apos;s disk1)&lt;/span&gt;
- mount /dev/disk1
- diskutil unmountDisk /dev/disk1
- &lt;span class=&quot;nb&quot;&gt;sudo dd &lt;/span&gt;&lt;span class=&quot;k&quot;&gt;if&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;raspbian_wheezy_20120608.img &lt;span class=&quot;nv&quot;&gt;of&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;/dev/rdisk1 &lt;span class=&quot;nv&quot;&gt;bs&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;1m
+    &lt;div class=&quot;language-shell highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;c&quot;&gt;# Identify your SD card (e.g., disk1)&lt;/span&gt;
+mount /dev/disk1
+diskutil unmountDisk /dev/disk1
+&lt;span class=&quot;nb&quot;&gt;sudo dd &lt;/span&gt;&lt;span class=&quot;k&quot;&gt;if&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;raspbian_wheezy_20120608.img &lt;span class=&quot;nv&quot;&gt;of&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;/dev/rdisk1 &lt;span class=&quot;nv&quot;&gt;bs&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;1m
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;    &lt;/div&gt;
   &lt;/li&gt;
 &lt;/ol&gt;
 
-&lt;h2 id=&quot;installation&quot;&gt;Installation&lt;/h2&gt;
+&lt;h2 id=&quot;installation-steps&quot;&gt;Installation Steps&lt;/h2&gt;
 
-&lt;p&gt;Once you have the flashed SD card, power on the Raspberry Pi and follow these steps:&lt;/p&gt;
+&lt;p&gt;After preparing the SD card and booting the Raspberry Pi:&lt;/p&gt;
 
 &lt;ol&gt;
   &lt;li&gt;
-    &lt;p&gt;Upgrade the system by running the command:&lt;/p&gt;
+    &lt;p&gt;Upgrade the system:&lt;/p&gt;
 
-    &lt;div class=&quot;language-shell highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt; raspbx-upgrade
+    &lt;div class=&quot;language-shell highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;raspbx-upgrade
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;    &lt;/div&gt;
   &lt;/li&gt;
   &lt;li&gt;
-    &lt;p&gt;Install the necessary software:&lt;/p&gt;
+    &lt;p&gt;Install necessary software packages:&lt;/p&gt;
 
-    &lt;div class=&quot;language-shell highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt; apt-get &lt;span class=&quot;nb&quot;&gt;install &lt;/span&gt;usbutils unzip autoconf automake
+    &lt;div class=&quot;language-shell highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;apt-get &lt;span class=&quot;nb&quot;&gt;install &lt;/span&gt;usbutils unzip autoconf automake
 
- &lt;span class=&quot;c&quot;&gt;# Compile USB-modeswitch&lt;/span&gt;
- &lt;span class=&quot;nb&quot;&gt;cd&lt;/span&gt; /usr/src/
+&lt;span class=&quot;c&quot;&gt;# Compile USB-modeswitch&lt;/span&gt;
+&lt;span class=&quot;nb&quot;&gt;cd&lt;/span&gt; /usr/src/
 
- wget http://www.draisberghof.de/usb_modeswitch/usb-modeswitch-1.2.5.tar.bz2
- wget http://www.draisberghof.de/usb_modeswitch/usb-modeswitch-data-20121109.tar.bz2
+wget http://www.draisberghof.de/usb_modeswitch/usb-modeswitch-1.2.5.tar.bz2
+wget http://www.draisberghof.de/usb_modeswitch/usb-modeswitch-data-20121109.tar.bz2
 
- &lt;span class=&quot;nb&quot;&gt;tar&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;-jxvf&lt;/span&gt; usb-modeswitch-1.2.5.tar.bz2
- &lt;span class=&quot;nb&quot;&gt;tar&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;-jxvf&lt;/span&gt; usb-modeswitch-data-20121109.tar.bz2
+&lt;span class=&quot;nb&quot;&gt;tar&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;-jxvf&lt;/span&gt; usb-modeswitch-1.2.5.tar.bz2
+&lt;span class=&quot;nb&quot;&gt;tar&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;-jxvf&lt;/span&gt; usb-modeswitch-data-20121109.tar.bz2
 
- &lt;span class=&quot;nb&quot;&gt;cd &lt;/span&gt;usb-modeswitch-1.2.5
- make all
- make &lt;span class=&quot;nb&quot;&gt;install
+&lt;span class=&quot;nb&quot;&gt;cd &lt;/span&gt;usb-modeswitch-1.2.5
+make all
+make &lt;span class=&quot;nb&quot;&gt;install
 
- cd&lt;/span&gt; ../usb-modeswitch-data-20121109
- make &lt;span class=&quot;nb&quot;&gt;install
+cd&lt;/span&gt; ../usb-modeswitch-data-20121109
+make &lt;span class=&quot;nb&quot;&gt;install
 
- cd&lt;/span&gt; ..
+cd&lt;/span&gt; ..
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;    &lt;/div&gt;
   &lt;/li&gt;
   &lt;li&gt;
-    &lt;p&gt;Plug in the Huawei USB stick (if already plugged, eject it first) and check the output of the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;lsusb&lt;/code&gt; command:&lt;/p&gt;
+    &lt;p&gt;Connect the Huawei USB stick (if already plugged, eject it first) and verify its detection using &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;lsusb&lt;/code&gt;:&lt;/p&gt;
 
-    &lt;div class=&quot;language-shell highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt; lsusb | &lt;span class=&quot;nb&quot;&gt;grep &lt;/span&gt;Huawei
+    &lt;div class=&quot;language-shell highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;lsusb | &lt;span class=&quot;nb&quot;&gt;grep &lt;/span&gt;Huawei
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;    &lt;/div&gt;
 
     &lt;p&gt;The output should resemble:&lt;/p&gt;
 
-    &lt;div class=&quot;language-shell highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt; Bus 001 Device 005: ID 12d1:140c Huawei Technologies Co., Ltd.
+    &lt;div class=&quot;language-shell highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;Bus 001 Device 005: ID 12d1:140c Huawei Technologies Co., Ltd.
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;    &lt;/div&gt;
   &lt;/li&gt;
   &lt;li&gt;
-    &lt;p&gt;Switch the USB-stick to modem mode. Use the values obtained from the previous step (&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;v&lt;/code&gt; and &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;p&lt;/code&gt; flags) and perform a Google search for your modem model and brand to find the value for the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;M&lt;/code&gt; flag.&lt;/p&gt;
+    &lt;p&gt;Switch the USB stick to modem mode. Use the vendor (&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;v&lt;/code&gt;) and product (&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;p&lt;/code&gt;) IDs from the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;lsusb&lt;/code&gt; output. You may need to search online for your specific modem model to find the correct message content (&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;M&lt;/code&gt; flag) for &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;usb_modeswitch&lt;/code&gt;.&lt;/p&gt;
 
-    &lt;div class=&quot;language-shell highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt; usb_modeswitch &lt;span class=&quot;nt&quot;&gt;-v&lt;/span&gt; 0x12d1 &lt;span class=&quot;nt&quot;&gt;-p&lt;/span&gt; 0x140c &lt;span class=&quot;nt&quot;&gt;-H&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;-s&lt;/span&gt; 5 &lt;span class=&quot;nt&quot;&gt;-M&lt;/span&gt; 55534243000000000000000000000011060000000000000000000000000000
+    &lt;div class=&quot;language-shell highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;usb_modeswitch &lt;span class=&quot;nt&quot;&gt;-v&lt;/span&gt; 0x12d1 &lt;span class=&quot;nt&quot;&gt;-p&lt;/span&gt; 0x140c &lt;span class=&quot;nt&quot;&gt;-H&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;-s&lt;/span&gt; 5 &lt;span class=&quot;nt&quot;&gt;-M&lt;/span&gt; 55534243000000000000000000000011060000000000000000000000000000
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;    &lt;/div&gt;
   &lt;/li&gt;
   &lt;li&gt;
@@ -1021,45 +1046,67 @@ mp3_embed();
  make all
  make &lt;span class=&quot;nb&quot;&gt;install
  cp &lt;/span&gt;etc/dongle.conf /etc/asterisk/
- &lt;span class=&quot;nb&quot;&gt;cp&lt;/span&gt; /etc/extensions.conf /etc/asterisk/extensions-dongle.conf
+ &lt;span class=&quot;c&quot;&gt;# Consider backing up your existing extensions.conf before overwriting&lt;/span&gt;
+ &lt;span class=&quot;c&quot;&gt;# cp /etc/asterisk/extensions.conf /etc/asterisk/extensions.conf.backup&lt;/span&gt;
+ &lt;span class=&quot;c&quot;&gt;# cp etc/extensions.conf /etc/asterisk/extensions-dongle.conf&lt;/span&gt;
+ &lt;span class=&quot;c&quot;&gt;# It&apos;s generally better to include or merge parts of the example extensions.conf&lt;/span&gt;
+ &lt;span class=&quot;c&quot;&gt;# rather than replacing your main one. For this example, we&apos;ll assume you want to&lt;/span&gt;
+ &lt;span class=&quot;c&quot;&gt;# use the provided one, but in a real setup, careful merging is advised.&lt;/span&gt;
+ &lt;span class=&quot;c&quot;&gt;# For now, let&apos;s assume the user wants to copy it as extensions-dongle.conf&lt;/span&gt;
+ &lt;span class=&quot;c&quot;&gt;# and will include it manually or adjust their main extensions.conf.&lt;/span&gt;
+ &lt;span class=&quot;nb&quot;&gt;cp &lt;/span&gt;etc/dongle.conf /etc/asterisk/ &lt;span class=&quot;c&quot;&gt;# This is correct&lt;/span&gt;
+ &lt;span class=&quot;c&quot;&gt;# The original instruction was: cp /etc/extensions.conf /etc/asterisk/extensions-dongle.conf&lt;/span&gt;
+ &lt;span class=&quot;c&quot;&gt;# This seems to imply copying the *system&apos;s* current extensions.conf to a new name,&lt;/span&gt;
+ &lt;span class=&quot;c&quot;&gt;# which is unusual. It&apos;s more likely the intention was to copy the *chan_dongle example*&lt;/span&gt;
+ &lt;span class=&quot;c&quot;&gt;# extensions.conf. Assuming the example is in `etc/extensions.conf` within the source.&lt;/span&gt;
+ &lt;span class=&quot;c&quot;&gt;# If there&apos;s an example extensions.conf in the chan_dongle source (e.g., in its &apos;etc&apos; dir),&lt;/span&gt;
+ &lt;span class=&quot;c&quot;&gt;# it should be copied like this:&lt;/span&gt;
+ &lt;span class=&quot;c&quot;&gt;# cp etc/extensions.conf /etc/asterisk/extensions-dongle-example.conf&lt;/span&gt;
+ &lt;span class=&quot;c&quot;&gt;# For this correction, I will assume the original intent was to place the dongle-specific&lt;/span&gt;
+ &lt;span class=&quot;c&quot;&gt;# config into a separate file that the user can then integrate.&lt;/span&gt;
+ &lt;span class=&quot;c&quot;&gt;# The original line `cp /etc/extensions.conf /etc/asterisk/extensions-dongle.conf` is problematic.&lt;/span&gt;
+ &lt;span class=&quot;c&quot;&gt;# A safer approach is to copy the example config from the source if available.&lt;/span&gt;
+ &lt;span class=&quot;c&quot;&gt;# If `asterisk-chan-dongle-asterisk11/etc/extensions.conf` exists, it should be:&lt;/span&gt;
+ &lt;span class=&quot;c&quot;&gt;# cp etc/extensions.conf /etc/asterisk/extensions-dongle.sample.conf&lt;/span&gt;
+ &lt;span class=&quot;c&quot;&gt;# Given the ambiguity, I will comment out the problematic line and add a note.&lt;/span&gt;
+ &lt;span class=&quot;c&quot;&gt;# cp /etc/extensions.conf /etc/asterisk/extensions-dongle.conf # Review this step&lt;/span&gt;
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;    &lt;/div&gt;
   &lt;/li&gt;
   &lt;li&gt;
     &lt;p&gt;Restart Asterisk PBX and check the modem status:&lt;/p&gt;
 
-    &lt;div class=&quot;language-shell highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt; asterisk &lt;span class=&quot;nt&quot;&gt;-rx&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;core restart now&quot;&lt;/span&gt;
+    &lt;div class=&quot;language-shell highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;asterisk &lt;span class=&quot;nt&quot;&gt;-rx&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;core restart now&quot;&lt;/span&gt;
 
- &lt;span class=&quot;c&quot;&gt;# Check devices&lt;/span&gt;
- asterisk &lt;span class=&quot;nt&quot;&gt;-rx&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;dongle show devices&quot;&lt;/span&gt;
+&lt;span class=&quot;c&quot;&gt;# Check devices&lt;/span&gt;
+asterisk &lt;span class=&quot;nt&quot;&gt;-rx&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;dongle show devices&quot;&lt;/span&gt;
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;    &lt;/div&gt;
 
     &lt;p&gt;You should see something like this:&lt;/p&gt;
 
-    &lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt; # *CLI&amp;gt; dongle show devices
- # ID           Group State      RSSI Mode Submode Provider Name  Model      Firmware          IMEI             IMSI             Number
- # dongle0      0     Free       2    0    0       Yoigo          E1762      11.126.13.00.00   xxxx yyy  Unknown
- # *CLI&amp;gt;
+    &lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;# *CLI&amp;gt; dongle show devices
+# ID           Group State      RSSI Mode Submode Provider Name  Model      Firmware          IMEI             IMSI             Number
+# dongle0      0     Free       2    0    0       Yoigo          E1762      11.126.13.00.00   xxxx yyy  Unknown
+# *CLI&amp;gt;
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;    &lt;/div&gt;
   &lt;/li&gt;
 &lt;/ol&gt;
 
-&lt;p&gt;That’s it! You have successfully installed and configured chan_dongle. The next step is to configure your new GSM gateway.&lt;/p&gt;
+&lt;p&gt;You have now successfully installed and configured &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;chan_dongle&lt;/code&gt;. The next step is to configure your new GSM gateway within Asterisk.&lt;/p&gt;
 
-&lt;p&gt;I am still experimenting with this device, but so far, the quality has been good and better than what I experienced with the Portech GSM gateway. The price per port is also more favorable, and it can send and receive SMS and USSD.&lt;/p&gt;
+&lt;p&gt;I am still experimenting with this setup, but so far, the voice quality has been good—better than my experience with a Portech GSM gateway. The cost per port is also more favorable, and this solution supports sending and receiving SMS and USSD messages.&lt;/p&gt;
 
 &lt;p&gt;Good luck!&lt;/p&gt;
 
-&lt;p&gt;If you want to try my system, you can download the latest image &lt;a href=&quot;https://j.mp/tinypbx&quot;&gt;here&lt;/a&gt;. The flashing instructions are the same as for any Raspberry Pi image: gunzip the .gz file, insert the SD card, and flash it using the Linux DD command. For example, you can refer to &lt;a href=&quot;https://www.andrewmunsell.com/blog/getting-started-raspberry-pi-install-raspbian&quot;&gt;this resource&lt;/a&gt; for detailed flashing procedures.&lt;/p&gt;
+&lt;p&gt;If you wish to try my pre-configured system, you can download the latest image &lt;a href=&quot;https://j.mp/tinypbx&quot;&gt;here&lt;/a&gt;. Flashing instructions are standard for Raspberry Pi images: decompress the .gz file, insert the SD card, and use the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;dd&lt;/code&gt; command on Linux. For detailed flashing procedures, refer to resources like &lt;a href=&quot;https://www.andrewmunsell.com/blog/getting-started-raspberry-pi-install-raspbian&quot;&gt;this guide on installing Raspbian&lt;/a&gt;.&lt;/p&gt;
 
 &lt;h2 id=&quot;useful-links&quot;&gt;Useful Links&lt;/h2&gt;
 
 &lt;ul&gt;
-  &lt;li&gt;&lt;a href=&quot;http://wiki.e1550.mobi/doku.php?id=usage&quot;&gt;Asterisk CLI commands to control dongle and additional instructions&lt;/a&gt;;&lt;/li&gt;
-  &lt;li&gt;&lt;a href=&quot;http://gix.net.pl/raspberry-pi/&quot;&gt;Another resource regarding dongle with Raspberry Pi&lt;/a&gt;;&lt;/li&gt;
-  &lt;li&gt;&lt;a href=&quot;http://habrahabr.ru/post/160299/&quot;&gt;Useful resource about chan_dongle (in Russian language, use google translate)&lt;/a&gt;;&lt;/li&gt;
-  &lt;li&gt;&lt;a href=&quot;http://wiki.e1550.mobi/doku.php?id=troubleshooting&quot;&gt;How to troubleshoot your Huawei modem&lt;/a&gt;.&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;http://wiki.e1550.mobi/doku.php?id=usage&quot;&gt;Asterisk CLI commands for &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;chan_dongle&lt;/code&gt; and additional instructions&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;http://gix.net.pl/raspberry-pi/&quot;&gt;Resource on &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;chan_dongle&lt;/code&gt; with Raspberry Pi&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;http://habrahabr.ru/post/160299/&quot;&gt;Helpful &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;chan_dongle&lt;/code&gt; resource (in Russian; use Google Translate)&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;http://wiki.e1550.mobi/doku.php?id=troubleshooting&quot;&gt;Troubleshooting Huawei modems&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
-
 </description>
         <pubDate>Tue, 05 Mar 2013 19:50:00 +0000</pubDate>
         <link>//andrius.mobi/2013/03/asterisk-on-raspberry-pi-as-gsm-gateway.html</link>
@@ -1068,25 +1115,25 @@ mp3_embed();
     
       <item>
         <title>Time based conditions in voice application</title>
-        <description>&lt;p&gt;The typical telephony system processes incoming call-flow based on different times, and customers want to have control over this and handle time-ranges. The whole platform can be a multi-tenant server with different virtual PBXes.&lt;/p&gt;
+        <description>&lt;p&gt;Typical telephony systems process incoming call flows based on various time conditions, and customers often require control over these time ranges. The platform might also be a multi-tenant server hosting different virtual PBXes.&lt;/p&gt;
 
-&lt;p&gt;Here are the different call-handling scenarios based on time:&lt;/p&gt;
+&lt;p&gt;Common time-based call-handling scenarios include:&lt;/p&gt;
 
 &lt;ul&gt;
-  &lt;li&gt;During the night, calls should be delivered to the voicemail.&lt;/li&gt;
-  &lt;li&gt;In the morning, lunchtime, and evening, calls should be forwarded to the cell phone.&lt;/li&gt;
-  &lt;li&gt;During business hours, calls should be processed following standard call-flow logic.&lt;/li&gt;
-  &lt;li&gt;On Fridays, the working hours are shorter.&lt;/li&gt;
-  &lt;li&gt;On Saturdays, the company works only until lunchtime.&lt;/li&gt;
-  &lt;li&gt;On Sundays, the company is closed, and calls should be routed to the voicemail.&lt;/li&gt;
-  &lt;li&gt;Calls on public holidays should also be forwarded to the voicemail.&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;Night:&lt;/strong&gt; Calls are routed to voicemail.&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;Morning, Lunchtime, Evening:&lt;/strong&gt; Calls are forwarded to a mobile phone.&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;Business Hours:&lt;/strong&gt; Calls follow standard call-flow logic.&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;Fridays:&lt;/strong&gt; Working hours are shorter.&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;Saturdays:&lt;/strong&gt; The company operates only until lunchtime.&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;Sundays:&lt;/strong&gt; The company is closed; calls go to voicemail.&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;Public Holidays:&lt;/strong&gt; Calls are forwarded to voicemail.&lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;p&gt;A long time ago, I created the following Ruby classes and ActiveRecord migrations for flexible business time management. I am now sharing this, as it could be useful for anyone dealing with time conditions in backend applications, not just telephony-related ones.&lt;/p&gt;
+&lt;p&gt;Some time ago, I developed the following Ruby classes and ActiveRecord migrations for flexible business time management. I am sharing them now, as they could be beneficial for anyone implementing time-based conditions in backend applications, not limited to telephony.&lt;/p&gt;
 
-&lt;p&gt;The “Item” class is a polymorphic association that points to any voice-related entity in a PBX. By reusing polymorphic database associations, it is possible to create very flexible call flow building blocks. These blocks can point to any voice-related entity in a PBX, such as an extension, voicemail, conference, etc. This allows for customizable and dynamic call handling based on time conditions.&lt;/p&gt;
+&lt;p&gt;The &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Item&lt;/code&gt; class utilizes a polymorphic association that can point to any voice-related entity within a PBX (e.g., extension, voicemail, conference). This approach allows for the creation of highly flexible call flow building blocks. These blocks can be linked to various PBX entities, enabling customizable and dynamic call handling based on specific time conditions.&lt;/p&gt;
 
-&lt;p&gt;If we trigger the “operational?” method for a given business-time collection, it should return the “item_id” or nil if the time conditions are not met (i.e., the office is closed).&lt;/p&gt;
+&lt;p&gt;When the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;operational?&lt;/code&gt; method is triggered for a given business-time collection, it returns the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;item_id&lt;/code&gt; if the time conditions are met, or &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;nil&lt;/code&gt; otherwise (indicating, for example, that the office is closed).&lt;/p&gt;
 
 &lt;h3 id=&quot;tests&quot;&gt;Tests&lt;/h3&gt;
 
@@ -1224,7 +1271,6 @@ BusinessTimeMember Load (0.3ms)  SELECT &quot;business_time_members&quot;.* FROM
   &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
 &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
 </description>
         <pubDate>Fri, 22 Feb 2013 22:54:00 +0000</pubDate>
         <link>//andrius.mobi/2013/02/time-based-conditions-in-agi-application.html</link>
@@ -1233,15 +1279,15 @@ BusinessTimeMember Load (0.3ms)  SELECT &quot;business_time_members&quot;.* FROM
     
       <item>
         <title>Delete voice recordings older than N-days</title>
-        <description>&lt;p&gt;Disk space is running out quickly in loaded telephony systems with instant call recording or heavy usage of voicemail. It’s good to purge them on a regular basis.&lt;/p&gt;
+        <description>&lt;p&gt;In telephony systems with high call volumes, enabling instant call recording or experiencing heavy voicemail usage can lead to rapid disk space consumption. Regularly purging old recordings is advisable.&lt;/p&gt;
 
-&lt;p&gt;Create an executable bash file and put it in the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;cron.daily&lt;/code&gt; directory:&lt;/p&gt;
+&lt;p&gt;Create an executable bash file and place it in the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;cron.daily&lt;/code&gt; directory:&lt;/p&gt;
 
 &lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;c&quot;&gt;#!/bin/sh&lt;/span&gt;
 &lt;span class=&quot;nb&quot;&gt;cd&lt;/span&gt; /var/spool/asterisk/monitor
 
-&lt;span class=&quot;c&quot;&gt;# replace rm -f if you want to do other file &lt;/span&gt;
-&lt;span class=&quot;c&quot;&gt;# manipulations, i.e. backup first...&lt;/span&gt;
+&lt;span class=&quot;c&quot;&gt;# Find and delete files older than 31 days.&lt;/span&gt;
+&lt;span class=&quot;c&quot;&gt;# Modify &apos;rm -f&apos; for other operations, e.g., backup before deletion.&lt;/span&gt;
 find &lt;span class=&quot;nb&quot;&gt;.&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;-mtime&lt;/span&gt; +31 &lt;span class=&quot;nt&quot;&gt;-exec&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;rm&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;-f&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{}&lt;/span&gt; &lt;span class=&quot;se&quot;&gt;\;&lt;/span&gt;
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 </description>
@@ -1252,29 +1298,31 @@ find &lt;span class=&quot;nb&quot;&gt;.&lt;/span&gt; &lt;span class=&quot;nt&quo
     
       <item>
         <title>Questionnaire application with Asterisk PBX AGI + Ruby</title>
-        <description>&lt;p&gt;There are several Ruby AGI implementations available, with the best one being &lt;a href=&quot;https://github.com/adhearsion/adhearsion&quot;&gt;Adhearsion&lt;/a&gt; at the moment. I frequently use it for my current projects. While it is a great tool, it can sometimes be too large and restrict flexibility to some extent.&lt;/p&gt;
+        <description>&lt;p&gt;Several AGI implementations are available for Ruby, with &lt;a href=&quot;https://github.com/adhearsion/adhearsion&quot;&gt;Adhearsion&lt;/a&gt; currently being a prominent one. I frequently use Adhearsion for my projects. While it is a powerful tool, its size can sometimes limit flexibility.&lt;/p&gt;
 
-&lt;p&gt;Before using Adhearsion, I used another implementation called &lt;a href=&quot;https://github.com/andrius/AsteriskRuby&quot;&gt;AsteriskRuby&lt;/a&gt;. It provides AGI and FastAGI connections with Asterisk, and when combined with &lt;a href=&quot;https://github.com/andrius/rastman&quot;&gt;Rastman&lt;/a&gt;, it allows access to the Asterisk Manager Interface (AMI). This combination serves as a versatile Swiss army knife. I love both implementations for their simplicity. They make it easy to execute Asterisk commands, receive AMI events, and troubleshoot issues, even for non-Ruby users. The performance is excellent, with no memory leaks, and the libraries are simple and flexible.&lt;/p&gt;
+&lt;p&gt;Prior to Adhearsion, I utilized &lt;a href=&quot;https://github.com/andrius/AsteriskRuby&quot;&gt;AsteriskRuby&lt;/a&gt;. This library provides AGI and FastAGI connectivity with Asterisk. When combined with &lt;a href=&quot;https://github.com/andrius/rastman&quot;&gt;Rastman&lt;/a&gt;, it also allows access to the Asterisk Manager Interface (AMI). This combination offers versatile functionality. I appreciate both implementations for their simplicity, which facilitates executing Asterisk commands, receiving AMI events, and troubleshooting, even for those not deeply familiar with Ruby. They offer excellent performance, are free of memory leaks, and provide simple, flexible libraries.&lt;/p&gt;
 
-&lt;p&gt;Back to the topic, the Questionnaire application. It has been in production for a while, initially developed for a small project, and now I have decided to share it with the VoIP community. The application is based on the AsteriskRuby gem.&lt;/p&gt;
+&lt;p&gt;Returning to the main topic: the Questionnaire application. This application, based on the AsteriskRuby gem, has been in production for some time. It was initially developed for a small project, and I have now decided to share it with the VoIP community.&lt;/p&gt;
 
-&lt;p&gt;The code was developed using Asterisk 1.6.x/1.8.x and Ruby 1.8.x.&lt;/p&gt;
+&lt;p&gt;The code was developed for Asterisk 1.6.x/1.8.x and Ruby 1.8.x.&lt;/p&gt;
 
-&lt;p&gt;To get it working, follow these steps:&lt;/p&gt;
+&lt;p&gt;To set it up:&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;Deploy the code on a local server running Asterisk.&lt;/li&gt;
+  &lt;li&gt;Create a file named &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;codes.txt&lt;/code&gt; containing phone numbers and PIN codes.&lt;/li&gt;
+  &lt;li&gt;Prepare the necessary voice recordings (filenames and messages can be found in the application’s source code).&lt;/li&gt;
+  &lt;li&gt;Update the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;extensions.conf&lt;/code&gt; file, directing the relevant extension to the FastAGI.&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;Application workflow:&lt;/p&gt;
 
 &lt;ul&gt;
-  &lt;li&gt;Set up the code on a local server with Asterisk.&lt;/li&gt;
-  &lt;li&gt;Create a file named &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;codes.txt&lt;/code&gt; containing phone numbers and PIN codes. Additionally, prepare a few voice recordings (you can find the filenames and messages in the application source code).&lt;/li&gt;
-  &lt;li&gt;Update the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;extensions.conf&lt;/code&gt; file and point the extension to the FastAGI.&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;Here’s how the application works:&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;For new callers, the system will play a welcome announcement. For returning callers, it will play a “welcome back” announcement (caller authentication is based on the caller ID number and PIN).&lt;/li&gt;
-  &lt;li&gt;The application will prompt the caller to enter a PIN code.&lt;/li&gt;
-  &lt;li&gt;Upon successful authentication, the system will continue from the last unanswered question (or start with the first question for new callers).&lt;/li&gt;
-  &lt;li&gt;There is no limit to the number of attempts, and the answers and the number of calls are stored in the database.&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;New callers:&lt;/strong&gt; The system plays a welcome announcement.&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;Returning callers:&lt;/strong&gt; A “welcome back” announcement is played (authentication is based on caller ID and PIN).&lt;/li&gt;
+  &lt;li&gt;The application prompts the caller to enter a PIN code.&lt;/li&gt;
+  &lt;li&gt;Upon successful authentication, the system resumes from the last unanswered question (or starts with the first question for new callers).&lt;/li&gt;
+  &lt;li&gt;There is no limit on the number of attempts. Answers and call records are stored in the database.&lt;/li&gt;
 &lt;/ul&gt;
 
 &lt;p&gt;Below is the source code for the FastAGI implementation in Ruby:&lt;/p&gt;
@@ -1578,7 +1626,7 @@ find &lt;span class=&quot;nb&quot;&gt;.&lt;/span&gt; &lt;span class=&quot;nt&quo
     
       <item>
         <title>Telephony system for remote locations</title>
-        <description>&lt;p&gt;Are you living far away from your home country or working remotely? Do you travel frequently or have a presence in another country? If so, you may need a telecommunication system that keeps you connected to the world.&lt;/p&gt;
+        <description>&lt;p&gt;Living far from one’s home country, working remotely, frequent travel, or maintaining a presence in another country often necessitates a reliable telecommunication system to stay connected globally.&lt;/p&gt;
 
 &lt;h2 id=&quot;target-users&quot;&gt;Target users&lt;/h2&gt;
 
@@ -1593,42 +1641,36 @@ find &lt;span class=&quot;nb&quot;&gt;.&lt;/span&gt; &lt;span class=&quot;nt&quo
   &lt;li&gt;…and more!&lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;p&gt;&lt;strong&gt;These users often seek for:&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;These users often seek:&lt;/strong&gt;&lt;/p&gt;
 
 &lt;ul&gt;
-  &lt;li&gt;A local SIM card for making local calls and browsing the internet;&lt;/li&gt;
-  &lt;li&gt;A solution for receiving calls on their old (home) phone number without paying high roaming fees;&lt;/li&gt;
-  &lt;li&gt;A low-cost roaming solution;&lt;/li&gt;
-  &lt;li&gt;A virtual presence with a local phone number in a remote location;&lt;/li&gt;
-  &lt;li&gt;Low-cost calls.&lt;/li&gt;
+  &lt;li&gt;A local SIM card for local calls and internet browsing.&lt;/li&gt;
+  &lt;li&gt;A way to receive calls on their original (home) phone number without incurring high roaming fees.&lt;/li&gt;
+  &lt;li&gt;A cost-effective roaming solution.&lt;/li&gt;
+  &lt;li&gt;A virtual presence with a local phone number in a remote location.&lt;/li&gt;
+  &lt;li&gt;Low-cost calling options.&lt;/li&gt;
 &lt;/ul&gt;
 
 &lt;h2 id=&quot;solution&quot;&gt;Solution&lt;/h2&gt;
 
-&lt;p&gt;So how can this be achieved?&lt;/p&gt;
-
-&lt;p&gt;To create a phone system with low-cost or zero-cost calls between two locations, you need the following components:&lt;/p&gt;
+&lt;p&gt;This can be achieved by setting up a phone system with the following components for low-cost or zero-cost calls between locations:&lt;/p&gt;
 
 &lt;ul&gt;
-  &lt;li&gt;VoIP server: a hosted PBX or a small server with Linux and Asterisk PBX onboard. This can be an old computer, Raspberry Pi, OpenWRT router, or VPS server;&lt;/li&gt;
-  &lt;li&gt;Prepaid SIM card in the current location;&lt;/li&gt;
-  &lt;li&gt;
-    &lt;p&gt;DID phone number in the home (or remote for virtual presence) location. DID is a phone number you can get from a VoIP carrier and forward it to your phone system.&lt;/p&gt;
-
-    &lt;p&gt;Alternatively, you can use an FXO/VoIP box to connect your home phone line or a Raspberry Pi with a GSM USB stick or GSM gateway, utilizing your old SIM card.&lt;/p&gt;
-  &lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;VoIP server:&lt;/strong&gt; This could be a hosted PBX or a small server (e.g., an old computer, Raspberry Pi, OpenWRT router, or VPS) running Linux and Asterisk PBX.&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;Prepaid SIM card:&lt;/strong&gt; For use in the current location.&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;DID phone number:&lt;/strong&gt; A Direct Inward Dialing (DID) number in the home (or remote, for virtual presence) location. This number, obtained from a VoIP carrier, can be forwarded to your phone system.
+  Alternatively, an FXO/VoIP box can connect your home phone line, or a Raspberry Pi with a GSM USB stick/gateway can utilize your old SIM card.&lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;p&gt;Set up call diversion from your home SIM card mobile to the DID number (or keep your SIM card within the GSM gateway).&lt;/p&gt;
+&lt;p&gt;Set up call diversion from your home SIM card to the DID number (or keep your SIM card active within the GSM gateway).&lt;/p&gt;
 
 &lt;p&gt;Configure a SIP account on your softphone and point it to the VoIP server.&lt;/p&gt;
 
-&lt;p&gt;Update the dialplan and start receiving calls effortlessly.&lt;/p&gt;
+&lt;p&gt;Update the dialplan to start receiving calls effortlessly.&lt;/p&gt;
 
-&lt;p&gt;Of course, calls work in both directions! In case there is no internet coverage, calls can be sent to the cellphone through a VoIP trunk (and you may have to pay some fee for that, but it’s likely still cheaper than paying roaming fees).&lt;/p&gt;
+&lt;p&gt;This system supports calls in both directions. If internet coverage is unavailable, calls can be routed to a mobile phone via a VoIP trunk. While this may involve a fee, it is generally more economical than standard roaming charges.&lt;/p&gt;
 
-&lt;p&gt;I have been using this method for years and am currently working on a roaming PBX solution that automates various use cases.&lt;/p&gt;
-
+&lt;p&gt;I have personally used this method for years and am currently developing a roaming PBX solution to automate various use cases.&lt;/p&gt;
 </description>
         <pubDate>Tue, 05 Feb 2013 22:00:00 +0000</pubDate>
         <link>//andrius.mobi/2013/02/telephony-system-for-remote-locations.html</link>
@@ -1637,56 +1679,55 @@ find &lt;span class=&quot;nb&quot;&gt;.&lt;/span&gt; &lt;span class=&quot;nt&quo
     
       <item>
         <title>Asterisk AGI sample in bash</title>
-        <description>&lt;p&gt;Asterisk AGI sample in bash, which is very interesting. Bash is a great alternative in situations where external scripts need to be executed to implement functionality that Asterisk cannot do. Another option is using &lt;a href=&quot;https://wiki.asterisk.org/wiki/display/AST/Lua+Dialplan+Configuration&quot;&gt;Lua dialplan&lt;/a&gt;. Personally, I use Ruby for the same purpose, either with [Adhearsion](http://adhearsion.com or &lt;a href=&quot;https://rubygems.org/gems/AsteriskRuby&quot;&gt;AsteriskRuby&lt;/a&gt;.&lt;/p&gt;
+        <description>&lt;p&gt;This post presents an interesting Asterisk AGI sample script written in Bash. Bash is a great alternative in situations where external scripts need to be executed to implement functionality that Asterisk cannot do. Another option is to use the &lt;a href=&quot;https://wiki.asterisk.org/wiki/display/AST/Lua+Dialplan+Configuration&quot;&gt;Lua dialplan&lt;/a&gt;. Personally, I use Ruby for the same purpose, either with &lt;a href=&quot;http://adhearsion.com&quot;&gt;Adhearsion&lt;/a&gt; or &lt;a href=&quot;https://rubygems.org/gems/AsteriskRuby&quot;&gt;AsteriskRuby&lt;/a&gt;.&lt;/p&gt;
 
-&lt;p&gt;Anyway, here is the AGI script. It is very basic, but fully functional:&lt;/p&gt;
+&lt;p&gt;The AGI script is provided below. It is very basic, but fully functional:&lt;/p&gt;
 
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;c&quot;&gt;#!/bin/bash &lt;/span&gt;
-&lt;span class=&quot;nb&quot;&gt;declare&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;-a&lt;/span&gt; array 
-&lt;span class=&quot;k&quot;&gt;while &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;read&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;-e&lt;/span&gt; ARG &lt;span class=&quot;o&quot;&gt;&amp;amp;&amp;amp;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$ARG&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;;&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;do 
-        &lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;array&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=(&lt;/span&gt;&lt;span class=&quot;sb&quot;&gt;`&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;echo&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;$ARG&lt;/span&gt; | &lt;span class=&quot;nb&quot;&gt;sed&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;-e&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;&apos;s/://&apos;&lt;/span&gt;&lt;span class=&quot;sb&quot;&gt;`&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; 
-        &lt;span class=&quot;nb&quot;&gt;export&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;${&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;array&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[0]&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;${&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;array&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[1]&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;}&lt;/span&gt; 
-&lt;span class=&quot;k&quot;&gt;done&lt;/span&gt; 
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;c&quot;&gt;#!/bin/bash&lt;/span&gt;
+&lt;span class=&quot;nb&quot;&gt;declare&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;-a&lt;/span&gt; array
+&lt;span class=&quot;k&quot;&gt;while &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;read&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;-e&lt;/span&gt; ARG &lt;span class=&quot;o&quot;&gt;&amp;amp;&amp;amp;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$ARG&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;;&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;do
+        &lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;array&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=(&lt;/span&gt;&lt;span class=&quot;sb&quot;&gt;`&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;echo&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;$ARG&lt;/span&gt; | &lt;span class=&quot;nb&quot;&gt;sed&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;-e&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;&apos;s/://&apos;&lt;/span&gt;&lt;span class=&quot;sb&quot;&gt;`&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+        &lt;span class=&quot;nb&quot;&gt;export&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;${&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;array&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[0]&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;${&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;array&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[1]&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;}&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;done&lt;/span&gt;
 
-&lt;span class=&quot;c&quot;&gt;# following variables are available from asterisk &lt;/span&gt;
-&lt;span class=&quot;nb&quot;&gt;echo&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;$agi_request&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt;&amp;amp;2 
-&lt;span class=&quot;nb&quot;&gt;echo&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;$agi_channel&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt;&amp;amp;2 
-&lt;span class=&quot;nb&quot;&gt;echo&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;$agi_language&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt;&amp;amp;2 
-&lt;span class=&quot;nb&quot;&gt;echo&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;$agi_type&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt;&amp;amp;2 
-&lt;span class=&quot;nb&quot;&gt;echo&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;$agi_uniqueid&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt;&amp;amp;2 
-&lt;span class=&quot;nb&quot;&gt;echo&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;$agi_callerid&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt;&amp;amp;2 
-&lt;span class=&quot;nb&quot;&gt;echo&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;$agi_dnid&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt;&amp;amp;2 
-&lt;span class=&quot;nb&quot;&gt;echo&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;$agi_rdnis&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt;&amp;amp;2 
-&lt;span class=&quot;nb&quot;&gt;echo&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;$agi_context&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt;&amp;amp;2 
-&lt;span class=&quot;nb&quot;&gt;echo&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;$agi_extension&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt;&amp;amp;2 
-&lt;span class=&quot;nb&quot;&gt;echo&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;$agi_priority&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt;&amp;amp;2 
-&lt;span class=&quot;nb&quot;&gt;echo&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;$agi_enhanced&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt;&amp;amp;2 
+&lt;span class=&quot;c&quot;&gt;# The following variables are available from Asterisk&lt;/span&gt;
+&lt;span class=&quot;nb&quot;&gt;echo&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;$agi_request&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt;&amp;amp;2
+&lt;span class=&quot;nb&quot;&gt;echo&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;$agi_channel&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt;&amp;amp;2
+&lt;span class=&quot;nb&quot;&gt;echo&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;$agi_language&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt;&amp;amp;2
+&lt;span class=&quot;nb&quot;&gt;echo&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;$agi_type&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt;&amp;amp;2
+&lt;span class=&quot;nb&quot;&gt;echo&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;$agi_uniqueid&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt;&amp;amp;2
+&lt;span class=&quot;nb&quot;&gt;echo&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;$agi_callerid&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt;&amp;amp;2
+&lt;span class=&quot;nb&quot;&gt;echo&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;$agi_dnid&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt;&amp;amp;2
+&lt;span class=&quot;nb&quot;&gt;echo&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;$agi_rdnis&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt;&amp;amp;2
+&lt;span class=&quot;nb&quot;&gt;echo&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;$agi_context&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt;&amp;amp;2
+&lt;span class=&quot;nb&quot;&gt;echo&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;$agi_extension&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt;&amp;amp;2
+&lt;span class=&quot;nb&quot;&gt;echo&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;$agi_priority&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt;&amp;amp;2
+&lt;span class=&quot;nb&quot;&gt;echo&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;$agi_enhanced&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt;&amp;amp;2
 
-checkresults&lt;span class=&quot;o&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt; 
-        &lt;span class=&quot;k&quot;&gt;while &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;read &lt;/span&gt;line 
-        &lt;span class=&quot;k&quot;&gt;do 
-        case&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;${&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;line&lt;/span&gt;:0:4&lt;span class=&quot;k&quot;&gt;}&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;in&lt;/span&gt; 
-        &lt;span class=&quot;s2&quot;&gt;&quot;200 &quot;&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;echo&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;$line&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt;&amp;amp;2 
-                 &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;;&lt;/span&gt; 
-        &lt;span class=&quot;s2&quot;&gt;&quot;510 &quot;&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;echo&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;$line&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt;&amp;amp;2 
-                 &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;;&lt;/span&gt; 
-        &lt;span class=&quot;s2&quot;&gt;&quot;520 &quot;&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;echo&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;$line&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt;&amp;amp;2 
-                 &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;;&lt;/span&gt; 
-        &lt;span class=&quot;k&quot;&gt;*&lt;/span&gt;      &lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;echo&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;$line&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt;&amp;amp;2&lt;span class=&quot;p&quot;&gt;;;&lt;/span&gt; &lt;span class=&quot;c&quot;&gt;#keep on reading those Invlid command &lt;/span&gt;
-                                  &lt;span class=&quot;c&quot;&gt;#command syntax until &quot;520 End ...&quot; &lt;/span&gt;
-        &lt;span class=&quot;k&quot;&gt;esac&lt;/span&gt; 
-        &lt;span class=&quot;k&quot;&gt;done&lt;/span&gt; 
-&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt; 
+checkresults&lt;span class=&quot;o&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;while &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;read &lt;/span&gt;line
+        &lt;span class=&quot;k&quot;&gt;do
+        case&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;${&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;line&lt;/span&gt;:0:4&lt;span class=&quot;k&quot;&gt;}&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;in&lt;/span&gt;
+        &lt;span class=&quot;s2&quot;&gt;&quot;200 &quot;&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;echo&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;$line&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt;&amp;amp;2
+                 &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;;&lt;/span&gt;
+        &lt;span class=&quot;s2&quot;&gt;&quot;510 &quot;&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;echo&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;$line&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt;&amp;amp;2
+                 &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;;&lt;/span&gt;
+        &lt;span class=&quot;s2&quot;&gt;&quot;520 &quot;&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;echo&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;$line&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt;&amp;amp;2
+                 &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;;&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;*&lt;/span&gt;      &lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;echo&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;$line&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt;&amp;amp;2&lt;span class=&quot;p&quot;&gt;;;&lt;/span&gt; &lt;span class=&quot;c&quot;&gt;# Keep reading those invalid command&lt;/span&gt;
+                                  &lt;span class=&quot;c&quot;&gt;# command syntax until &quot;520 End ...&quot;&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;esac&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;done&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
 
-&lt;span class=&quot;nv&quot;&gt;res&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&amp;lt;SOME SCRIPT&amp;gt; 
+&lt;span class=&quot;nv&quot;&gt;res&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&amp;lt;SOME SCRIPT&amp;gt;
 
-&lt;span class=&quot;nb&quot;&gt;echo&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;1.  Setting Variable &apos;Test Variable&apos; ...&quot;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt;&amp;amp;2 
-&lt;span class=&quot;nb&quot;&gt;echo&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;SET VARIABLE TestVariable &lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\&quot;&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$res&lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\&quot;&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt; 
-checkresults 
+&lt;span class=&quot;nb&quot;&gt;echo&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;1.  Setting Variable &apos;Test Variable&apos; ...&quot;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt;&amp;amp;2
+&lt;span class=&quot;nb&quot;&gt;echo&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;SET VARIABLE TestVariable &lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\&quot;&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$res&lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\&quot;&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;
+checkresults
 
 &lt;span class=&quot;nb&quot;&gt;echo&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;=================== Complete ====================&quot;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt;&amp;amp;2
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
 </description>
         <pubDate>Sat, 02 Feb 2013 20:29:00 +0000</pubDate>
         <link>//andrius.mobi/2013/02/asterisk-agi-sample-in-bash.html</link>

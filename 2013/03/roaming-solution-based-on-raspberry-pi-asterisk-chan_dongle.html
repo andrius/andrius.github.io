@@ -20,7 +20,7 @@
     <link rel="alternate" type="application/rss+xml" title="RSS Feed for Andrius Kairiukstis's Blog" href="/feed.xml" />
 
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="/css/pixyll.css?202401052053" type="text/css">
+    <link rel="stylesheet" href="/css/pixyll.css?202505141835" type="text/css">
 
     <!-- Fonts -->
     
@@ -156,31 +156,32 @@
 </div>
 
 <article class="post-content">
-  <p>As a frequent traveler, I understand the telecommunications needs of other travelers and citizens of the world. Recently, I decided to dedicate my free time to building a Roaming PBX solution.</p>
+  <p>As a frequent traveler, I recognize the telecommunication needs of fellow travelers and global citizens. Consequently, I have decided to dedicate my free time to developing a Roaming PBX solution.</p>
 
-<p>Here’s my plan:</p>
+<p>My plan includes the following:</p>
 
 <ul>
-  <li>Create a Raspberry Pi image, possibly with an OpenWRT solution.</li>
+  <li>Create a Raspberry Pi image, potentially incorporating an OpenWRT solution.</li>
   <li>Set up Asterisk PBX.</li>
-  <li>Install asterisk chan_dongle, a driver for Huawei USB modems that handles two-way GSM calls.</li>
-  <li>Use a VPN to bypass VoIP blocking in certain locations.</li>
-  <li>Utilize the FreePBX GUI to manage dial plans.</li>
-  <li>Configure Asterisk2billing to control expenses.</li>
-  <li>Implement keep-alive scripts for monitoring.</li>
+  <li>Install <code class="language-plaintext highlighter-rouge">chan_dongle</code>, an Asterisk driver for Huawei USB modems, to handle two-way GSM calls.</li>
+  <li>Implement VPN functionality to bypass VoIP blocking in certain locations.</li>
+  <li>Utilize the FreePBX GUI for managing dial plans.</li>
+  <li>Configure Asterisk2billing for expense tracking.</li>
+  <li>Develop keep-alive scripts for system monitoring.</li>
 </ul>
 
-<p>Anything else?</p>
+<p>Are there any other features to consider?</p>
 
-<h3 id="update-19-march-2013">Update (19 March, 2013)</h3>
+<h3 id="update-march-19-2013">Update (March 19, 2013)</h3>
 
-<p>I have successfully created an image file based on the standard Raspbian. Currently, I am busy working on a cross-compiler.</p>
+<p>I have successfully created an image file based on standard Raspbian. Currently, I am working on a cross-compiler.</p>
 
-<h3 id="update-2-6-may-2013">Update #2 (6 May, 2013)</h3>
+<h3 id="update-2-may-6-2013">Update #2 (May 6, 2013)</h3>
 
-<p>For those interested, you can download the latest image from this link: http://j.mp/tinypbx. Follow standard flashing instructions: gunzip the .gz file, insert the SD card, and flash it using the Linux DD command. You can find detailed instructions on how to flash the image on this site: <a href="http://www.andrewmunsell.com/blog/getting-started-raspberry-pi-install-raspbian/">http://www.andrewmunsell.com/blog/getting-started-raspberry-pi-install-raspbian/</a>, that provides a comprehensive description of the flashing procedure.</p>
+<p>For those interested, the latest image can be downloaded from: <a href="http://j.mp/tinypbx">http://j.mp/tinypbx</a>.
+Standard flashing instructions apply: decompress the <code class="language-plaintext highlighter-rouge">.gz</code> file, insert the SD card, and use the Linux <code class="language-plaintext highlighter-rouge">dd</code> command to flash the image. Detailed instructions for flashing can be found at resources like <a href="http://www.andrewmunsell.com/blog/getting-started-raspberry-pi-install-raspbian/">this guide on installing Raspbian</a>.</p>
 
-<p>Additionally, I have created a side project that allows you to cross-compile anything and build your own image. You can find it at: <a href="https://github.com/andrius/build-raspbian-image">https://github.com/andrius/build-raspbian-image</a></p>
+<p>Additionally, I have initiated a side project for cross-compiling and building custom images, available at: <a href="https://github.com/andrius/build-raspbian-image">https://github.com/andrius/build-raspbian-image</a>.</p>
 
 </article>
 

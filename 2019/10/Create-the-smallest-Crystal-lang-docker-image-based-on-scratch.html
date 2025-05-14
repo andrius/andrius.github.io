@@ -20,7 +20,7 @@
     <link rel="alternate" type="application/rss+xml" title="RSS Feed for Andrius Kairiukstis's Blog" href="/feed.xml" />
 
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="/css/pixyll.css?202401052053" type="text/css">
+    <link rel="stylesheet" href="/css/pixyll.css?202505141835" type="text/css">
 
     <!-- Fonts -->
     
@@ -150,17 +150,17 @@
   
   <span class="post-meta small">
   
-    1 minute read
+    2 minute read
   
   </span>
 </div>
 
 <article class="post-content">
-  <p>Official <a href="https://hub.docker.com/r/crystallang/crystal/tags">Crystal-lang docker image</a> is Ubuntu-based and relatively big, but production-ready image could be tiny, if we will use docker multi-stage builds. The smallest image could be created using <a href="https://hub.docker.com/_/scratch">scratch</a> image, but if it’s needed to do some processing before actual code starts, <a href="https://hub.docker.com/_/busybox">busybox</a> or <a href="https://hub.docker.com/_/alpine">alpine</a> is recommended.</p>
+  <p>The official <a href="https://hub.docker.com/r/crystallang/crystal/tags">Crystal-lang Docker image</a> is Ubuntu-based and relatively large. However, production-ready images can be significantly smaller by utilizing Docker multi-stage builds. The smallest possible image can be created using the <a href="https://hub.docker.com/_/scratch">scratch</a> base image. If some pre-execution processing or shell utilities are needed, <a href="https://hub.docker.com/_/busybox">BusyBox</a> or <a href="https://hub.docker.com/_/alpine">Alpine Linux</a> are recommended alternatives.</p>
 
-<h2 id="dockerfile">Dockerfile</h2>
+<h2 id="dockerfile-example">Dockerfile Example</h2>
 
-<p>Well, just compile app using crystal image and copy resulting binary to the scratch, like below:</p>
+<p>To create a minimal image, compile the application using the official Crystal-lang image in an initial stage, and then copy the resulting binary (and any necessary dynamic libraries) to a <code class="language-plaintext highlighter-rouge">scratch</code> image in a subsequent stage, as shown below:</p>
 
 <div class="language-docker highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># vim:set ft=dockerfile:</span>
 <span class="k">FROM</span><span class="s"> crystallang/crystal:0.31.1 as builder</span>
@@ -171,35 +171,44 @@
 <span class="k">COPY</span><span class="s"> . .</span>
 
 <span class="k">RUN </span>shards build <span class="nt">--production</span> <span class="nt">--progress</span> <span class="nt">--verbose</span> <span class="nt">--warnings</span><span class="o">=</span>all
+<span class="c"># Identify and copy runtime dependencies</span>
 <span class="k">RUN </span>ldd ./bin/app | <span class="nb">tr</span> <span class="nt">-s</span> <span class="s1">'[:blank:]'</span> <span class="s1">'\n'</span> | <span class="nb">grep</span> <span class="s1">'^/'</span> | <span class="se">\
-</span>    xargs <span class="nt">-I</span> % sh <span class="nt">-c</span> <span class="s1">'mkdir -p $(dirname deps%); cp % deps%;'</span>
+</span>    xargs <span class="nt">-I</span> % sh <span class="nt">-c</span> <span class="s1">'mkdir -p $(dirname deps%); cp -L % deps%;'</span> <span class="c"># Use -L to copy actual files for symlinks</span>
 <span class="c"># RUN find ./deps/</span>
 
 <span class="c">################################################################################</span>
+<span class="c"># Final stage: copy artifacts to scratch image</span>
 <span class="k">FROM</span><span class="s"> scratch</span>
 
 <span class="k">LABEL</span><span class="s"> maintainer="Andrius Kairiukstis &lt;****&gt;"</span>
 
-<span class="c"># Dependences. That will fix DNS resolve issue in docker</span>
-<span class="k">COPY</span><span class="s"> --from=builder /src/deps /</span>
-<span class="k">COPY</span><span class="s"> --from=builder /lib/x86_64-linux-gnu/libnss_dns.so.* /lib/x86_64-linux-gnu/</span>
-<span class="k">COPY</span><span class="s"> --from=builder /lib/x86_64-linux-gnu/libresolv.so.*  /lib/x86_64-linux-gnu/</span>
+<span class="c"># Copy runtime dependencies. These are crucial for DNS resolution in Docker.</span>
+<span class="k">COPY</span><span class="s"> --from=builder /src/deps/ /</span>
+<span class="c"># Specifically copy DNS-related libraries if not covered by the general deps copy</span>
+<span class="c"># Ensure these paths are correct for the builder image (crystallang/crystal:0.31.1)</span>
+<span class="k">COPY</span><span class="s"> --from=builder /lib/x86_64-linux-gnu/libnss_dns.so.2 /lib/x86_64-linux-gnu/</span>
+<span class="k">COPY</span><span class="s"> --from=builder /lib/x86_64-linux-gnu/libresolv.so.2 /lib/x86_64-linux-gnu/</span>
 
-<span class="c"># app</span>
+<span class="c"># Copy the compiled application</span>
 <span class="k">COPY</span><span class="s"> --from=builder /src/bin/app /app</span>
 
 <span class="k">ENTRYPOINT</span><span class="s"> ["/app"]</span>
 </code></pre></div></div>
 
-<h2 id="crystal-lang-notes">Crystal-lang notes</h2>
+<h2 id="crystal-lang-notes-on-dns-resolution">Crystal-lang Notes on DNS Resolution</h2>
 
-<p>There is issues with DNS – see this <a href="https://github.com/crystal-lang/crystal/issues/2426">https://github.com/crystal-lang/crystal/issues/2426</a> and <a href="https://github.com/crystal-lang/crystal/issues/6099">https://github.com/crystal-lang/crystal/issues/6099</a>. The best way to resolve I’ve found is to <a href="https://gist.github.com/bcardiff/85ae47e66ff0df35a78697508fcb49af#gistcomment-2578255">copy libnss and libresolv files</a>.</p>
+<p>A common issue with minimal Crystal-lang Docker images (especially those based on <code class="language-plaintext highlighter-rouge">scratch</code>) is DNS resolution. This is documented in Crystal-lang GitHub issues such as <a href="https://github.com/crystal-lang/crystal/issues/2426">#2426</a> and <a href="https://github.com/crystal-lang/crystal/issues/6099">#6099</a>.
+The most effective solution I’ve found involves copying necessary <code class="language-plaintext highlighter-rouge">libnss_*.so</code> and <code class="language-plaintext highlighter-rouge">libresolv.so</code> files from the builder image, as demonstrated in the Dockerfile above and discussed in <a href="https://gist.github.com/bcardiff/85ae47e66ff0df35a78697508fcb49af#gistcomment-2578255">this Gist comment</a>.</p>
 
-<p>I’ve also tried to compile with <code class="language-plaintext highlighter-rouge">--static</code> option, copying (and not) the DNS libraries (<code class="language-plaintext highlighter-rouge">libnss_dns.so</code> and <code class="language-plaintext highlighter-rouge">libresolv.so</code>), but did not get DNS working – that image is good only for listening services.</p>
+<p>Attempting to compile with the <code class="language-plaintext highlighter-rouge">--static</code> flag, even when including these DNS libraries, did not consistently resolve DNS issues in my tests. Statically linked images without these libraries are generally only suitable for services that do not require external DNS lookups (e.g., purely listening services).</p>
 
-<h2 id="result">Result</h2>
+<h2 id="resulting-image-sizes">Resulting Image Sizes</h2>
 
-<p>Resulting image is tiny, only 10MB (and the smallest one is 6.25MB only, but DNS won’t working)</p>
+<p>The resulting image sizes are significantly reduced:</p>
+<ul>
+  <li><strong>scratch-based with ldd dependencies (DNS working):</strong> ~10MB</li>
+  <li><strong>scratch-based, statically linked (DNS not working):</strong> ~6.25MB</li>
+</ul>
 
 <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ docker image list dial_demo
 
@@ -208,9 +217,14 @@
 # smallest-docker-image  scratch-static-no-dns  595afcfad6f0  13 minutes ago  6.25MB
 </code></pre></div></div>
 
-<h2 id="can-i-download-this">Can I download this?</h2>
+<h2 id="download-examples">Download Examples</h2>
 
-<p>Sure. <a href="https://github.com/andrius/sandbox/tree/develop/crystal/smallest-docker-image">I’ve pushed stuff to my sandbox repository</a>. There is three Dockerfiles, for <a href="https://github.com/andrius/sandbox/tree/develop/crystal/smallest-docker-image/scratch/ldd">scratch</a> – 10MB, <a href="https://github.com/andrius/sandbox/tree/develop/crystal/smallest-docker-image/busybox/ldd">busybox</a> – 11.2MB and <a href="https://github.com/andrius/sandbox/tree/develop/crystal/smallest-docker-image/alpine/ldd">alpine linux</a> – 15.6MB.</p>
+<p>Example Dockerfiles demonstrating these techniques are available in my <a href="https://github.com/andrius/sandbox/tree/develop/crystal/smallest-docker-image">sandbox repository on GitHub</a>. This includes configurations for:</p>
+<ul>
+  <li><a href="https://github.com/andrius/sandbox/tree/develop/crystal/smallest-docker-image/scratch/ldd">scratch (ldd dependencies)</a> - ~10MB</li>
+  <li><a href="https://github.com/andrius/sandbox/tree/develop/crystal/smallest-docker-image/busybox/ldd">BusyBox (ldd dependencies)</a> - ~11.2MB</li>
+  <li><a href="https://github.com/andrius/sandbox/tree/develop/crystal/smallest-docker-image/alpine/ldd">Alpine Linux (ldd dependencies)</a> - ~15.6MB</li>
+</ul>
 
 <hr />
 

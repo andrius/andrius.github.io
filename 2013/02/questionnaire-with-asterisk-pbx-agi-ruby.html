@@ -20,7 +20,7 @@
     <link rel="alternate" type="application/rss+xml" title="RSS Feed for Andrius Kairiukstis's Blog" href="/feed.xml" />
 
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="/css/pixyll.css?202401052053" type="text/css">
+    <link rel="stylesheet" href="/css/pixyll.css?202505141835" type="text/css">
 
     <!-- Fonts -->
     
@@ -156,29 +156,31 @@
 </div>
 
 <article class="post-content">
-  <p>There are several Ruby AGI implementations available, with the best one being <a href="https://github.com/adhearsion/adhearsion">Adhearsion</a> at the moment. I frequently use it for my current projects. While it is a great tool, it can sometimes be too large and restrict flexibility to some extent.</p>
+  <p>Several AGI implementations are available for Ruby, with <a href="https://github.com/adhearsion/adhearsion">Adhearsion</a> currently being a prominent one. I frequently use Adhearsion for my projects. While it is a powerful tool, its size can sometimes limit flexibility.</p>
 
-<p>Before using Adhearsion, I used another implementation called <a href="https://github.com/andrius/AsteriskRuby">AsteriskRuby</a>. It provides AGI and FastAGI connections with Asterisk, and when combined with <a href="https://github.com/andrius/rastman">Rastman</a>, it allows access to the Asterisk Manager Interface (AMI). This combination serves as a versatile Swiss army knife. I love both implementations for their simplicity. They make it easy to execute Asterisk commands, receive AMI events, and troubleshoot issues, even for non-Ruby users. The performance is excellent, with no memory leaks, and the libraries are simple and flexible.</p>
+<p>Prior to Adhearsion, I utilized <a href="https://github.com/andrius/AsteriskRuby">AsteriskRuby</a>. This library provides AGI and FastAGI connectivity with Asterisk. When combined with <a href="https://github.com/andrius/rastman">Rastman</a>, it also allows access to the Asterisk Manager Interface (AMI). This combination offers versatile functionality. I appreciate both implementations for their simplicity, which facilitates executing Asterisk commands, receiving AMI events, and troubleshooting, even for those not deeply familiar with Ruby. They offer excellent performance, are free of memory leaks, and provide simple, flexible libraries.</p>
 
-<p>Back to the topic, the Questionnaire application. It has been in production for a while, initially developed for a small project, and now I have decided to share it with the VoIP community. The application is based on the AsteriskRuby gem.</p>
+<p>Returning to the main topic: the Questionnaire application. This application, based on the AsteriskRuby gem, has been in production for some time. It was initially developed for a small project, and I have now decided to share it with the VoIP community.</p>
 
-<p>The code was developed using Asterisk 1.6.x/1.8.x and Ruby 1.8.x.</p>
+<p>The code was developed for Asterisk 1.6.x/1.8.x and Ruby 1.8.x.</p>
 
-<p>To get it working, follow these steps:</p>
+<p>To set it up:</p>
+
+<ol>
+  <li>Deploy the code on a local server running Asterisk.</li>
+  <li>Create a file named <code class="language-plaintext highlighter-rouge">codes.txt</code> containing phone numbers and PIN codes.</li>
+  <li>Prepare the necessary voice recordings (filenames and messages can be found in the application’s source code).</li>
+  <li>Update the <code class="language-plaintext highlighter-rouge">extensions.conf</code> file, directing the relevant extension to the FastAGI.</li>
+</ol>
+
+<p>Application workflow:</p>
 
 <ul>
-  <li>Set up the code on a local server with Asterisk.</li>
-  <li>Create a file named <code class="language-plaintext highlighter-rouge">codes.txt</code> containing phone numbers and PIN codes. Additionally, prepare a few voice recordings (you can find the filenames and messages in the application source code).</li>
-  <li>Update the <code class="language-plaintext highlighter-rouge">extensions.conf</code> file and point the extension to the FastAGI.</li>
-</ul>
-
-<p>Here’s how the application works:</p>
-
-<ul>
-  <li>For new callers, the system will play a welcome announcement. For returning callers, it will play a “welcome back” announcement (caller authentication is based on the caller ID number and PIN).</li>
-  <li>The application will prompt the caller to enter a PIN code.</li>
-  <li>Upon successful authentication, the system will continue from the last unanswered question (or start with the first question for new callers).</li>
-  <li>There is no limit to the number of attempts, and the answers and the number of calls are stored in the database.</li>
+  <li><strong>New callers:</strong> The system plays a welcome announcement.</li>
+  <li><strong>Returning callers:</strong> A “welcome back” announcement is played (authentication is based on caller ID and PIN).</li>
+  <li>The application prompts the caller to enter a PIN code.</li>
+  <li>Upon successful authentication, the system resumes from the last unanswered question (or starts with the first question for new callers).</li>
+  <li>There is no limit on the number of attempts. Answers and call records are stored in the database.</li>
 </ul>
 
 <p>Below is the source code for the FastAGI implementation in Ruby:</p>

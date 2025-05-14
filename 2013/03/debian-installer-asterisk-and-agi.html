@@ -20,7 +20,7 @@
     <link rel="alternate" type="application/rss+xml" title="RSS Feed for Andrius Kairiukstis's Blog" href="/feed.xml" />
 
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="/css/pixyll.css?202401052053" type="text/css">
+    <link rel="stylesheet" href="/css/pixyll.css?202505141835" type="text/css">
 
     <!-- Fonts -->
     
@@ -156,27 +156,28 @@
 </div>
 
 <article class="post-content">
-  <p>Here is a script that installs Asterisk PBX 11.x: with fax support, MySQL, Ruby, and Adhearsion AGI. Please run it as root. If you don’t need ImageMagick, you can remove the part that downloads and installs it.</p>
+  <p>This script installs Asterisk PBX 11.x, including support for fax, MySQL, Ruby, and the Adhearsion AGI framework. Please run this script as root. If ImageMagick is not required, the section that downloads and installs it can be removed.</p>
 
 <div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">#!/bin/bash</span>
 
-<span class="c"># function to generate random password, on input requires an argument - lenght of password </span>
+<span class="c"># Function to generate a random password.</span>
+<span class="c"># Input: $1 (optional) - desired password length (default: 20).</span>
 genpasswd<span class="o">()</span> <span class="o">{</span>
   <span class="nb">local </span><span class="nv">l</span><span class="o">=</span><span class="nv">$1</span>
   <span class="o">[</span> <span class="s2">"</span><span class="nv">$l</span><span class="s2">"</span> <span class="o">==</span> <span class="s2">""</span> <span class="o">]</span> <span class="o">&amp;&amp;</span> <span class="nv">l</span><span class="o">=</span>20
   <span class="nb">tr</span> <span class="nt">-dc</span> A-Za-z0-9_ &lt; /dev/urandom | <span class="nb">head</span> <span class="nt">-c</span> <span class="k">${</span><span class="nv">l</span><span class="k">}</span> | xargs
 <span class="o">}</span>
 
-<span class="c"># MySQL default root password</span>
+<span class="c"># MySQL default root password. This can be replaced with a static password string.</span>
 <span class="nv">MYSQL_ROOT_PASSWORD</span><span class="o">=</span><span class="sb">`</span>genpasswd 16<span class="sb">`</span> <span class="c"># can be replaced by static text password</span>
 
-<span class="c"># Remove MySQL with following commands (copy-paste to shell)</span>
+<span class="c"># To remove MySQL completely, execute the following commands (copy-paste to shell):</span>
 <span class="c"># M=`dpkg -l|grep mysql|awk '{print $2}'|xargs`;apt-get -y purge ${M};rm -rf /etc/mysql;rm -rf /var/lib/mysql</span>
 
 <span class="nv">MYSQL_SERVER_VERSION</span><span class="o">=</span><span class="sb">`</span>apt-cache showpkg mysql-server|grep <span class="s2">"Versions:"</span> <span class="nt">-A</span> 1|tail <span class="nt">--lines</span> 1|awk <span class="s1">'{print $1}'</span><span class="sb">`</span>
 <span class="c"># tell installer about pre-set MySQL server password</span>
 <span class="nb">echo</span> <span class="s2">"mysql-server-</span><span class="k">${</span><span class="nv">MYSQL_SERVER_VERSION</span><span class="k">}</span><span class="s2"> mysql-server/root_password password </span><span class="k">${</span><span class="nv">MYSQL_ROOT_PASSWORD</span><span class="k">}</span><span class="s2">"</span> <span class="se">\</span>
-  | debconf-set-selections 
+  | debconf-set-selections
 <span class="nb">echo</span> <span class="s2">"mysql-server-</span><span class="k">${</span><span class="nv">MYSQL_SERVER_VERSION</span><span class="k">}</span><span class="s2"> mysql-server/root_password_again password </span><span class="k">${</span><span class="nv">MYSQL_ROOT_PASSWORD</span><span class="k">}</span><span class="s2">"</span> <span class="se">\</span>
   | debconf-set-selections
 
@@ -207,7 +208,7 @@ wget <span class="nt">--continue</span> http://downloads.asterisk.org/pub/teleph
 <span class="nb">tar</span> <span class="nt">-zxf</span> ImageMagick-6.8.3-9.tar.gz
 <span class="nb">tar</span> <span class="nt">-zxf</span> asterisk-11.2.1.tar.gz
 
-<span class="c"># dowlnoad asterisk add-ons</span>
+<span class="c"># download asterisk add-ons</span>
 <span class="nb">cd </span>asterisk-11.2.1
 ./contrib/scripts/get_ilbc_source.sh
 ./contrib/scripts/get_mp3_source.sh
@@ -235,7 +236,7 @@ curl <span class="nt">-L</span> get.rvm.io | bash <span class="nt">-s</span> sta
 <span class="c"># to remove rvm do:</span>
 <span class="c"># rvm implode</span>
 <span class="nb">source</span> /etc/profile.d/rvm.sh
-ldconfig 
+ldconfig
 rvm <span class="nb">install </span>1.9.3
 gem <span class="nb">install</span> <span class="nt">--no-rdoc</span> <span class="nt">--no-ri</span> bundler sqlite3 mysql <span class="se">\</span>
   adhearsion adhearsion-activerecord adhearsion-asterisk adhearsion-drb adhearsion-rails adhearsion-xmpp

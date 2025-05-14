@@ -20,7 +20,7 @@
     <link rel="alternate" type="application/rss+xml" title="RSS Feed for Andrius Kairiukstis's Blog" href="/feed.xml" />
 
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="/css/pixyll.css?202401052053" type="text/css">
+    <link rel="stylesheet" href="/css/pixyll.css?202505141835" type="text/css">
 
     <!-- Fonts -->
     
@@ -156,45 +156,39 @@
 </div>
 
 <article class="post-content">
-  <p>I wanted to create image builder for cross-compile environment, so say hello to it: <a href="//github.com/andrius/build-raspbian-image">https://github.com/andrius/build-raspbian-image</a>.</p>
+  <p>To facilitate a cross-compile environment for Raspberry Pi images, I created an image builder project: <a href="https://github.com/andrius/build-raspbian-image">build-raspbian-image on GitHub</a>.</p>
 
-<p>It’s based on <a href="https://blog.kmp.or.at/build-your-own-raspberry-pi-image/">blog post and code by Klaus Maria Pfeiffer</a>.</p>
+<p>This project is based on a <a href="https://blog.kmp.or.at/build-your-own-raspberry-pi-image/">blog post and code by Klaus Maria Pfeiffer</a>.</p>
 
-<p>The code works perfectly on Debian (tested with CrunchBangLinux) and Ubuntu.</p>
+<p>The code functions correctly on Debian (tested with CrunchBangLinux) and Ubuntu.</p>
 
 <p>Instructions:</p>
 
-<ul>
-  <li>
-    <p>git clone :)</p>
-  </li>
-  <li>
-    <p>Check content and install packages or execute <code class="language-plaintext highlighter-rouge">./install.sh</code> script;</p>
-  </li>
-  <li>
-    <p>execute <code class="language-plaintext highlighter-rouge">./raspbian/build_raspbian_sd_card.sh</code>, and soon you’ll get your IMG fine in the /tmp/rpi folder.</p>
-  </li>
-</ul>
+<ol>
+  <li>Clone the repository: <code class="language-plaintext highlighter-rouge">git clone https://github.com/andrius/build-raspbian-image.git</code></li>
+  <li>Navigate into the cloned directory. Review the content and install necessary packages, or execute the <code class="language-plaintext highlighter-rouge">./install.sh</code> script.</li>
+  <li>Run <code class="language-plaintext highlighter-rouge">./raspbian/build_raspbian_sd_card.sh</code>. The resulting <code class="language-plaintext highlighter-rouge">.img</code> file will be located in the <code class="language-plaintext highlighter-rouge">/tmp/rpi</code> folder.</li>
+</ol>
 
-<p>Main issue right now is cross-compilation environment. Unfortunately, I don’t have much time to automate process, so in a middle of cross-compilation, user have do it manually:</p>
-
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">echo</span> <span class="s2">"execute all necessary commands, then type exit"</span>
-<span class="nb">echo</span> <span class="s2">"asterisk install files located at /usr/src/asterisk"</span>
+<p>The main challenge currently lies with the cross-compilation environment. Due to time constraints, the process is not fully automated. During cross-compilation, manual intervention is required:</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">echo</span> <span class="s2">"Execute all necessary commands, then type exit"</span>
+<span class="nb">echo</span> <span class="s2">"Asterisk install files are located at /usr/src/asterisk"</span>
 bash
 </code></pre></div></div>
+
 <h2 id="update">Update</h2>
-<p>Github repository updated, now installation script mount delivery folder to target RPI image and execute <code class="language-plaintext highlighter-rouge">install.sh</code> script located in mounted folder. Now you could create your own build script or just type in <code class="language-plaintext highlighter-rouge">bash</code> in order to access command-line prompt during RPI image creation.</p>
+<p>The GitHub repository has been updated. The installation script now mounts a <code class="language-plaintext highlighter-rouge">delivery</code> folder to the target RPI image and executes an <code class="language-plaintext highlighter-rouge">install.sh</code> script located within that mounted folder. This allows for custom build scripts or manual command-line access via <code class="language-plaintext highlighter-rouge">bash</code> during RPI image creation.</p>
 
-<p>Below is image with Ruby 2.0 and Asterisk PBX:</p>
+<p>An example image created with this process, featuring Ruby 2.0 and Asterisk PBX, is available.</p>
 
-<p>Download link, containing latest TinyPBX image: <a href="//j.mp/tinypbx">j.mp/tinypbx</a>.</p>
+<p>Download link for the latest TinyPBX image: <a href="http://j.mp/tinypbx">j.mp/tinypbx</a>.</p>
 
-<p>Flashing instructions are standard for RPI (<a href="//www.andrewmunsell.com/blog/getting-started-raspberry-pi-install-raspbian/">This site describing flashing procedure pretty well</a>)</p>
+<p>Standard Raspberry Pi flashing instructions apply (a good guide can be found at <a href="http://www.andrewmunsell.com/blog/getting-started-raspberry-pi-install-raspbian/">this site describing the flashing procedure</a>):</p>
 
 <ul>
-  <li>gunzip .gz file</li>
-  <li>insert SD card</li>
-  <li>flash with Linux DD command…</li>
+  <li>Decompress the <code class="language-plaintext highlighter-rouge">.gz</code> file.</li>
+  <li>Insert the SD card.</li>
+  <li>Flash the image using the Linux <code class="language-plaintext highlighter-rouge">dd</code> command.</li>
 </ul>
 
 </article>

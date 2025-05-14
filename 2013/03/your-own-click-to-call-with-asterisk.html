@@ -20,7 +20,7 @@
     <link rel="alternate" type="application/rss+xml" title="RSS Feed for Andrius Kairiukstis's Blog" href="/feed.xml" />
 
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="/css/pixyll.css?202401052053" type="text/css">
+    <link rel="stylesheet" href="/css/pixyll.css?202505141835" type="text/css">
 
     <!-- Fonts -->
     
@@ -156,15 +156,17 @@
 </div>
 
 <article class="post-content">
-  <p>Sharing one of my older projects with Asterisk: a click-to-call library with client and server components. It does work with Windows: Windows users could activate the <code class="language-plaintext highlighter-rouge">callto.rb</code> script, which could then be integrated with their CRM application. Once the script was started, the user’s SIP phone would ring. You can find the project here: https://github.com/andrius/asterisk-click-to-call-windows.</p>
+  <p>This post shares an older project I developed for Asterisk: a click-to-call library featuring client and server components, which is compatible with Windows. Windows users can activate the <code class="language-plaintext highlighter-rouge">callto.rb</code> script, potentially integrating it with their CRM applications. Upon script execution, the user’s SIP phone would ring. The project is available at: https://github.com/andrius/asterisk-click-to-call-windows.</p>
+
+<p>Key points:</p>
 
 <ul>
-  <li>The client app, <code class="language-plaintext highlighter-rouge">callto.rb</code>, needs to be compiled into a Windows .exe file. Alternatively, it can be executed from the command line if Ruby is installed on Windows. For example, <a href="http://www.erikveen.dds.nl/rubyscript2exe">rubyscript2exe</a> can compile the Ruby script into an executable;</li>
-  <li>Credentials should be populated within the <code class="language-plaintext highlighter-rouge">users.yml</code> file;</li>
-  <li>The <code class="language-plaintext highlighter-rouge">server.rb</code> script should be running on Asterisk.</li>
+  <li>The client application, <code class="language-plaintext highlighter-rouge">callto.rb</code>, can be compiled into a Windows executable (e.g., using <a href="http://www.erikveen.dds.nl/rubyscript2exe">rubyscript2exe</a>) or run from the command line if Ruby is installed on the Windows system.</li>
+  <li>Credentials need to be configured in the <code class="language-plaintext highlighter-rouge">users.yml</code> file.</li>
+  <li>The <code class="language-plaintext highlighter-rouge">server.rb</code> script must be running on the Asterisk server.</li>
 </ul>
 
-<p>The system is very simple, and I apologize for the lack of comments!</p>
+<p>The system is quite straightforward, though I apologize for the minimal commenting in the original code.</p>
 
 </article>
 

@@ -20,7 +20,7 @@
     <link rel="alternate" type="application/rss+xml" title="RSS Feed for Andrius Kairiukstis's Blog" href="/feed.xml" />
 
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="/css/pixyll.css?202401052053" type="text/css">
+    <link rel="stylesheet" href="/css/pixyll.css?202505141835" type="text/css">
 
     <!-- Fonts -->
     
@@ -156,15 +156,15 @@
 </div>
 
 <article class="post-content">
-  <p>Disk space is running out quickly in loaded telephony systems with instant call recording or heavy usage of voicemail. It’s good to purge them on a regular basis.</p>
+  <p>In telephony systems with high call volumes, enabling instant call recording or experiencing heavy voicemail usage can lead to rapid disk space consumption. Regularly purging old recordings is advisable.</p>
 
-<p>Create an executable bash file and put it in the <code class="language-plaintext highlighter-rouge">cron.daily</code> directory:</p>
+<p>Create an executable bash file and place it in the <code class="language-plaintext highlighter-rouge">cron.daily</code> directory:</p>
 
 <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">#!/bin/sh</span>
 <span class="nb">cd</span> /var/spool/asterisk/monitor
 
-<span class="c"># replace rm -f if you want to do other file </span>
-<span class="c"># manipulations, i.e. backup first...</span>
+<span class="c"># Find and delete files older than 31 days.</span>
+<span class="c"># Modify 'rm -f' for other operations, e.g., backup before deletion.</span>
 find <span class="nb">.</span> <span class="nt">-mtime</span> +31 <span class="nt">-exec</span> <span class="nb">rm</span> <span class="nt">-f</span> <span class="o">{}</span> <span class="se">\;</span>
 </code></pre></div></div>
 

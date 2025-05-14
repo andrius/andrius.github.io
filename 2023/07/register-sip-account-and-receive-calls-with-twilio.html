@@ -20,7 +20,7 @@
     <link rel="alternate" type="application/rss+xml" title="RSS Feed for Andrius Kairiukstis's Blog" href="/feed.xml" />
 
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="/css/pixyll.css?202401052053" type="text/css">
+    <link rel="stylesheet" href="/css/pixyll.css?202505141835" type="text/css">
 
     <!-- Fonts -->
     
@@ -150,26 +150,27 @@
   
   <span class="post-meta small">
   
-    2 minute read
+    3 minute read
   
   </span>
 </div>
 
 <article class="post-content">
-  <p>I live in three different countries and have friends, family members, and colleagues in each of them. As a result, I need to maintain phone numbers in each country for 2FA, e-signatures, and making and receiving calls. Although I do not use all three SIM cards at the same time, it is still important to receive phone calls.</p>
+  <p>Living across three different countries necessitates maintaining local phone numbers in each for various purposes, including 2FA, e-signatures, and general communication. While I don’t use all SIM cards simultaneously, receiving calls on these numbers remains important.</p>
 
-<p>Years ago, I used to run Asterisk PBX on VPS, but I nuked it a while ago as I did not want to maintain one extra piece of software. The national phone numbers (DID’s) were purchased from various providers, and some time ago, I switched to Twilio.</p>
+<p>Previously, I managed this with a self-hosted Asterisk PBX on a VPS. However, to reduce maintenance overhead, I decommissioned it and transitioned to Twilio for managing my Direct Inward Dialing (DID) numbers, which were originally sourced from various providers.</p>
 
-<p>Twilio offers multiple options to maintain calls, one of which is TwiML. Let’s dive into it!</p>
+<p>Twilio provides several methods for call handling, with TwiML (Twilio Markup Language) being a flexible option. This post details how to use TwiML to register a SIP softphone and receive inbound calls.</p>
 
-<p>ISSUES FIRST! At the moment of writing (July 2023), Twilio offers POP’s in the EU (ie1), USA (us1), and Australia (au1). The full support of capabilities is possible with the US pop or I haven’t fount the way to get it working with the European pop. I spent some time attempting to deliver calls to the SIP trunk that is registered in the EU zone with error “32002 Your TwiML tried to Dial a Twilio SIP Domain that can’t be found”. So please be warned, and if you end up getting the EU pop working, please drop me a message.</p>
+<p><strong>Important Note on Regional POPs (Points of Presence):</strong>
+As of July 2023, Twilio offers POPs in the EU (region <code class="language-plaintext highlighter-rouge">ie1</code>), USA (region <code class="language-plaintext highlighter-rouge">us1</code>), and Australia (region <code class="language-plaintext highlighter-rouge">au1</code>). My experience indicates that full feature support, particularly for certain SIP dialing scenarios within TwiML, might be more straightforward or consistently available with the US POP (<code class="language-plaintext highlighter-rouge">us1</code>). I encountered difficulties (specifically error “32002: Your TwiML tried to Dial a Twilio SIP Domain that can’t be found”) when attempting to use TwiML to dial a SIP endpoint registered in the EU zone (<code class="language-plaintext highlighter-rouge">ie1</code>) from a number also configured within the EU. If you have successfully configured such a scenario using an EU POP, please share your insights. For the purposes of this guide, focusing on the <code class="language-plaintext highlighter-rouge">us1</code> region for TwiML Bins and SIP domain configuration is recommended if you encounter similar issues.</p>
 
-<p>Here are the steps you need to follow to set up Twilio:</p>
+<p>Here are the steps to set up Twilio for SIP registration and inbound call handling:</p>
 
 <ol>
-  <li>Go to https://console.twilio.com/us1/develop/voice/manage/cls and create your SIP credentials list. It is a list with a username-password match that you will need in the next step.</li>
-  <li>Create a new SIP domain with a unique name at https://console.twilio.com/us1/develop/voice/manage/sip-domains. Enable SIP registration and select the credentials list you will use with this domain. Configure everything else (encryption, etc.).</li>
-  <li>Create a TwiML bin with the following content at https://console.twilio.com/us1/develop/twiml-bins/twiml-bins:</li>
+  <li><strong>Create a SIP Credentials List:</strong> Navigate to <a href="https://console.twilio.com/us1/develop/voice/manage/cls">SIP Credentials Lists</a> in the Twilio console. Create a new list and add a username and password. This list will be used to authenticate your SIP softphone.</li>
+  <li><strong>Create a SIP Domain:</strong> Go to <a href="https://console.twilio.com/us1/develop/voice/manage/sip-domains">SIP Domains</a>. Create a new SIP domain with a unique name (e.g., <code class="language-plaintext highlighter-rouge">yourusername.sip.twilio.com</code>). Enable SIP registration and associate the credentials list created in the previous step. Configure other settings like encryption as needed. <em>Ensure you are creating this in the desired region (e.g., <code class="language-plaintext highlighter-rouge">us1</code> for broader compatibility, or <code class="language-plaintext highlighter-rouge">ie1</code> if you are specifically targeting the EU and are aware of potential limitations).</em></li>
+  <li><strong>Create a TwiML Bin:</strong> Go to <a href="https://console.twilio.com/us1/develop/twiml-bins/twiml-bins">TwiML Bins</a>. Create a new TwiML Bin with the following content. Replace <code class="language-plaintext highlighter-rouge">USERNAME</code> with the username from your credentials list and <code class="language-plaintext highlighter-rouge">YOURDOMAIN.sip.twilio.com</code> with your actual SIP domain. Adjust the <code class="language-plaintext highlighter-rouge">region</code> parameter in the <code class="language-plaintext highlighter-rouge">&lt;Sip&gt;</code> noun if necessary (e.g., to <code class="language-plaintext highlighter-rouge">us1</code> or <code class="language-plaintext highlighter-rouge">au1</code>).</li>
 </ol>
 
 <div class="language-xml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">&lt;?xml version="1.0" encoding="UTF-8"?&gt;</span>
@@ -177,28 +178,33 @@
   <span class="c">&lt;!-- Say&gt;Hello from Twilio!&lt;/Say --&gt;</span>
 
   <span class="nt">&lt;Dial</span> <span class="na">answerOnBridge=</span><span class="s">"true"</span> <span class="na">sequential=</span><span class="s">"true"</span> <span class="na">ringTone=</span><span class="s">"lt"</span> <span class="na">record=</span><span class="s">"record-from-answer-dual"</span> <span class="na">trim=</span><span class="s">"trim-silence"</span><span class="nt">&gt;</span>
-    <span class="nt">&lt;Sip&gt;</span>USERNAME@YOURDOMAIN.sip.twilio.com;region=ie1<span class="nt">&lt;/Sip&gt;</span>
+    <span class="nt">&lt;Sip&gt;</span>sip:USERNAME@YOURDOMAIN.sip.twilio.com;region=us1<span class="nt">&lt;/Sip&gt;</span> <span class="c">&lt;!-- Example using us1 region --&gt;</span>
   <span class="nt">&lt;/Dial&gt;</span>
 
-  <span class="c">&lt;!-- Simultaneous Dialing --&gt;</span>
-  <span class="nt">&lt;Dial</span> <span class="na">answerOnBridge=</span><span class="s">"true"</span> <span class="na">ringTone=</span><span class="s">"es"</span> <span class="na">record=</span><span class="s">"record-from-answer-dual"</span> <span class="na">trim=</span><span class="s">"trim-silence"</span><span class="nt">&gt;</span>
-    <span class="nt">&lt;Sip&gt;</span>USERNAME@YOURDOMAIN.sip.twilio.com;region=ie1<span class="nt">&lt;/Sip&gt;</span>
-    <span class="nt">&lt;Number&gt;</span>+YOURNUMBER<span class="nt">&lt;/Number&gt;</span>
-  <span class="nt">&lt;/Dial&gt;</span>
+  <span class="c">&lt;!-- Example of Simultaneous Dialing (Optional) --&gt;</span>
+  <span class="c">&lt;!--
+  &lt;Dial answerOnBridge="true" ringTone="es" record="record-from-answer-dual" trim="trim-silence"&gt;
+    &lt;Sip&gt;sip:USERNAME@YOURDOMAIN.sip.twilio.com;region=us1&lt;/Sip&gt;
+    &lt;Number&gt;+YOUR_OTHER_PHONE_NUMBER&lt;/Number&gt;
+  &lt;/Dial&gt;
+  --&gt;</span>
 
-  <span class="nt">&lt;Say&gt;</span>Hello, YOURNAME cannot answer. Please leave a message at the beep.<span class="nt">&lt;/Say&gt;</span>
+  <span class="nt">&lt;Say&gt;</span>Hello, the person you are trying to reach is unavailable. Please leave a message at the beep.<span class="nt">&lt;/Say&gt;</span>
 
   <span class="nt">&lt;Record</span> <span class="na">timeout=</span><span class="s">"30"</span> <span class="na">transcribe=</span><span class="s">"true"</span> <span class="na">playBeep=</span><span class="s">"true"</span><span class="nt">/&gt;</span>
+  <span class="nt">&lt;Hangup/&gt;</span>
 <span class="nt">&lt;/Response&gt;</span>
+</code></pre></div></div>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>*Note: The example above shows sequential dialing to one SIP endpoint. You can modify this for simultaneous dialing or other call flows. Ensure the SIP URI is correctly formatted (`sip:username@domain`).*
 </code></pre></div></div>
 
 <ol>
-  <li>Purchase a DID number at https://console.twilio.com/us1/develop/phone-numbers/manage/incoming and enter the inbound call routing section (A call comes in) to select the TwiML bin.</li>
-  <li>Download a SIP client, such as Groundwire from Acrobits, and register it with Twilio using your username and password from the credentials list and the following registration domain: <a href="http://yourdomain.sip.twilio.com/">YOURDOMAIN.sip.twilio.com</a>.</li>
-  <li>Test inbound calls. If a call does not work, navigate to the logs at https://console.twilio.com/us1/monitor/logs/debugger/errors.</li>
+  <li><strong>Configure Phone Number:</strong> Purchase a DID number from <a href="https://console.twilio.com/us1/develop/phone-numbers/manage/incoming">Twilio Phone Numbers</a>. In the number’s configuration, under “A CALL COMES IN,” select “TwiML Bin” and choose the Bin you created.</li>
+  <li><strong>Configure SIP Client:</strong> Download and configure a SIP client (e.g., Groundwire by Acrobits, Zoiper, Linphone). Use the username and password from your credentials list and your SIP domain (e.g., <code class="language-plaintext highlighter-rouge">YOURDOMAIN.sip.twilio.com</code>) for registration.</li>
+  <li><strong>Test Inbound Calls:</strong> Make a test call to your Twilio DID number. If issues arise, check the <a href="https://console.twilio.com/us1/monitor/logs/debugger">Twilio Debugger logs</a> for errors.</li>
 </ol>
 
-<p>Now that everything is set up, redirect your phone calls to the Twilio DID number by dialing <code class="language-plaintext highlighter-rouge">*21*+YOUR-TWILIO-NUMBER#</code> on your mobile phone.</p>
+<p>Once everything is set up and tested, you can redirect your existing mobile phone numbers to your new Twilio DID number using your mobile carrier’s call forwarding feature (e.g., by dialing <code class="language-plaintext highlighter-rouge">*21*+YOUR_TWILIO_NUMBER#</code> on your mobile phone, though the exact code may vary by carrier).</p>
 
 </article>
 
