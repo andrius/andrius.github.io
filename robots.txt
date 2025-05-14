@@ -1,1 +1,1 @@
-Sitemap: //andrius.mobi/blog/sitemap.xml
+Sitemap: //andrius.mobi/sitemap.xml

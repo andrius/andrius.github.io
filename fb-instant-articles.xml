@@ -172,7 +172,7 @@ As of July 2023, Twilio offers POPs in the EU (region <code class="language-plai
 <p>To create a minimal image, compile the application using the official Crystal-lang image in an initial stage, and then copy the resulting binary (and any necessary dynamic libraries) to a <code class="language-plaintext highlighter-rouge">scratch</code> image in a subsequent stage, as shown below:</p>
 
 <div class="language-docker highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># vim:set ft=dockerfile:</span>
-<span class="k">FROM</span><span class="s"> crystallang/crystal:0.31.1 as builder</span>
+<span class="k">FROM</span><span class="w"> </span><span class="s">crystallang/crystal:0.31.1</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="s">builder</span>
 
 <span class="k">LABEL</span><span class="s"> maintainer="Andrius Kairiukstis &lt;****&gt;"</span>
 
