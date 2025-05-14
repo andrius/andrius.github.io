@@ -3,8 +3,8 @@
   <channel>
     <title>Andrius Kairiukstis&apos;s Blog</title>
     <description>This blog explores the realm of real-time voice applications, covering topics such as Unified Communications, CTI, and call centers. It also discusses open-source VoIP solutions like Asterisk, Freeswitch, and Kamailio, highlighting their features and benefits. Additionally, the blog touches upon automations, integrations, test automation, and the scalability of containerized applications using Docker, along with DevOps practices.</description>
-    <link>//andrius.mobi/</link>
-    <atom:link href="//andrius.mobi/feed.xml" rel="self" type="application/rss+xml" />
+    <link>//andrius.mobi/blog/</link>
+    <atom:link href="//andrius.mobi/blog/feed.xml" rel="self" type="application/rss+xml" />
     
       <item>
         <title>Register SIP account and receive calls with Twilio</title>
@@ -59,8 +59,8 @@ As of July 2023, Twilio offers POPs in the EU (region &lt;code class=&quot;langu
 &lt;p&gt;Once everything is set up and tested, you can redirect your existing mobile phone numbers to your new Twilio DID number using your mobile carrier’s call forwarding feature (e.g., by dialing &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;*21*+YOUR_TWILIO_NUMBER#&lt;/code&gt; on your mobile phone, though the exact code may vary by carrier).&lt;/p&gt;
 </description>
         <pubDate>Sat, 08 Jul 2023 13:35:00 +0000</pubDate>
-        <link>//andrius.mobi/2023/07/register-sip-account-and-receive-calls-with-twilio.html</link>
-        <guid isPermaLink="true">//andrius.mobi/2023/07/register-sip-account-and-receive-calls-with-twilio.html</guid>
+        <link>//andrius.mobi/blog/2023/07/register-sip-account-and-receive-calls-with-twilio.html</link>
+        <guid isPermaLink="true">//andrius.mobi/blog/2023/07/register-sip-account-and-receive-calls-with-twilio.html</guid>
       </item>
     
       <item>
@@ -130,8 +130,8 @@ As of July 2023, Twilio offers POPs in the EU (region &lt;code class=&quot;langu
 &lt;/ul&gt;
 </description>
         <pubDate>Sun, 03 Nov 2019 00:00:00 +0000</pubDate>
-        <link>//andrius.mobi/2019/11/properly-terminate-crystal-lang-service-in-docker.html</link>
-        <guid isPermaLink="true">//andrius.mobi/2019/11/properly-terminate-crystal-lang-service-in-docker.html</guid>
+        <link>//andrius.mobi/blog/2019/11/properly-terminate-crystal-lang-service-in-docker.html</link>
+        <guid isPermaLink="true">//andrius.mobi/blog/2019/11/properly-terminate-crystal-lang-service-in-docker.html</guid>
       </item>
     
       <item>
@@ -209,8 +209,8 @@ The most effective solution I’ve found involves copying necessary &lt;code cla
 &lt;hr /&gt;
 </description>
         <pubDate>Fri, 25 Oct 2019 00:00:00 +0000</pubDate>
-        <link>//andrius.mobi/2019/10/Create-the-smallest-Crystal-lang-docker-image-based-on-scratch.html</link>
-        <guid isPermaLink="true">//andrius.mobi/2019/10/Create-the-smallest-Crystal-lang-docker-image-based-on-scratch.html</guid>
+        <link>//andrius.mobi/blog/2019/10/Create-the-smallest-Crystal-lang-docker-image-based-on-scratch.html</link>
+        <guid isPermaLink="true">//andrius.mobi/blog/2019/10/Create-the-smallest-Crystal-lang-docker-image-based-on-scratch.html</guid>
       </item>
     
       <item>
@@ -236,8 +236,8 @@ The most effective solution I’ve found involves copying necessary &lt;code cla
 &lt;hr /&gt;
 </description>
         <pubDate>Wed, 23 Oct 2019 00:00:00 +0000</pubDate>
-        <link>//andrius.mobi/2019/10/all-in-one-asterisk-with-crystal.html</link>
-        <guid isPermaLink="true">//andrius.mobi/2019/10/all-in-one-asterisk-with-crystal.html</guid>
+        <link>//andrius.mobi/blog/2019/10/all-in-one-asterisk-with-crystal.html</link>
+        <guid isPermaLink="true">//andrius.mobi/blog/2019/10/all-in-one-asterisk-with-crystal.html</guid>
       </item>
     
       <item>
@@ -336,8 +336,8 @@ The most effective solution I’ve found involves copying necessary &lt;code cla
 &lt;/div&gt;
 </description>
         <pubDate>Thu, 27 Dec 2018 00:00:00 +0000</pubDate>
-        <link>//andrius.mobi/2018/12/how-to-install-software-on-firewalled-server.html</link>
-        <guid isPermaLink="true">//andrius.mobi/2018/12/how-to-install-software-on-firewalled-server.html</guid>
+        <link>//andrius.mobi/blog/2018/12/how-to-install-software-on-firewalled-server.html</link>
+        <guid isPermaLink="true">//andrius.mobi/blog/2018/12/how-to-install-software-on-firewalled-server.html</guid>
       </item>
     
       <item>
@@ -407,8 +407,8 @@ eth0:1: &lt;span class=&quot;nv&quot;&gt;flags&lt;/span&gt;&lt;span class=&quot;
 &lt;p&gt;Technically, this is sufficient for many use cases. However, an Asterisk container configured this way does not integrate well into a &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;docker-compose&lt;/code&gt; development environment, as other containers will not be able to “see” it through Docker’s network bridging. I plan to investigate this further. Perhaps passing the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;NET_ADMIN&lt;/code&gt; capability or running the container in privileged mode would allow for the necessary &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;iptables&lt;/code&gt; manipulations to resolve this.&lt;/p&gt;
 </description>
         <pubDate>Tue, 18 Dec 2018 00:00:00 +0000</pubDate>
-        <link>//andrius.mobi/2018/12/digital-ocean-floating-ip-and-voip.html</link>
-        <guid isPermaLink="true">//andrius.mobi/2018/12/digital-ocean-floating-ip-and-voip.html</guid>
+        <link>//andrius.mobi/blog/2018/12/digital-ocean-floating-ip-and-voip.html</link>
+        <guid isPermaLink="true">//andrius.mobi/blog/2018/12/digital-ocean-floating-ip-and-voip.html</guid>
       </item>
     
       <item>
@@ -485,8 +485,8 @@ services:
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 </description>
         <pubDate>Mon, 17 Dec 2018 00:00:00 +0000</pubDate>
-        <link>//andrius.mobi/2018/12/tiny-docker-image-with-ngrok.html</link>
-        <guid isPermaLink="true">//andrius.mobi/2018/12/tiny-docker-image-with-ngrok.html</guid>
+        <link>//andrius.mobi/blog/2018/12/tiny-docker-image-with-ngrok.html</link>
+        <guid isPermaLink="true">//andrius.mobi/blog/2018/12/tiny-docker-image-with-ngrok.html</guid>
       </item>
     
       <item>
@@ -494,8 +494,8 @@ services:
         <description>&lt;p&gt;I have updated the OPUS codec patch, which now supports Asterisk 11.11.0 and 12.2.5. I have tested it with VP8 in pass-through mode, and it functions correctly. You can download the patch &lt;a href=&quot;https://github.com/andrius/asterisk-opus&quot;&gt;here&lt;/a&gt;.&lt;/p&gt;
 </description>
         <pubDate>Fri, 08 Aug 2014 10:07:00 +0000</pubDate>
-        <link>//andrius.mobi/2014/08/asterisk-opus-patch-for-11110.html</link>
-        <guid isPermaLink="true">//andrius.mobi/2014/08/asterisk-opus-patch-for-11110.html</guid>
+        <link>//andrius.mobi/blog/2014/08/asterisk-opus-patch-for-11110.html</link>
+        <guid isPermaLink="true">//andrius.mobi/blog/2014/08/asterisk-opus-patch-for-11110.html</guid>
       </item>
     
       <item>
@@ -511,8 +511,8 @@ services:
 &lt;p&gt;I’m excited about the potential of WebRTC with Asterisk!&lt;/p&gt;
 </description>
         <pubDate>Thu, 11 Jul 2013 11:38:00 +0000</pubDate>
-        <link>//andrius.mobi/2013/07/webrtc-with-asterisk-11.html</link>
-        <guid isPermaLink="true">//andrius.mobi/2013/07/webrtc-with-asterisk-11.html</guid>
+        <link>//andrius.mobi/blog/2013/07/webrtc-with-asterisk-11.html</link>
+        <guid isPermaLink="true">//andrius.mobi/blog/2013/07/webrtc-with-asterisk-11.html</guid>
       </item>
     
       <item>
@@ -538,8 +538,8 @@ services:
 &lt;p&gt;Remember to update passwords after flashing and the first boot!&lt;/p&gt;
 </description>
         <pubDate>Thu, 23 May 2013 23:30:00 +0000</pubDate>
-        <link>//andrius.mobi/2013/05/roaming-pbx-update.html</link>
-        <guid isPermaLink="true">//andrius.mobi/2013/05/roaming-pbx-update.html</guid>
+        <link>//andrius.mobi/blog/2013/05/roaming-pbx-update.html</link>
+        <guid isPermaLink="true">//andrius.mobi/blog/2013/05/roaming-pbx-update.html</guid>
       </item>
     
       <item>
@@ -551,8 +551,8 @@ services:
 &lt;p&gt;The &lt;a href=&quot;https://github.com/andrius/build-raspbian-image&quot;&gt;Git repository containing the script&lt;/a&gt; for creating RPI images has been updated. I plan to write a separate post with a more detailed description of this script. In summary, the installer creates a minimal Raspbian image and, at the end of the process, mounts a “delivery” folder to the target image and executes the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;install.sh&lt;/code&gt; bash script (a sample of which can be found in the Git repository).&lt;/p&gt;
 </description>
         <pubDate>Tue, 07 May 2013 21:32:00 +0000</pubDate>
-        <link>//andrius.mobi/2013/05/roaming-pbx-first-release.html</link>
-        <guid isPermaLink="true">//andrius.mobi/2013/05/roaming-pbx-first-release.html</guid>
+        <link>//andrius.mobi/blog/2013/05/roaming-pbx-first-release.html</link>
+        <guid isPermaLink="true">//andrius.mobi/blog/2013/05/roaming-pbx-first-release.html</guid>
       </item>
     
       <item>
@@ -593,8 +593,8 @@ bash
 &lt;/ul&gt;
 </description>
         <pubDate>Thu, 25 Apr 2013 21:59:00 +0000</pubDate>
-        <link>//andrius.mobi/2013/04/creating-own-image-for-raspberry-pi.html</link>
-        <guid isPermaLink="true">//andrius.mobi/2013/04/creating-own-image-for-raspberry-pi.html</guid>
+        <link>//andrius.mobi/blog/2013/04/creating-own-image-for-raspberry-pi.html</link>
+        <guid isPermaLink="true">//andrius.mobi/blog/2013/04/creating-own-image-for-raspberry-pi.html</guid>
       </item>
     
       <item>
@@ -604,8 +604,8 @@ bash
 &lt;p&gt;Regarding voice quality, I have not noticed any discernible difference between the two protocols.&lt;/p&gt;
 </description>
         <pubDate>Tue, 02 Apr 2013 12:24:00 +0000</pubDate>
-        <link>//andrius.mobi/2013/04/perfect-results-sip-tcp-vs-udp.html</link>
-        <guid isPermaLink="true">//andrius.mobi/2013/04/perfect-results-sip-tcp-vs-udp.html</guid>
+        <link>//andrius.mobi/blog/2013/04/perfect-results-sip-tcp-vs-udp.html</link>
+        <guid isPermaLink="true">//andrius.mobi/blog/2013/04/perfect-results-sip-tcp-vs-udp.html</guid>
       </item>
     
       <item>
@@ -632,8 +632,8 @@ bash
 &lt;p&gt;Sometime ago, I created a repository with helper scripts: &lt;a href=&quot;https://github.com/andrius/build-raspbian-image&quot;&gt;https://github.com/andrius/build-raspbian-image&lt;/a&gt;. Feel free to check it out!&lt;/p&gt;
 </description>
         <pubDate>Fri, 22 Mar 2013 08:24:00 +0000</pubDate>
-        <link>//andrius.mobi/2013/03/raspberry-pi-how-to-create-own-image.html</link>
-        <guid isPermaLink="true">//andrius.mobi/2013/03/raspberry-pi-how-to-create-own-image.html</guid>
+        <link>//andrius.mobi/blog/2013/03/raspberry-pi-how-to-create-own-image.html</link>
+        <guid isPermaLink="true">//andrius.mobi/blog/2013/03/raspberry-pi-how-to-create-own-image.html</guid>
       </item>
     
       <item>
@@ -665,8 +665,8 @@ dtx=false        ; Encode using discontinuous transmission mode or not. Turning 
 &lt;p&gt;AMR-NB performs significantly better. I plan to describe the installation steps in a separate post. The quality is amazing, and the bandwidth consumption is very low. Unfortunately, due to licensing issues, AMR-NB cannot be included as part of the official Asterisk distribution.&lt;/p&gt;
 </description>
         <pubDate>Mon, 18 Mar 2013 23:11:00 +0000</pubDate>
-        <link>//andrius.mobi/2013/03/asterisk-with-silk8-and-amr-nb-codecs.html</link>
-        <guid isPermaLink="true">//andrius.mobi/2013/03/asterisk-with-silk8-and-amr-nb-codecs.html</guid>
+        <link>//andrius.mobi/blog/2013/03/asterisk-with-silk8-and-amr-nb-codecs.html</link>
+        <guid isPermaLink="true">//andrius.mobi/blog/2013/03/asterisk-with-silk8-and-amr-nb-codecs.html</guid>
       </item>
     
       <item>
@@ -765,8 +765,8 @@ gem &lt;span class=&quot;nb&quot;&gt;install&lt;/span&gt; &lt;span class=&quot;n
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 </description>
         <pubDate>Thu, 14 Mar 2013 23:23:00 +0000</pubDate>
-        <link>//andrius.mobi/2013/03/debian-installer-asterisk-and-agi.html</link>
-        <guid isPermaLink="true">//andrius.mobi/2013/03/debian-installer-asterisk-and-agi.html</guid>
+        <link>//andrius.mobi/blog/2013/03/debian-installer-asterisk-and-agi.html</link>
+        <guid isPermaLink="true">//andrius.mobi/blog/2013/03/debian-installer-asterisk-and-agi.html</guid>
       </item>
     
       <item>
@@ -799,8 +799,8 @@ Standard flashing instructions apply: decompress the &lt;code class=&quot;langua
 &lt;p&gt;Additionally, I have initiated a side project for cross-compiling and building custom images, available at: &lt;a href=&quot;https://github.com/andrius/build-raspbian-image&quot;&gt;https://github.com/andrius/build-raspbian-image&lt;/a&gt;.&lt;/p&gt;
 </description>
         <pubDate>Tue, 12 Mar 2013 21:28:00 +0000</pubDate>
-        <link>//andrius.mobi/2013/03/roaming-solution-based-on-raspberry-pi-asterisk-chan_dongle.html</link>
-        <guid isPermaLink="true">//andrius.mobi/2013/03/roaming-solution-based-on-raspberry-pi-asterisk-chan_dongle.html</guid>
+        <link>//andrius.mobi/blog/2013/03/roaming-solution-based-on-raspberry-pi-asterisk-chan_dongle.html</link>
+        <guid isPermaLink="true">//andrius.mobi/blog/2013/03/roaming-solution-based-on-raspberry-pi-asterisk-chan_dongle.html</guid>
       </item>
     
       <item>
@@ -820,8 +820,8 @@ Standard flashing instructions apply: decompress the &lt;code class=&quot;langua
 &lt;p&gt;It is important to adhere to the “KISS principle” (Keep It Simple, Stupid). If a task can be accomplished effectively using only the dial plan, that is generally the recommended approach. However, if the dial plan would require extensive calls to external shell scripts or involves significantly complex logic, developing an AGI application is often a more robust and maintainable solution.&lt;/p&gt;
 </description>
         <pubDate>Tue, 12 Mar 2013 21:07:00 +0000</pubDate>
-        <link>//andrius.mobi/2013/03/why-create-agi.html</link>
-        <guid isPermaLink="true">//andrius.mobi/2013/03/why-create-agi.html</guid>
+        <link>//andrius.mobi/blog/2013/03/why-create-agi.html</link>
+        <guid isPermaLink="true">//andrius.mobi/blog/2013/03/why-create-agi.html</guid>
       </item>
     
       <item>
@@ -839,8 +839,8 @@ Standard flashing instructions apply: decompress the &lt;code class=&quot;langua
 &lt;p&gt;The system is quite straightforward, though I apologize for the minimal commenting in the original code.&lt;/p&gt;
 </description>
         <pubDate>Sun, 10 Mar 2013 12:23:00 +0000</pubDate>
-        <link>//andrius.mobi/2013/03/your-own-click-to-call-with-asterisk.html</link>
-        <guid isPermaLink="true">//andrius.mobi/2013/03/your-own-click-to-call-with-asterisk.html</guid>
+        <link>//andrius.mobi/blog/2013/03/your-own-click-to-call-with-asterisk.html</link>
+        <guid isPermaLink="true">//andrius.mobi/blog/2013/03/your-own-click-to-call-with-asterisk.html</guid>
       </item>
     
       <item>
@@ -947,8 +947,8 @@ mp3_embed();
 
 </description>
         <pubDate>Sat, 09 Mar 2013 21:12:00 +0000</pubDate>
-        <link>//andrius.mobi/2013/03/how-to-unlock-huawei-modem.html</link>
-        <guid isPermaLink="true">//andrius.mobi/2013/03/how-to-unlock-huawei-modem.html</guid>
+        <link>//andrius.mobi/blog/2013/03/how-to-unlock-huawei-modem.html</link>
+        <guid isPermaLink="true">//andrius.mobi/blog/2013/03/how-to-unlock-huawei-modem.html</guid>
       </item>
     
       <item>
@@ -1109,8 +1109,8 @@ asterisk &lt;span class=&quot;nt&quot;&gt;-rx&lt;/span&gt; &lt;span class=&quot;
 &lt;/ul&gt;
 </description>
         <pubDate>Tue, 05 Mar 2013 19:50:00 +0000</pubDate>
-        <link>//andrius.mobi/2013/03/asterisk-on-raspberry-pi-as-gsm-gateway.html</link>
-        <guid isPermaLink="true">//andrius.mobi/2013/03/asterisk-on-raspberry-pi-as-gsm-gateway.html</guid>
+        <link>//andrius.mobi/blog/2013/03/asterisk-on-raspberry-pi-as-gsm-gateway.html</link>
+        <guid isPermaLink="true">//andrius.mobi/blog/2013/03/asterisk-on-raspberry-pi-as-gsm-gateway.html</guid>
       </item>
     
       <item>
@@ -1273,8 +1273,8 @@ BusinessTimeMember Load (0.3ms)  SELECT &quot;business_time_members&quot;.* FROM
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 </description>
         <pubDate>Fri, 22 Feb 2013 22:54:00 +0000</pubDate>
-        <link>//andrius.mobi/2013/02/time-based-conditions-in-agi-application.html</link>
-        <guid isPermaLink="true">//andrius.mobi/2013/02/time-based-conditions-in-agi-application.html</guid>
+        <link>//andrius.mobi/blog/2013/02/time-based-conditions-in-agi-application.html</link>
+        <guid isPermaLink="true">//andrius.mobi/blog/2013/02/time-based-conditions-in-agi-application.html</guid>
       </item>
     
       <item>
@@ -1292,8 +1292,8 @@ find &lt;span class=&quot;nb&quot;&gt;.&lt;/span&gt; &lt;span class=&quot;nt&quo
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 </description>
         <pubDate>Fri, 22 Feb 2013 09:30:00 +0000</pubDate>
-        <link>//andrius.mobi/2013/02/delete-voice-recordings-older-than-n-days.html</link>
-        <guid isPermaLink="true">//andrius.mobi/2013/02/delete-voice-recordings-older-than-n-days.html</guid>
+        <link>//andrius.mobi/blog/2013/02/delete-voice-recordings-older-than-n-days.html</link>
+        <guid isPermaLink="true">//andrius.mobi/blog/2013/02/delete-voice-recordings-older-than-n-days.html</guid>
       </item>
     
       <item>
@@ -1620,8 +1620,8 @@ find &lt;span class=&quot;nb&quot;&gt;.&lt;/span&gt; &lt;span class=&quot;nt&quo
 &lt;p&gt;Good luck!&lt;/p&gt;
 </description>
         <pubDate>Tue, 12 Feb 2013 22:29:00 +0000</pubDate>
-        <link>//andrius.mobi/2013/02/questionnaire-with-asterisk-pbx-agi-ruby.html</link>
-        <guid isPermaLink="true">//andrius.mobi/2013/02/questionnaire-with-asterisk-pbx-agi-ruby.html</guid>
+        <link>//andrius.mobi/blog/2013/02/questionnaire-with-asterisk-pbx-agi-ruby.html</link>
+        <guid isPermaLink="true">//andrius.mobi/blog/2013/02/questionnaire-with-asterisk-pbx-agi-ruby.html</guid>
       </item>
     
       <item>
@@ -1673,8 +1673,8 @@ find &lt;span class=&quot;nb&quot;&gt;.&lt;/span&gt; &lt;span class=&quot;nt&quo
 &lt;p&gt;I have personally used this method for years and am currently developing a roaming PBX solution to automate various use cases.&lt;/p&gt;
 </description>
         <pubDate>Tue, 05 Feb 2013 22:00:00 +0000</pubDate>
-        <link>//andrius.mobi/2013/02/telephony-system-for-remote-locations.html</link>
-        <guid isPermaLink="true">//andrius.mobi/2013/02/telephony-system-for-remote-locations.html</guid>
+        <link>//andrius.mobi/blog/2013/02/telephony-system-for-remote-locations.html</link>
+        <guid isPermaLink="true">//andrius.mobi/blog/2013/02/telephony-system-for-remote-locations.html</guid>
       </item>
     
       <item>
@@ -1730,8 +1730,8 @@ checkresults
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 </description>
         <pubDate>Sat, 02 Feb 2013 20:29:00 +0000</pubDate>
-        <link>//andrius.mobi/2013/02/asterisk-agi-sample-in-bash.html</link>
-        <guid isPermaLink="true">//andrius.mobi/2013/02/asterisk-agi-sample-in-bash.html</guid>
+        <link>//andrius.mobi/blog/2013/02/asterisk-agi-sample-in-bash.html</link>
+        <guid isPermaLink="true">//andrius.mobi/blog/2013/02/asterisk-agi-sample-in-bash.html</guid>
       </item>
     
   </channel>
