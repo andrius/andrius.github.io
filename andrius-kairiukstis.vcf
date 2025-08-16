@@ -1,0 +1,15 @@
+BEGIN:VCARD
+VERSION:3.0
+N:Kairiukstis;Andrius;;;
+FN:Andrius Kairiukstis
+TITLE:VoIP/RTC & DevOps Engineer
+EMAIL;type=INTERNET;type=HOME;type=pref:k@andrius.mobi
+TEL;type=CELL;type=VOICE;type=pref:+34652299183
+TEL;type=FACETIME:+34652299183
+item1.URL;type=pref:https://andrius.mobi
+item1.X-ABLabel:Personal Website
+item2.IMPP;X-SERVICE-TYPE=Telegram:telegram:@andrius_kai
+item2.X-ABLabel:Telegram
+item3.IMPP;X-SERVICE-TYPE=WhatsApp:whatsapp:+34652299183
+item3.X-ABLabel:WhatsApp
+END:VCARD

@@ -4,23 +4,23 @@
     
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>Contact me &#8211; Andrius Kairiukstis's Blog</title>
+    <title>Contact me &#8211; Andrius Kairiukstis</title>
     <link rel="dns-prefetch" href="//fonts.googleapis.com">
     <link rel="dns-prefetch" href="//fonts.gstatic.com">
     <link rel="dns-prefetch" href="//maxcdn.bootstrapcdn.com">
     <link rel="dns-prefetch" href="//cdnjs.cloudflare.com">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="This blog explores the realm of real-time voice applications, covering topics such as Unified Communications, CTI, and call centers. It also discusses open-source VoIP solutions like Asterisk, Freeswitch, and Kamailio, highlighting their features and benefits. Additionally, the blog touches upon automations, integrations, test automation, and the scalability of containerized applications using Docker, along with DevOps practices.">
+    <meta name="description" content="Engineering Resilient Apps and Cloud Infrastructure">
     <link rel="manifest" type="application/manifest+json; charset=utf-8" href="/manifest.json" />
     <meta name="robots" content="all">
     <meta name="author" content="Andrius Kairiukstis">
     
     
     <link rel="canonical" href="//andrius.mobi/contact/">
-    <link rel="alternate" type="application/rss+xml" title="RSS Feed for Andrius Kairiukstis's Blog" href="/feed.xml" />
+    <link rel="alternate" type="application/rss+xml" title="RSS Feed for Andrius Kairiukstis" href="/feed.xml" />
 
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="/css/pixyll.css?202505142057" type="text/css">
+    <link rel="stylesheet" href="/css/pixyll.css?202508161835" type="text/css">
 
     <!-- Fonts -->
     
@@ -45,9 +45,9 @@
     <meta property="og:locale" content="en_US">
     <meta property="og:type" content="article">
     <meta property="og:title" content="Contact me">
-    <meta property="og:description" content="This blog explores the realm of real-time voice applications, covering topics such as Unified Communications, CTI, and call centers. It also discusses open-source VoIP solutions like Asterisk, Freeswitch, and Kamailio, highlighting their features and benefits. Additionally, the blog touches upon automations, integrations, test automation, and the scalability of containerized applications using Docker, along with DevOps practices.">
+    <meta property="og:description" content="Engineering Resilient Apps and Cloud Infrastructure">
     <meta property="og:url" content="//andrius.mobi/contact/">
-    <meta property="og:site_name" content="Andrius Kairiukstis&apos;s Blog">
+    <meta property="og:site_name" content="Andrius Kairiukstis">
     
     <meta property="og:image" content="//andrius.mobi/images/me.png">
     
@@ -59,7 +59,7 @@
         <meta name="twitter:creator" content="@andrius_kai" />
     
     <meta name="twitter:title" content="Contact me" />
-    <meta name="twitter:description" content="This blog explores the realm of real-time voice applications, covering topics such as Unified Communications, CTI, and call centers. It also discusses open-source VoIP solutions like Asterisk, Freeswitch, and Kamailio, highlighting their features and benefits. Additionally, the blog touches upon automations, integrations, test automation, and the scalability of containerized applications using Docker, along with DevOps practices." />
+    <meta name="twitter:description" content="Engineering Resilient Apps and Cloud Infrastructure" />
     <meta name="twitter:url" content="//andrius.mobi/contact/" />
     
     <meta name="twitter:image" content="//andrius.mobi/images/me.png" />
@@ -101,7 +101,7 @@
     <header class="site-header px2 px-responsive">
   <div class="mt2 wrap">
     <div class="measure">
-      <a href="/" class="site-title">Andrius Kairiukstis's Blog</a>
+      <a href="/" class="site-title">Andrius Kairiukstis</a>
       <nav class="site-nav">
         
 
@@ -165,7 +165,7 @@
   .contact-item {
     display: flex;
     align-items: center;
-    margin-bottom: 1rem;
+    margin-bottom: 0.5rem;
     padding: 0.25rem 0;
   }
 
@@ -174,34 +174,57 @@
     width: 1.5rem;
     text-align: center;
   }
+
+  .dynamic-capability {
+    opacity: 1;
+    transition: opacity 0.5s ease-in-out;
+  }
+
+  .dynamic-capability.fade {
+    opacity: 0;
+  }
 </style>
 
 <div class="py2">
   <div class="post-header">
-    <img src="/images/me.png" alt="Andrius Kairiukstis" class="avatar" />
+    <img
+      src="/images/me.png"
+      alt="Andrius Kairiukstis"
+      class="avatar"
+    />
   </div>
-  <p>
-    Hi, I'm Andrius Kairiukstis.
+
+  <p class="bold">
+    <span id="dynamic-capability" class="dynamic-capability">
+      Looking for an engineer who can integrate voice capabilities into your
+      platform?
+    </span>
   </p>
+
+  <p>Hi, I'm Andrius Kairiukstis.</p>
+  <p>DevOps Engineer. Voice Platform Architect. Team Player.</p>
+
   <p>
-    With years of experience as a software engineer,
-    I specialize in back-end and API development, focusing on enhancing business processes with efficient solutions.
+    I help companies scale their infrastructure through intelligent automation,
+    robust system design, and collaborative engineering. With experience leading
+    cross-functional teams and working across global remote networks, I bring
+    both technical depth and the communication skills to make complex projects
+    succeed.
   </p>
+
   <p>
-    My expertise includes creating robust voice platforms, managing large-scale distributed systems, and tackling performance bottlenecks.
-    I have a strong passion for integrating systems and developing streamlined workflows.
-    Currently, I am actively working with AI tools to deliver innovative solutions.
+    From orchestrating container clusters to building real-time voice platforms,
+    I deliver backend solutions that handle enterprise-scale traffic while
+    fostering team growth and knowledge transfer.
   </p>
+
   <p>
-    I'm here to help you tackle complex challenges and achieve project goals.
+    Available for projects involving DevOps transformation, infrastructure
+    automation, API/system integrations, voice platform architecture, and
+    technical team leadership
   </p>
-  <p>
-    Let's connect and discuss how I can contribute to your success!
-  </p>
-  <p></p>
-  <p>
-    Drop me a message through:
-  </p>
+
+  <p class="bold">Ready to scale? Let's talk.</p>
   <ul class="contact-list">
     <li class="contact-item">
       <span class="contact-icon fa-brands fa-telegram telegram-icon"></span>
@@ -209,18 +232,635 @@
     </li>
     <li class="contact-item">
       <span class="contact-icon fa-brands fa-brands fa-linkedin"></span>
-      <a href="https://www.linkedin.com/in/andrius-kairiukstis">linkedin</a>
+      <a href="https://www.linkedin.com/in/andrius-kairiukstis"
+        >linkedin</a
+      >
     </li>
     <li class="contact-item">
       <span class="contact-icon fa-solid fa-envelope"></span>
-      <a href="mailto:k@andrius.mobi">send email</a>
+      <a href="mailto:andrius.kairiukstis@gmail.com">send email</a>
     </li>
     <li class="contact-item">
       <span class="contact-icon fa-solid fa-address-card"></span>
-      <a href="/Andrius%20Kairiukstis.vcf">download my vCard</a>
+      <a href="/andrius-kairiukstis.vcf">download my vCard</a>
     </li>
   </ul>
+
+  <script>
+    // Load capabilities from Jekyll data
+    const capabilities = [
+      
+      "Want to build a cloud PBX that scales to millions of calls?",
+      
+      "Will help you migrate from Jenkins to GitHub Actions.",
+      
+      "Ready to integrate your phone system with Slack and Teams.",
+      
+      "Need someone to containerize your legacy applications?",
+      
+      "Looking to add WebRTC video calling to your application?",
+      
+      "Want to implement GitOps for your infrastructure?",
+      
+      "Will help you create self-healing systems with Kubernetes.",
+      
+      "Ready to build CI/CD pipelines that actually work.",
+      
+      "Need someone to migrate from legacy PBX to modern VoIP?",
+      
+      "Looking to automate your entire deployment pipeline?",
+      
+      "Want to build microservices that actually talk to each other.",
+      
+      "Will help you create REST APIs that scale to millions.",
+      
+      "Ready to integrate any system with any system :)",
+      
+      "Need someone to migrate monoliths to microservices?",
+      
+      "Looking to implement message queues properly?",
+      
+      "Want to automate your entire QA process?",
+      
+      "Will help you implement BDD with Gherkin!",
+      
+      "Ready to build load testing frameworks.",
+      
+      "Need someone to lead your remote engineering team?",
+      
+      "Looking to transform your development culture!",
+      
+      "Want to migrate to AWS, GCP, or Azure properly?",
+      
+      "Will help you implement auto-scaling that works.",
+      
+      "Ready to create disaster recovery systems.",
+      
+      "Need someone to optimize PostgreSQL for scale?",
+      
+      "Looking to implement Redis caching properly.",
+      
+      "Want to connect Zendesk with everything?..",
+      
+      "Will help you integrate Salesforce with your systems.",
+      
+      "Ready to automate your business workflows.",
+      
+      "Need someone to implement GitOps with ArgoCD.",
+      
+      "Looking to create Kubernetes operators?",
+      
+      "Want to turn your spreadsheet into an API?",
+      
+      "Will help you deploy code with your voice!",
+      
+      "Ready to automate what others say can't be automated!",
+      
+      "Need someone to connect the unconnectable?",
+      
+      "Looking to scale the unscalable?",
+      
+      "Want to integrate legacy systems with bleeding edge tech!",
+      
+      "Will help you build the impossible and ship it tomorrow!",
+      
+      "Ready to create order from chaos!",
+      
+      "Need someone to make systems that manage themselves?",
+      
+      "Looking to solve problems before they happen!",
+      
+      "Want to create an AI-powered IVR system?",
+      
+      "Will help you connect Asterisk with your CRM.",
+      
+      "Ready to deploy FreeSWITCH in Kubernetes?",
+      
+      "Need someone to build a global voice network with Kamailio?",
+      
+      "Looking to add click-to-call to your website?",
+      
+      "Want to route calls intelligently based on data?",
+      
+      "Will help you record and transcribe calls automatically!",
+      
+      "Ready to build a contact center from scratch!",
+      
+      "Need someone to integrate Twilio with your backend?",
+      
+      "Looking to create WebRTC peer-to-peer connections?",
+      
+      "Want to scale your voice infrastructure globally?",
+      
+      "Will help you migrate from GitLab CI to GitHub Actions.",
+      
+      "Ready to create infrastructure as code!",
+      
+      "Need someone to implement continuous deployment safely?",
+      
+      "Looking to monitor everything with Prometheus?",
+      
+      "Want to build event-driven architectures?",
+      
+      "Will help you create webhook systems that don't fail!",
+      
+      "Ready to build APIs in Ruby, Go, or Python?",
+      
+      "Need someone to implement GraphQL endpoints?",
+      
+      "Looking to create real-time data pipelines?",
+      
+      "Want to build Crystal-lang applications?",
+      
+      "Will help you integrate payment gateways securely?",
+      
+      "Ready to implement OAuth without the pain?",
+      
+      "Need someone to create multi-tenant SaaS backends?",
+      
+      "Looking to build async job processing systems?",
+      
+      "Want to create end-to-end test automation?",
+      
+      "Will help you automate regression testing!",
+      
+      "Ready to implement continuous testing!",
+      
+      "Need someone to create API testing pipelines?",
+      
+      "Looking to automate voice application testing?",
+      
+      "Want to build test data management systems?",
+      
+      "Will help you implement performance testing!",
+      
+      "Ready to create synthetic monitoring?",
+      
+      "Need someone to automate security testing?",
+      
+      "Looking to build visual regression testing?",
+      
+      "Want to implement chaos engineering?",
+      
+      "Will help you create test automation frameworks!",
+      
+      "Ready to implement Agile that actually works?",
+      
+      "Need someone to build high-performing tech teams?",
+      
+      "Looking to create technical roadmaps that deliver?",
+      
+      "Want to mentor your development team?",
+      
+      "Will help you implement SCRUM without the nonsense!",
+      
+      "Ready to lead digital transformation projects.",
+      
+      "Need someone to build engineering excellence?",
+      
+      "Looking to create technical documentation that helps?",
+      
+      "Will help you scale your engineering organization?",
+      
+      "Ready to improve your team's velocity.",
+      
+      "Need someone to implement code review best practices.",
+      
+      "Looking to build a DevOps culture.",
+      
+      "Want to build multi-region architectures.",
+      
+      "Will help you implement zero-downtime deployments.",
+      
+      "Ready to create hybrid cloud solutions.",
+      
+      "Need someone to implement service mesh with Istio.",
+      
+      "Looking to build serverless architectures.",
+      
+      "Want to create event-driven systems.",
+      
+      "Will help you implement cloud cost optimization.",
+      
+      "Ready to build container orchestration platforms.",
+      
+      "Need someone to create immutable infrastructure.",
+      
+      "Looking to implement secrets management.",
+      
+      "Want to build compliance-ready infrastructure.",
+      
+      "Will help you create multi-cloud strategies.",
+      
+      "Ready to migrate databases without downtime.",
+      
+      "Need someone to create data replication strategies.",
+      
+      "Looking to implement MongoDB clusters.",
+      
+      "Want to build real-time data synchronization.",
+      
+      "Will help you create database backup strategies.",
+      
+      "Ready to implement sharding and partitioning.",
+      
+      "Need someone to optimize MySQL performance.",
+      
+      "Looking to build data warehouses.",
+      
+      "Want to implement event sourcing.",
+      
+      "Will help you create CQRS architectures.",
+      
+      "Ready to build time-series databases.",
+      
+      "Need someone to implement database monitoring.",
+      
+      "Looking to create data migration pipelines.",
+      
+      "Want to create Zapier-like integrations.",
+      
+      "Will help you build custom Slack applications.",
+      
+      "Ready to integrate with Microsoft Teams.",
+      
+      "Need someone to create Discord bots for business.",
+      
+      "Looking to automate customer onboarding.",
+      
+      "Want to build billing system integrations.",
+      
+      "Will help you create unified dashboards.",
+      
+      "Ready to implement SSO across platforms.",
+      
+      "Need someone to build notification systems.",
+      
+      "Looking to create audit trail systems.",
+      
+      "Want to implement webhook orchestration.",
+      
+      "Will help you automate compliance reporting.",
+      
+      "Ready to build with Ansible automation.",
+      
+      "Need someone to implement Packer golden images.",
+      
+      "Looking to create Vagrant development environments.",
+      
+      "Want to build with Ruby on Rails at scale.",
+      
+      "Will help you implement Go microservices.",
+      
+      "Ready to create Python automation scripts.",
+      
+      "Need someone to build reactive systems.",
+      
+      "Looking to implement edge computing.",
+      
+      "Want to create IoT integrations.",
+      
+      "Will help you build blockchain integrations.",
+      
+      "Ready to implement machine learning pipelines.",
+      
+      "Need someone to create observability platforms.",
+      
+      "Looking to build platform engineering solutions.",
+      
+      "Want to make your coffee machine call you.",
+      
+      "Will help you create self-documenting systems.",
+      
+      "Ready to build things that shouldn't exist.",
+      
+      "Need someone to make computers talk to humans.",
+      
+      "Looking to turn your ideas into running code.",
+      
+      "Want to orchestrate containers with Docker Swarm.",
+      
+      "Will help you implement blue-green deployments.",
+      
+      "Ready to automate your testing with GitHub Actions.",
+      
+      "Need someone to deploy serverless functions at scale.",
+      
+      "Looking to automate your infrastructure with Terraform.",
+      
+      "Want to transform legacy telephony into cloud solutions.",
+      
+      "Will help you build voice bots that understand context.",
+      
+      "Ready to integrate communication channels seamlessly.",
+      
+      "Need someone to architect scalable call routing systems.",
+      
+      "Looking to implement voice quality monitoring.",
+      
+      "Want to create custom telephony applications.",
+      
+      "Will help you build SMS gateway integrations.",
+      
+      "Ready to implement number portability solutions.",
+      
+      "Need someone to create voice analytics platforms.",
+      
+      "Looking to build conference calling systems.",
+      
+      "Want to implement call center queue management.",
+      
+      "Will help you create voice mail systems.",
+      
+      "Ready to build auto-dialer platforms.",
+      
+      "Need someone to implement call recording compliance.",
+      
+      "Looking to create voice broadcasting systems.",
+      
+      "Want to build predictive dialing solutions.",
+      
+      "Will help you implement voice biometrics.",
+      
+      "Ready to create interactive voice menus.",
+      
+      "Need someone to build call tracking systems.",
+      
+      "Looking to implement toll-free routing.",
+      
+      "Want to create customer callback systems.",
+      
+      "Will help you build voice notification platforms.",
+      
+      "Ready to implement call forwarding logic.",
+      
+      "Need someone to create voice survey systems.",
+      
+      "Looking to build appointment reminder systems.",
+      
+      "Want to implement emergency notification systems.",
+      
+      "Will help you create voice verification systems.",
+      
+      "Ready to build multi-language IVR systems.",
+      
+      "Need someone to implement voice-to-text pipelines.",
+      
+      "Looking to create text-to-speech integrations.",
+      
+      "Want to build custom DevOps dashboards.",
+      
+      "Will help you implement infrastructure monitoring.",
+      
+      "Ready to create deployment automation scripts.",
+      
+      "Need someone to build rollback mechanisms.",
+      
+      "Looking to implement feature flag systems.",
+      
+      "Want to create canary deployment strategies.",
+      
+      "Will help you build configuration management systems.",
+      
+      "Ready to implement log aggregation platforms.",
+      
+      "Need someone to create metrics collection systems.",
+      
+      "Looking to build alerting and paging systems.",
+      
+      "Want to implement incident response automation.",
+      
+      "Will help you create disaster recovery plans.",
+      
+      "Ready to build backup automation systems.",
+      
+      "Need someone to implement compliance automation.",
+      
+      "Looking to create security scanning pipelines.",
+      
+      "Want to build vulnerability assessment tools.",
+      
+      "Will help you implement dependency management.",
+      
+      "Ready to create artifact management systems.",
+      
+      "Need someone to build release management platforms.",
+      
+      "Looking to implement environment provisioning.",
+      
+      "Want to create developer productivity tools.",
+      
+      "Will help you build internal developer platforms.",
+      
+      "Ready to implement service catalogs.",
+      
+      "Need someone to create API gateways.",
+      
+      "Looking to build rate limiting systems.",
+      
+      "Want to implement circuit breakers properly.",
+      
+      "Will help you create retry mechanisms.",
+      
+      "Ready to build distributed tracing systems.",
+      
+      "Need someone to implement service discovery.",
+      
+      "Looking to create load balancing strategies.",
+      
+      "Want to build health check systems.",
+      
+      "Will help you implement graceful shutdowns.",
+      
+      "Ready to create batch processing systems.",
+      
+      "Need someone to build stream processing platforms.",
+      
+      "Looking to implement data validation pipelines.",
+      
+      "Want to create ETL processes that scale.",
+      
+      "Will help you build data transformation systems.",
+      
+      "Ready to implement data quality monitoring.",
+      
+      "Need someone to create data governance frameworks.",
+      
+      "Looking to build master data management systems.",
+      
+      "Want to implement data cataloging solutions.",
+      
+      "Will help you create data lineage tracking.",
+      
+      "Ready to build data archival strategies.",
+      
+      "Need someone to implement data retention policies.",
+      
+      "Looking to create data anonymization systems.",
+      
+      "Want to build GDPR compliance automation.",
+      
+      "Will help you implement audit logging systems.",
+      
+      "Ready to create access control mechanisms.",
+      
+      "Need someone to build identity management systems.",
+      
+      "Looking to implement role-based permissions.",
+      
+      "Want to create API authentication systems.",
+      
+      "Will help you build token management platforms.",
+      
+      "Ready to implement session management.",
+      
+      "Need someone to create password reset flows.",
+      
+      "Looking to build two-factor authentication.",
+      
+      "Want to implement passwordless authentication.",
+      
+      "Will help you create JWT token systems.",
+      
+      "Ready to build API versioning strategies.",
+      
+      "Need someone to implement API documentation.",
+      
+      "Looking to create API mocking systems.",
+      
+      "Want to build API testing harnesses.",
+      
+      "Will help you implement API monitoring.",
+      
+      "Ready to create API analytics platforms.",
+      
+      "Need someone to build API marketplaces.",
+      
+      "Looking to implement API monetization.",
+      
+      "Want to create developer portals.",
+      
+      "Will help you build SDK generation tools.",
+      
+      "Ready to implement client libraries.",
+      
+      "Need someone to create API design systems.",
+      
+      "Looking to build OpenAPI specifications.",
+      
+      "Want to implement API governance.",
+      
+      "Will help you create API lifecycle management.",
+      
+      "Ready to build integration testing frameworks.",
+      
+      "Need someone to implement contract testing.",
+      
+      "Looking to create mutation testing systems.",
+      
+      "Want to build property-based testing.",
+      
+      "Will help you implement fuzz testing.",
+      
+      "Ready to create smoke testing suites.",
+      
+      "Need someone to build sanity testing systems.",
+      
+      "Looking to implement acceptance testing.",
+      
+      "Want to create usability testing platforms.",
+      
+      "Will help you build accessibility testing.",
+      
+      "Ready to implement compatibility testing.",
+      
+      "Need someone to create localization testing.",
+      
+      "Looking to build penetration testing automation.",
+      
+      "Want to implement compliance testing frameworks.",
+      
+      "Will help you create disaster recovery testing.",
+      
+      "Ready to build capacity planning systems.",
+      
+      "Need someone to implement resource optimization.",
+      
+      "Looking to create cost allocation platforms.",
+      
+      "Want to build usage tracking systems.",
+      
+      "Will help you implement billing automation.",
+      
+      "Ready to create subscription management.",
+      
+      "Need someone to build payment processing.",
+      
+      "Looking to implement invoice generation.",
+      
+      "Want to create revenue recognition systems.",
+      
+      "Will help you build financial reporting.",
+      
+      "Ready to implement budget tracking.",
+      
+      "Need someone to create expense management.",
+      
+      "Looking to build procurement automation.",
+      
+      "Want to implement vendor management.",
+      
+      "Will help you create contract management.",
+      
+      "Ready to build SLA monitoring systems.",
+      
+      "Need someone to implement KPI tracking.",
+      
+      "Looking to create performance dashboards.",
+      
+      "Want to build executive reporting systems.",
+      
+      "Will help you implement business intelligence.",
+      
+      "Ready to create data visualization platforms.",
+      
+      "Need someone to build real-time analytics.",
+      
+      "Looking to implement predictive analytics.",
+      
+      "Want to create anomaly detection systems."
+      
+    ];
+
+    let currentIndex = 0;
+
+    function rotateCapability() {
+      const element = document.getElementById('dynamic-capability');
+      if (!element) return;
+
+      // Fade out
+      element.classList.add('fade');
+
+      setTimeout(() => {
+        // Change text
+        currentIndex = (currentIndex + 1) % capabilities.length;
+        element.textContent = capabilities[currentIndex];
+
+        // Fade in
+        element.classList.remove('fade');
+      }, 250); // Half of transition duration
+    }
+
+    // Start rotation after page load
+    document.addEventListener('DOMContentLoaded', function() {
+      // Start rotating after 3 seconds, then every 4 seconds
+      setTimeout(() => {
+        setInterval(rotateCapability, 4000);
+      }, 3000);
+    });
+  </script>
 </div>
+
 
   </article>
 </div>

@@ -1,7 +1,7 @@
 {
-  "short_name": "Andrius Kairiukstis's Blog",
-  "name": "Andrius Kairiukstis's Blog",
-  "description": "This blog explores the realm of real-time voice applications, covering topics such as Unified Communications, CTI, and call centers. It also discusses open-source VoIP solutions like Asterisk, Freeswitch, and Kamailio, highlighting their features and benefits. Additionally, the blog touches upon automations, integrations, test automation, and the scalability of containerized applications using Docker, along with DevOps practices.",
+  "short_name": "Andrius Kairiukstis",
+  "name": "Andrius Kairiukstis",
+  "description": "Engineering Resilient Apps and Cloud Infrastructure",
   "icons": [
     {
       "src": "/splash-512x512.png",
